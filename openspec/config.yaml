@@ -58,6 +58,13 @@ context: |
       efectivo" — feature explícitamente fuera de alcance.
     - Commits en español, estilo conventional commits (feat:, fix:, docs:, etc.).
 
+  Sistema de diseño UI (paleta, tipografía, layout responsivo con 3 breakpoints
+  —mobile <768px, tablet 768-1023px, desktop ≥1024px—, componente de "carta de
+  predicción" con flip, patrones por módulo, estados vacíos/error, movimiento y
+  accesibilidad): doc/design-system.md. Toda pantalla nueva debe seguir esos
+  tokens y patrones — no introducir estilos/paletas ad-hoc por fuera de ese
+  documento sin actualizarlo primero.
+
   Fuente de verdad de requerimientos funcionales: doc/requrimientov1.md
 
 # Per-artifact rules (optional)
