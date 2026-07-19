@@ -14,7 +14,7 @@
 - [ ] 2.6 Migración: tabla `platform_admins` (user_id con permiso de administración del catálogo NFL)
 - [ ] 2.7 Migración: tabla `teams` (32 equipos NFL) + seed de datos
 - [ ] 2.8 Migración: tabla `weeks` (tipo `pretemporada`/`regular`/`playoffs`, número, orden cronológico) + seed de temporada
-- [ ] 2.9 Migración: tabla `games` (week_id, equipo local, equipo visitante)
+- [ ] 2.9 Migración: tabla `games` (week_id, equipo local, equipo visitante, `kickoff_at`)
 - [ ] 2.10 Migración: columnas de resultado en `games` (ganador/empate, `home_score`, `away_score` nullable)
 
 ## 3. Row Level Security

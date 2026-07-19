@@ -111,3 +111,8 @@ Open Questions — puede resolverse con un claim en Supabase Auth o tabla
 - **¿Se guarda marcador exacto en `games`?** Sí, desde este change: columnas
   `home_score`/`away_score` nullable, para que el módulo de Playoffs (diferencia
   de puntos) no requiera migrar el catálogo compartido más adelante.
+- **¿Cómo se determina si un partido ya inició (para bloquear predicciones)?**
+  `games` incluye `kickoff_at` (timestamp). Los tres módulos de juego (Quiniela
+  Semanal, Survivor, Playoffs) usan esta misma columna para bloquear/permitir
+  la edición de una predicción, en vez de que cada módulo defina su propia
+  noción de "cierre".

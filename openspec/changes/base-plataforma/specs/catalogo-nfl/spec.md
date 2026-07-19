@@ -19,11 +19,15 @@ El sistema SHALL modelar semanas de temporada con un tipo (pretemporada, regular
 - **THEN** el sistema permite determinarlo consultando si existe una semana de tipo playoffs marcada como vigente/iniciada
 
 ### Requirement: Catálogo de partidos por semana
-El sistema SHALL registrar los partidos de cada semana, cada uno con equipo local, equipo visitante y la semana a la que pertenece.
+El sistema SHALL registrar los partidos de cada semana, cada uno con equipo local, equipo visitante, la semana a la que pertenece y su fecha/hora de inicio (kickoff).
 
 #### Scenario: Consultar partidos de una semana
 - **WHEN** un usuario autenticado solicita los partidos de una semana específica
-- **THEN** el sistema retorna todos los partidos de esa semana con sus equipos local y visitante
+- **THEN** el sistema retorna todos los partidos de esa semana con sus equipos local y visitante, y su fecha/hora de inicio
+
+#### Scenario: Determinar si un partido ya inició
+- **WHEN** cualquier módulo de predicciones necesita saber si un partido ya arrancó (para bloquear cambios de predicción)
+- **THEN** el sistema permite determinarlo comparando la hora actual contra la fecha/hora de inicio del partido
 
 ### Requirement: Catálogo de solo lectura para usuarios sin rol de administrador
 Cualquier usuario autenticado SHALL poder leer equipos, semanas y partidos. El sistema SHALL NOT permitir que un usuario sin permiso de administrador de plataforma los cree, edite o elimine.
