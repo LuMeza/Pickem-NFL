@@ -12,8 +12,8 @@ context: |
   Tech stack:
     - Backend/DB/Auth: Supabase (Postgres, Supabase Auth, Row Level Security,
       Edge Functions cuando se necesite lógica de servidor).
-    - Frontend: React (aplicación web responsiva, prioridad mobile-first ya que la
-      mayoría de usuarios entrarán desde celular).
+    - Frontend: React + TypeScript (aplicación web responsiva, prioridad mobile-first
+      ya que la mayoría de usuarios entrarán desde celular).
     - Autenticación: NO hay registro público (self sign-up). Existe un único
       administrador de plataforma que da de alta a cada usuario manualmente con una
       contraseña provisional (entregada fuera de la plataforma, ej. WhatsApp — no se
@@ -64,6 +64,16 @@ context: |
   accesibilidad): doc/design-system.md. Toda pantalla nueva debe seguir esos
   tokens y patrones — no introducir estilos/paletas ad-hoc por fuera de ese
   documento sin actualizarlo primero.
+
+  Arquitectura de frontend (3 capas, ver `arquitectura-frontend`): `core`
+  (entidades, reglas de dominio y casos de uso, sin dependencias de Supabase ni
+  de React) / `infrastructure` (adapters que implementan los ports de `core`
+  usando supabase-js — único lugar que importa el cliente de Supabase) /
+  `presentation` (componentes y pantallas de React, consumen casos de uso vía
+  hooks). Reglas de negocio compartidas entre módulos (bloqueo de predicción por
+  `kickoff_at`, resolución de empates sin desempate, clasificación de resultado
+  de Playoffs) viven una sola vez en `core/rules`, con tests unitarios. RLS sigue
+  siendo la última línea de defensa — las capas de la app no la reemplazan.
 
   Fuente de verdad de requerimientos funcionales: doc/requrimientov1.md
 

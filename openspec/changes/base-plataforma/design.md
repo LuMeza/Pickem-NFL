@@ -42,12 +42,19 @@ datos y el modelo de permisos que todo lo demás va a usar) y con dependencias n
 ## Decisions
 
 **1. Supabase como backend único (Postgres + Auth + RLS)**
-En vez de un backend custom, se usa Supabase directamente desde el cliente React con
-Row Level Security como capa de autorización. Alternativa considerada: API propia en
-Node — se descarta por velocidad de desarrollo dado el tamaño del equipo (proyecto
-personal/grupos privados, no requiere lógica de servidor compleja al inicio).
-Edge Functions se reservan para lo que RLS no pueda expresar (ej. cálculo de
-rankings en changes futuros).
+En vez de un backend custom, se usa Supabase como backend (Postgres + Auth + RLS),
+con Row Level Security como capa de autorización de última instancia. Alternativa
+considerada: API propia en Node — se descarta por velocidad de desarrollo dado el
+tamaño del equipo (proyecto personal/grupos privados, no requiere lógica de
+servidor compleja al inicio). Edge Functions se reservan para lo que RLS no
+pueda expresar (ej. alta de usuario vía Supabase Admin API, cálculo de rankings
+en changes futuros).
+**Actualizado por `arquitectura-frontend`:** el acceso a Supabase desde el
+cliente React no se hace directamente desde los componentes, sino a través de la
+arquitectura de 3 capas (`core`/`infrastructure`/`presentation`) definida en ese
+change — `infrastructure` es la única capa que importa `supabase-js`. Esta
+decisión sigue vigente en cuanto a "Supabase como backend", pero la forma de
+consumirlo desde el frontend se rige por `arquitectura-frontend`.
 
 **2. Un único rol administrativo, global: tabla `platform_admins`**
 No existe rol "owner" por grupo. `platform_admins` es una lista de `user_id` con

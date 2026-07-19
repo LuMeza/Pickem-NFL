@@ -1,7 +1,12 @@
 ## 1. Setup de proyecto
 
+> Nota: las tareas de pantallas/flujos de este change se implementan siguiendo la
+> arquitectura de 3 capas de `arquitectura-frontend` (core/infrastructure/
+> presentation) — ese change debe implementarse primero o en paralelo al setup
+> inicial (sección 1) de este mismo change.
+
 - [ ] 1.1 Crear proyecto en Supabase (Postgres + Auth) y guardar credenciales en `.env` (no versionado)
-- [ ] 1.2 Inicializar app React (estructura de carpetas, router, cliente de Supabase configurado)
+- [ ] 1.2 Inicializar app React + TypeScript (estructura de carpetas de `arquitectura-frontend`, router, cliente de Supabase configurado dentro de `infrastructure`)
 - [ ] 1.3 Configurar carpeta `supabase/migrations` versionada en el repo para el esquema SQL
 - [ ] 1.4 Dar de alta manualmente al primer administrador en `platform_admins` (bootstrap inicial, fuera de la UI)
 
