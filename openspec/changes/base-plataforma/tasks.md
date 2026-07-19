@@ -21,7 +21,7 @@
 - [ ] 2.7 Migración: tabla `teams` (32 equipos NFL) + seed de datos
 - [ ] 2.8 Migración: tabla `weeks` (tipo `pretemporada`/`regular`/`playoffs`, número, orden cronológico) + seed de temporada
 - [ ] 2.9 Migración: tabla `games` (week_id, equipo local, equipo visitante, `kickoff_at`)
-- [ ] 2.10 Migración: columnas de resultado en `games` (ganador/empate, `home_score`, `away_score` nullable)
+- [ ] 2.10 Migración: columnas de resultado en `games` (ganador/empate, `home_score`, `away_score` nullable, `result_source` `manual`/`auto_sync` nullable)
 
 ## 3. Row Level Security
 
@@ -61,7 +61,7 @@
 ## 7. Carga de resultados (`carga-resultados`)
 
 - [ ] 7.1 Panel admin: formulario para registrar ganador/empate y marcador exacto de un partido
-- [ ] 7.2 Panel admin: edición de un resultado ya cargado
+- [ ] 7.2 Panel admin: edición de un resultado ya cargado (marca `result_source = 'manual'`)
 - [ ] 7.3 Restringir acceso al panel admin a usuarios en `platform_admins`
 - [ ] 7.4 Vista de resultados de solo lectura para usuarios regulares (incluye caso "aún sin resultado")
 

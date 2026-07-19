@@ -165,3 +165,11 @@ los grupos, es el catálogo NFL); su escritura también se restringe a
   Semanal, Survivor, Playoffs) usan esta misma columna para bloquear/permitir
   la edición de una predicción, en vez de que cada módulo defina su propia
   noción de "cierre".
+- **¿Cómo se distingue un resultado cargado a mano de uno traído por una
+  futura sincronización automática?** `games` incluye `result_source`
+  (`manual | auto_sync`, nullable mientras no haya resultado). Una
+  sincronización automática (ver change `integracion-resultados-espn`) solo
+  puede escribir si `result_source` es nulo o `auto_sync`; nunca si es
+  `manual`. Esta columna se agrega ahora, en `base-plataforma`, porque es
+  parte del modelo de datos compartido de `games`, aunque la sincronización
+  en sí se implemente en un change aparte.

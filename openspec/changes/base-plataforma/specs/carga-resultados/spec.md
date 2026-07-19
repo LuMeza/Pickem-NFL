@@ -32,6 +32,17 @@ El sistema SHALL restringir la carga y edición de resultados oficiales exclusiv
 - **WHEN** un usuario autenticado que no es administrador de plataforma intenta registrar o editar un resultado
 - **THEN** el sistema rechaza la operación
 
+### Requirement: Origen del resultado y precedencia de la carga manual
+El sistema SHALL registrar si el resultado de un partido fue cargado manualmente por un administrador o por una sincronización automática con una fuente externa. Un resultado marcado como cargado o corregido manualmente SHALL tener precedencia permanente: ninguna sincronización automática SHALL sobrescribirlo.
+
+#### Scenario: Sincronización automática no sobrescribe una carga manual
+- **WHEN** una sincronización automática intenta actualizar el resultado de un partido cuyo resultado ya fue cargado o corregido manualmente por un administrador
+- **THEN** el sistema conserva el valor cargado manualmente y no lo modifica
+
+#### Scenario: Carga manual siempre permitida
+- **WHEN** un administrador de plataforma edita el resultado de un partido, sin importar si el valor actual vino de una sincronización automática o de otra carga manual previa
+- **THEN** el sistema actualiza el resultado y lo marca como cargado manualmente
+
 ### Requirement: Lectura de resultados por cualquier usuario autenticado
 Cualquier usuario autenticado SHALL poder consultar los resultados oficiales cargados, para que los módulos de juego puedan calcular aciertos.
 
