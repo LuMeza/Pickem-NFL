@@ -19,7 +19,7 @@
 - [ ] 3.2 Vista/consulta SQL de tabla acumulada de temporada
 - [ ] 3.3 Pantalla de tabla semanal
 - [ ] 3.4 Pantalla de tabla acumulada de temporada
-- [ ] 3.5 Control de visibilidad de tablas para usuarios sin acceso aprobado, según configuración del admin del grupo
+- [ ] 3.5 Control de visibilidad de tablas para usuarios sin acceso aprobado, según configuración del administrador de plataforma
 - [ ] 3.6 Lógica de determinación de ganador(es) de temporada (incluye caso de empate en primer lugar, sin desempate)
 - [ ] 3.7 Pantalla/indicador de resultado final una vez que playoffs inició
 

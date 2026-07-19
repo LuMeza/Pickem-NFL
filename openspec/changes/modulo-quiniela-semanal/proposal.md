@@ -16,7 +16,7 @@ implementada antes de construir este módulo.
 - Cálculo automático de aciertos por usuario y por semana, apenas el resultado
   oficial de un partido está disponible.
 - Tabla de posiciones semanal (aciertos de la semana) y tabla de posiciones
-  acumulada de temporada, visibles según lo que el admin del grupo permita ver a
+  acumulada de temporada, visibles según lo que el administrador de plataforma permita ver a
   usuarios sin acceso aprobado.
 - Cierre automático del módulo en cuanto arranca la ronda de playoffs: deja de
   generarse predicción para semanas nuevas; la tabla acumulada queda congelada

@@ -14,11 +14,28 @@ context: |
       Edge Functions cuando se necesite lógica de servidor).
     - Frontend: React (aplicación web responsiva, prioridad mobile-first ya que la
       mayoría de usuarios entrarán desde celular).
-    - Autenticación: login simple vía Supabase Auth (correo o proveedores OAuth como
-      Google/Apple).
+    - Autenticación: NO hay registro público (self sign-up). Existe un único
+      administrador de plataforma que da de alta a cada usuario manualmente con una
+      contraseña provisional (entregada fuera de la plataforma, ej. WhatsApp — no se
+      envían correos desde el sistema). El usuario debe cambiar esa contraseña
+      obligatoriamente en su primer inicio de sesión antes de poder usar el resto de
+      la app.
 
-  Dominio — 3 módulos de juego, todos organizados por "grupos privados":
-    1. Quiniela Semanal (opcional, opt-in con aprobación del admin del grupo):
+  Modelo de administración: existe un solo administrador de plataforma (no hay
+  "owner" por grupo ni administradores delegados). Ese administrador es quien:
+    - da de alta usuarios (con contraseña provisional),
+    - crea los grupos privados y genera su link/código de invitación (los usuarios
+      ya dados de alta se unen ellos mismos con ese link/código, sin necesidad de
+      correo),
+    - administra miembros de cualquier grupo,
+    - aprueba/rechaza solicitudes de acceso a módulos opcionales (Quiniela Semanal),
+    - carga y corrige los resultados oficiales del catálogo NFL.
+  Roles a nivel de datos: solo `admin` (uno) y `member`. No existe rol de owner de
+  grupo distinto del admin.
+
+  Dominio — 3 módulos de juego (son los únicos 3 tipos de quiniela/apuesta del
+  producto, no se contempla agregar más), todos organizados por "grupos privados":
+    1. Quiniela Semanal (opcional, opt-in con aprobación del administrador):
        predicción de ganador (incluye empate) por partido, desde pretemporada hasta
        el arranque de playoffs. Un solo ganador (o empate repartido) por temporada.
     2. Survivor: un equipo por semana sin repetir en la temporada, 2 vidas extra
@@ -28,11 +45,12 @@ context: |
        partido), reemplaza a la Quiniela Semanal en cuanto arrancan playoffs,
        3 lugares premiados por grupo.
 
-  Funcionalidades transversales: grupos privados (creación/invitación por
-  link o código, administración de miembros), perfil de usuario con
+  Funcionalidades transversales: grupos privados (creación por el administrador,
+  invitación por link o código para que el usuario ya dado de alta se una,
+  administración de miembros por el administrador), perfil de usuario con
   historial/estadísticas, notificaciones opcionales de recordatorio, carga de
-  resultados de partidos (manual por admin y/o integración con API deportiva
-  a futuro).
+  resultados de partidos (manual por el administrador y/o integración con API
+  deportiva a futuro). No hay envío de correos desde la plataforma en esta fase.
 
   Convenciones:
     - Idioma del producto (UI, specs, nombres de dominio): español.

@@ -21,15 +21,15 @@ El sistema SHALL mostrar una tabla de posiciones acumulada con el total de acier
 - **WHEN** un usuario con acceso aprobado consulta la tabla acumulada de la quiniela semanal
 - **THEN** el sistema muestra a cada participante con su total de aciertos acumulados, ordenados de mayor a menor
 
-### Requirement: Visibilidad de tablas según lo definido por el admin del grupo
-El sistema SHALL restringir la visibilidad de las tablas de posiciones a los usuarios con acceso aprobado, salvo que el admin del grupo habilite explícitamente su visibilidad para usuarios sin acceso aprobado.
+### Requirement: Visibilidad de tablas según lo definido por el administrador de plataforma
+El sistema SHALL restringir la visibilidad de las tablas de posiciones a los usuarios con acceso aprobado, salvo que el administrador de plataforma habilite explícitamente su visibilidad para usuarios sin acceso aprobado.
 
 #### Scenario: Usuario sin acceso y sin permiso de visibilidad
-- **WHEN** un miembro del grupo sin acceso aprobado y sin permiso de visibilidad habilitado por el admin intenta consultar la tabla de posiciones
+- **WHEN** un miembro del grupo sin acceso aprobado y sin permiso de visibilidad habilitado por el administrador intenta consultar la tabla de posiciones
 - **THEN** el sistema no muestra la tabla
 
 #### Scenario: Usuario sin acceso pero con visibilidad habilitada
-- **WHEN** un miembro del grupo sin acceso aprobado consulta la tabla de posiciones y el admin habilitó la visibilidad para usuarios sin acceso
+- **WHEN** un miembro del grupo sin acceso aprobado consulta la tabla de posiciones y el administrador habilitó la visibilidad para usuarios sin acceso
 - **THEN** el sistema muestra la tabla de posiciones en modo solo lectura
 
 ### Requirement: Cierre automático al iniciar playoffs
