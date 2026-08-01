@@ -4,6 +4,7 @@ import type { ModuleAccessRepository } from './ModuleAccessRepository'
 import type { WeeklyAccessRepository } from './WeeklyAccessRepository'
 import type { WeeklyPickRepository } from './WeeklyPickRepository'
 import type { PickemStandingsRepository } from './PickemStandingsRepository'
+import type { SurvivorRepository } from './SurvivorRepository'
 import type { CatalogRepository } from './CatalogRepository'
 import type { ResultsRepository } from './ResultsRepository'
 import type { SyncRepository } from './SyncRepository'
@@ -16,6 +17,7 @@ export interface Repositories {
   weeklyAccessRepository: WeeklyAccessRepository
   weeklyPickRepository: WeeklyPickRepository
   pickemStandingsRepository: PickemStandingsRepository
+  survivorRepository: SurvivorRepository
   catalogRepository: CatalogRepository
   resultsRepository: ResultsRepository
   syncRepository: SyncRepository

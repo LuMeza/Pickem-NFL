@@ -6,6 +6,7 @@ import { SupabaseModuleAccessRepository } from '@/infrastructure/supabase/Supaba
 import { SupabaseWeeklyAccessRepository } from '@/infrastructure/supabase/SupabaseWeeklyAccessRepository'
 import { SupabaseWeeklyPickRepository } from '@/infrastructure/supabase/SupabaseWeeklyPickRepository'
 import { SupabasePickemStandingsRepository } from '@/infrastructure/supabase/SupabasePickemStandingsRepository'
+import { SupabaseSurvivorRepository } from '@/infrastructure/supabase/SupabaseSurvivorRepository'
 import { SupabaseCatalogRepository } from '@/infrastructure/supabase/SupabaseCatalogRepository'
 import { SupabaseResultsRepository } from '@/infrastructure/supabase/SupabaseResultsRepository'
 import { SupabaseSyncRepository } from '@/infrastructure/supabase/SupabaseSyncRepository'
@@ -23,6 +24,7 @@ export function createSupabaseRepositories(): Repositories {
     weeklyAccessRepository: new SupabaseWeeklyAccessRepository(supabaseClient),
     weeklyPickRepository: new SupabaseWeeklyPickRepository(supabaseClient),
     pickemStandingsRepository: new SupabasePickemStandingsRepository(supabaseClient),
+    survivorRepository: new SupabaseSurvivorRepository(supabaseClient),
     catalogRepository: new SupabaseCatalogRepository(supabaseClient),
     resultsRepository: new SupabaseResultsRepository(supabaseClient),
     syncRepository: new SupabaseSyncRepository(supabaseClient),

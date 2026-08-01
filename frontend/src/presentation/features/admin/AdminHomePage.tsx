@@ -14,7 +14,8 @@ export function AdminHomePage() {
         <ActionCard to="/admin/users/new" icon="userPlus" title="Dar de alta un usuario" description="Correo, nombre y contrasena provisional" />
         <ActionCard to="/admin/members" icon="users" title="Miembros" description="Ver y remover usuarios del grupo" />
         <ActionCard to="/admin/pickem/access-requests" icon="ticket" title="Accesos al pickem semanal" description="Aprobar o rechazar solicitudes por semana" />
-        <ActionCard to="/admin/access-requests" icon="ticket" title="Accesos a otros modulos" description="Survivor y Playoffs, cuando esten disponibles" />
+        <ActionCard to="/admin/access-requests" icon="ticket" title="Accesos a otros modulos" description="Playoffs, cuando este disponible" />
+        <ActionCard to="/admin/survivor" icon="refresh" title="Recalcular Survivor" description="Plan B si el recalculo automatico no corrio" />
         <ActionCard to="/admin/games/new" icon="calendar" title="Agregar partido a mano" description="Respaldo si ESPN no tiene un partido" />
         <ActionCard to="/admin/results" icon="trophy" title="Cargar resultados a mano" description="Corregir el resultado de un partido" />
         <ActionCard to="/admin/pickem/settings" icon="trophy" title="Visibilidad de tablas" description="Mostrar u ocultar las tablas del pickem a quien no jugo" />

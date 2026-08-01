@@ -25,15 +25,14 @@ antes de specs/tasks, en particular cómo se procesa y almacena ese estado.
 
 ## Decisions
 
-**1. Alcance temporal: Survivor corre en cualquier semana con partidos, sin cierre
-automático al llegar playoffs**
-A diferencia de la Quiniela Semanal, el requerimiento no indica que Survivor se
-cierre al iniciar playoffs. Un pool de eliminación puede razonablemente extenderse
-hasta que quede un solo sobreviviente, lo cual puede ocurrir durante playoffs si
-el grupo es grande. Decisión: Survivor permite elecciones en cualquier semana
-(pretemporada, regular o playoffs) mientras el usuario siga vivo. Se documenta
-como decisión explícita porque el requerimiento es ambiguo en este punto;
-revisable si el usuario del producto indica lo contrario.
+**1. Alcance temporal: solo temporada regular**
+**Actualizado (feedback de producto, previo a implementación):** se descarta
+permitir elecciones en pretemporada/Hall of Fame. El survivor arranca en la
+Semana 1 de temporada regular — nadie puede quedar eliminado por un partido de
+exhibición. `can_pick_survivor_team` exige `weeks.type = 'regular'` y
+`_survivor_recompute` solo itera semanas `regular`. Playoffs queda fuera de
+alcance de v1 (no se define su tratamiento; revisable a futuro si el grupo
+llega a playoffs con más de un sobreviviente).
 
 **2. Tabla `survivor_picks` (una fila por usuario+semana)**
 Columnas: `group_id`, `user_id`, `week_id`, `team_id`, `life_number` (1 = vida
@@ -51,6 +50,16 @@ depende de la secuencia cronológica de resultados semana a semana, no solo del
 estado final.
 
 **4. Procesamiento de transición de estado al cargarse resultados de una semana**
+**Actualizado (feedback de producto, previo a implementación):** el disparo es
+automático — un trigger de Postgres en `games` (`AFTER UPDATE OF outcome`)
+llama a `_survivor_recompute` cada vez que cambia el resultado oficial de un
+partido, sin importar si la carga fue manual (admin) o vía la sincronización
+ESPN. Se agrega `recalculate_survivor_state` como plan B: un RPC solo para
+`platform_admins` que dispara el mismo recálculo a mano, por si el trigger no
+corrió (ej. resultado cargado antes de que existiera el trigger, o corrección
+posterior). Ambos invocan la misma función interna (`_survivor_recompute`, sin
+grants públicos) — un solo camino de cálculo, sin lógica duplicada.
+
 Cuando el resultado oficial de los partidos de una semana está disponible, un
 proceso (Edge Function o job) recorre los `survivor_picks` de esa semana para los
 usuarios `alive` y:
@@ -76,13 +85,31 @@ también empatan en eso (o ambos tienen `first_loss_week_id` nulo por no haber
 perdido nunca su vida original), el empate se reporta tal cual, sin forzar una
 resolución.
 
+**6. Pantalla de estado (tarea 3.4) muestra estado vigente, no historial semana
+por semana**
+`survivor_state` solo guarda `first_loss_week_id` (primera derrota) y
+`eliminated_week_id` (derrota final) — no una fila por cada transición
+intermedia (ej. la semana exacta en la que se consumió la *segunda* vida
+extra, entre la primera derrota y la eliminación). Guardar cada transición
+habría requerido una tabla de historial adicional no contemplada en el modelo
+original. La pantalla de estado (`SurvivorStandingsPage`) muestra el estado
+*actual* de cada participante (vivo con su vida vigente, o eliminado y en qué
+semana) en vez de permitir "rebobinar" a ver el estado exacto de una semana
+pasada cualquiera — cubre el requerimiento ("el sistema muestra el estado de
+cada participante") sin ese detalle histórico intermedio.
+
 ## Risks / Trade-offs
 
 - [Procesar el estado como job/función en vez de vista puede desincronizarse si
   se corrige un resultado oficial después de procesado] → Mitigación: el proceso
   de transición SHALL ser re-ejecutable de forma idempotente para una semana dada
   (recalcula desde el estado anterior a esa semana), para poder correrlo de nuevo
-  tras una corrección de resultado.
+  tras una corrección de resultado. **Implementado (previo a implementación de UI):**
+  en vez de reanudar desde un checkpoint, `_survivor_recompute` recalcula el grupo
+  entero desde la semana 1 en cada corrida (borra y reinserta `survivor_state`).
+  Simplifica la lógica (sin estado intermedio que pueda desincronizarse) y es
+  barato al volumen esperado (grupos privados chicos, ~18 semanas); verificado
+  con datos reales del catálogo en una transacción de prueba con ROLLBACK.
 - [Ambigüedad del alcance temporal de Survivor (decisión 1) puede no coincidir
   con la expectativa real del usuario del producto] → Documentado explícitamente
   como decisión; fácil de acotar después con un requirement adicional si se pide.

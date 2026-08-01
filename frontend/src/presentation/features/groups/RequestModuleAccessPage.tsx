@@ -10,9 +10,10 @@ import styles from './RequestModuleAccessPage.module.css'
 // Pickem Semanal ya NO usa este modelo generico de module_access — tiene su
 // propia pantalla de acceso semanal (ver /pickem/acceso y
 // openspec/changes/modulo-pickem-semanal specs/acceso-semanal-pickem).
-// Survivor y Playoffs, cuando se implementen, deciden por su cuenta si
-// requieren aprobacion explicita (listados aqui) o acceso implicito por ser
-// miembro del grupo unico — ver design.md decision 4 de base-plataforma.
+// Survivor termino siendo de acceso implicito por ser miembro del grupo unico
+// (sin solicitud, ver openspec/changes/modulo-survivor). Playoffs, cuando se
+// implemente, decide por su cuenta si requiere aprobacion explicita (listado
+// aqui) o tambien acceso implicito — ver design.md decision 4 de base-plataforma.
 const MODULES: { id: GameModule; label: string }[] = []
 
 const BADGE_CLASS: Record<ModuleAccessStatus, string> = {
@@ -71,9 +72,9 @@ export function RequestModuleAccessPage() {
       </span>
       <h1 className="text-display-md">Acceso a modulos</h1>
       <p className="text-body-sm text-muted">
-        El Pickem Semanal se solicita semana a semana desde su propia pantalla. Survivor y Playoffs, cuando
-        existan, estaran disponibles aqui — automaticamente para cualquier miembro del grupo, o con solicitud si el
-        modulo lo requiere.
+        El Pickem Semanal se solicita semana a semana desde su propia pantalla. Survivor esta disponible para
+        cualquier miembro del grupo sin solicitud. Playoffs, cuando exista, va a aparecer aqui si requiere
+        aprobacion.
       </p>
       {group && profile && MODULES.length > 0 && (
         <ul className={styles.list}>

@@ -14,6 +14,9 @@ import { PickemAccessRedirect } from '@/presentation/features/pickem/PickemAcces
 import { RequestWeeklyAccessPage } from '@/presentation/features/pickem/RequestWeeklyAccessPage'
 import { PickemStandingsRedirect } from '@/presentation/features/pickem/PickemStandingsRedirect'
 import { PickemStandingsPage } from '@/presentation/features/pickem/PickemStandingsPage'
+import { SurvivorRedirect } from '@/presentation/features/survivor/SurvivorRedirect'
+import { SurvivorPickPage } from '@/presentation/features/survivor/SurvivorPickPage'
+import { SurvivorStandingsPage } from '@/presentation/features/survivor/SurvivorStandingsPage'
 import { TeamsPage } from '@/presentation/features/catalog/TeamsPage'
 import { TeamDetailPage } from '@/presentation/features/catalog/TeamDetailPage'
 import { WeeksRedirect } from '@/presentation/features/catalog/WeeksRedirect'
@@ -28,6 +31,7 @@ import { AdminPickemSettingsPage } from '@/presentation/features/admin/AdminPick
 import { AdminResultsPage } from '@/presentation/features/admin/AdminResultsPage'
 import { AdminCreateGamePage } from '@/presentation/features/admin/AdminCreateGamePage'
 import { AdminSyncPage } from '@/presentation/features/admin/AdminSyncPage'
+import { AdminSurvivorPage } from '@/presentation/features/admin/AdminSurvivorPage'
 
 /** Router de la app. Grupo unico global — ver specs/grupos-privados actualizado. */
 function App() {
@@ -51,6 +55,9 @@ function App() {
             <Route path="/pickem/acceso/:weekId" element={<RequestWeeklyAccessPage />} />
             <Route path="/pickem/tabla" element={<PickemStandingsRedirect />} />
             <Route path="/pickem/tabla/:weekId" element={<PickemStandingsPage />} />
+            <Route path="/survivor" element={<SurvivorRedirect />} />
+            <Route path="/survivor/semana/:weekId" element={<SurvivorPickPage />} />
+            <Route path="/survivor/tabla" element={<SurvivorStandingsPage />} />
             <Route path="/teams" element={<TeamsPage />} />
             <Route path="/teams/:teamId" element={<TeamDetailPage />} />
             <Route path="/calendario" element={<CalendarPage />} />
@@ -66,6 +73,7 @@ function App() {
               <Route path="/admin/pickem/settings" element={<AdminPickemSettingsPage />} />
               <Route path="/admin/games/new" element={<AdminCreateGamePage />} />
               <Route path="/admin/sync" element={<AdminSyncPage />} />
+              <Route path="/admin/survivor" element={<AdminSurvivorPage />} />
               <Route path="/admin/results" element={<AdminResultsPage />} />
             </Route>
           </Route>
