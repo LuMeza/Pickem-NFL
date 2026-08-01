@@ -78,6 +78,13 @@ Deno.serve(async (req: Request) => {
     position: string | null
     jersey_number: string | null
     unit: string | null
+    height_in: number | null
+    weight_lbs: number | null
+    birth_date: string | null
+    age: number | null
+    college: string | null
+    experience_years: number | null
+    status: string | null
   }[] = []
 
   for (const team of teams as { id: string; espn_abbreviation: string | null }[]) {
@@ -98,6 +105,13 @@ Deno.serve(async (req: Request) => {
           position: player.position,
           jersey_number: player.jerseyNumber,
           unit: player.unit,
+          height_in: player.heightIn,
+          weight_lbs: player.weightLbs,
+          birth_date: player.birthDate,
+          age: player.age,
+          college: player.college,
+          experience_years: player.experienceYears,
+          status: player.status,
         })
       }
       summary.teamsProcessed += 1

@@ -98,6 +98,44 @@ semana) en vez de permitir "rebobinar" a ver el estado exacto de una semana
 pasada cualquiera — cubre el requerimiento ("el sistema muestra el estado de
 cada participante") sin ese detalle histórico intermedio.
 
+**7. Vidas extra por solicitud, no automaticas**
+**Actualizado (feedback de producto, post-implementacion — probando el
+modulo ya en produccion):** la decision 4 original otorgaba las 2 vidas
+extra automaticamente al perder. Se cambia: cada vida extra es opcional y
+debe pedirse una por vez (primero la 2, recien despues de perder con esa
+puede pedirse la 3). Nueva tabla `survivor_life_requests` (mismo patron de
+solicitud/aprobacion que `weekly_access` de modulo-pickem-semanal) con
+estados `solicitado/aprobado/rechazado`. `_survivor_recompute`, al detectar
+una derrota con `current_life < 3`, ya no incrementa solo: consulta
+`survivor_life_requests` para `life_number = current_life + 1` —
+- sin fila → `status = 'needs_life_request'` (no puede pickear hasta pedir)
+- `'solicitado'` → `status = 'life_request_pending'` (puede seguir
+  pickeando, provisorio — confirmado con el usuario: si el admin rechaza
+  despues, esos picks posteriores no cuentan porque ya estaba eliminado
+  desde la semana de la derrota original)
+- `'aprobado'` → `current_life += 1`, sigue `alive`
+- `'rechazado'` → `status = 'eliminated'` en la semana de la derrota
+  original (no la semana de la decision del admin)
+
+`can_pick_survivor_team` se actualiza acorde (bloquea solo en
+`needs_life_request`/`eliminated`). Un nuevo trigger en
+`survivor_life_requests` (`after insert or update of status`) dispara el
+mismo `_survivor_recompute`, igual que el trigger de `games` — un solo
+camino de calculo, sin logica duplicada (mismo criterio que la decision 4
+original).
+
+**8. Bloqueo de navegacion a semanas futuras**
+**Actualizado (feedback de producto, post-implementacion):** antes se podia
+navegar y elegir equipo en cualquier semana regular, incluidas futuras,
+antes de saber si el usuario seguia vivo para entonces — riesgo de "usar"
+un equipo en una semana que quizas nunca se juega. Nueva funcion
+`survivor_current_week_number()`: primera semana regular no resuelta del
+todo (mismo criterio de corte que ya usa el loop de `_survivor_recompute`).
+`can_pick_survivor_team` exige que la semana elegida no sea posterior a esa.
+En el frontend, `WeekSelector` recibe un nuevo prop opcional
+`isWeekDisabled` (no rompe los usos existentes en pickem/catalogo) para
+deshabilitar la navegacion a semanas futuras en la pantalla de Survivor.
+
 ## Risks / Trade-offs
 
 - [Procesar el estado como job/función en vez de vista puede desincronizarse si

@@ -25,6 +25,7 @@ export const POSITION_LABEL: Record<string, string> = {
   SS: 'Profundo fuerte',
   DB: 'Back defensivo',
   K: 'Pateador',
+  PK: 'Pateador',
   P: 'Pateador de despeje (punter)',
   LS: 'Centro largo (long snapper)',
   KR: 'Regresador de patadas',

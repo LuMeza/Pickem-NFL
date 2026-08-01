@@ -1,3 +1,5 @@
+import type { AchievementsRepository } from './AchievementsRepository'
+import type { AdminPicksRepository } from './AdminPicksRepository'
 import type { AuthRepository } from './AuthRepository'
 import type { GroupRepository } from './GroupRepository'
 import type { ModuleAccessRepository } from './ModuleAccessRepository'
@@ -21,4 +23,6 @@ export interface Repositories {
   catalogRepository: CatalogRepository
   resultsRepository: ResultsRepository
   syncRepository: SyncRepository
+  adminPicksRepository: AdminPicksRepository
+  achievementsRepository: AchievementsRepository
 }

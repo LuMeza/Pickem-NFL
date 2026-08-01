@@ -99,8 +99,36 @@
   flex-shrink: 0;
 }
 
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-bottom: 12px;
+}
+
+.searchField {
+  position: relative;
+  flex: 0 1 240px;
+  min-width: 160px;
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.playerSearch {
+  width: 100%;
+  padding-left: 32px;
+}
+
 .glossary {
-  margin-bottom: 16px;
   font-size: 13px;
   color: var(--text-muted);
 }
@@ -144,16 +172,36 @@
   color: var(--text-muted);
 }
 
-.unitSection {
-  margin-bottom: 20px;
+.unitChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
-.unitTitle {
-  font-size: 13px;
+.unitChip {
+  min-height: auto;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  transition:
+    color 150ms ease-out,
+    border-color 150ms ease-out,
+    background 150ms ease-out;
+}
+
+.unitChip:hover {
+  color: var(--text-primary);
+}
+
+.unitChipActive {
+  color: var(--bg-base);
+  background: var(--accent-lime);
+  border-color: var(--accent-lime);
 }
 
 .playerGrid {
@@ -172,25 +220,4 @@
   .playerGrid {
     grid-template-columns: repeat(4, 1fr);
   }
-}
-
-.playerCard {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-}
-
-.playerName {
-  font-size: 13px;
-  color: var(--text-primary);
-  flex: 1;
-  line-height: 1.3;
-}
-
-.playerMeta {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-muted);
 }

@@ -60,6 +60,23 @@
   background: var(--text-muted);
 }
 
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.downloadAllButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
 .segment {
   margin-top: 32px;
   scroll-margin-top: 56px;
@@ -74,15 +91,21 @@
 
 .weekGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 14px;
+}
+
+.weekCardWrap {
+  position: relative;
+  display: flex;
 }
 
 .weekCard {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 10px;
-  padding: 16px;
+  padding: 14px;
   text-decoration: none;
   color: inherit;
   transition: transform 150ms ease-out, border-color 150ms ease-out;
@@ -92,27 +115,50 @@
   border-color: rgba(200, 255, 61, 0.3);
 }
 
+.weekCardDownload {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 6px;
+  background: rgba(20, 27, 35, 0.7);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+}
+.weekCardDownload:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
 .weekCardHeader {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 8px;
+  padding-right: 32px;
 }
 
 .weekCardLabel {
   font-family: var(--font-display);
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .weekCardCount {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--text-muted);
-  padding: 3px 9px;
+  padding: 3px 8px;
   border-radius: 999px;
   border: 1px solid var(--glass-border);
   white-space: nowrap;
@@ -123,78 +169,78 @@
   margin: 0;
 }
 
-.matchList {
+.dayGroups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dayGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dayLabel {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.timeGroups {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.timeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.timeLabel {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 9px;
+  color: var(--accent-lime);
+}
+
+/* Grid de chips en vez de una fila por partido: deja ver toda la semana sin
+   que la tarjeta crezca en vertical (feedback UX: la lista vertical de
+   partidos se sentia "gigante" en pretemporada/temporada regular). */
+.matchGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.matchRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 6px 0;
-  border-top: 1px solid var(--glass-border);
-}
-.matchRow:first-child {
-  border-top: none;
-}
-
-.matchTeams {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  flex: 1;
-  min-width: 0;
-}
-
-.matchSide {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  flex: 1;
-  min-width: 0;
-}
-
-.matchSideAway {
-  justify-content: flex-start;
-}
-
-.matchTeamCode {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  color: var(--text-primary);
-}
-
-.matchVs {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-
-.matchTime {
+.matchChip {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
-  flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  font-size: 12px;
-  color: var(--text-primary);
+  align-items: center;
+  gap: 3px;
+  padding: 6px 7px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.02);
 }
 
-.matchDate {
-  font-size: 10px;
+.matchChipTeams {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.matchChipSep {
   color: var(--text-muted);
-  text-transform: uppercase;
+  font-weight: 400;
+  font-size: 11px;
 }

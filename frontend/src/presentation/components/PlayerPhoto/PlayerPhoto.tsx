@@ -5,22 +5,24 @@ import styles from './PlayerPhoto.module.css'
 export interface PlayerPhotoProps {
   playerId: string
   jerseyNumber: string | null
+  size?: 'sm' | 'lg'
 }
 
 /** Foto de jugador con respaldo al numero de camiseta si ESPN no tiene headshot (rookies, practice squad, id sin mapear). */
-export function PlayerPhoto({ playerId, jerseyNumber }: PlayerPhotoProps) {
+export function PlayerPhoto({ playerId, jerseyNumber, size = 'sm' }: PlayerPhotoProps) {
   const [imageFailed, setImageFailed] = useState(false)
+  const photoClassName = size === 'lg' ? `${styles.photo} ${styles.photoLg}` : styles.photo
 
   if (imageFailed) {
     return (
-      <span className={styles.photo} aria-hidden="true">
+      <span className={photoClassName} aria-hidden="true">
         <span className={styles.fallback}>{jerseyNumber ?? '--'}</span>
       </span>
     )
   }
 
   return (
-    <span className={styles.photo}>
+    <span className={photoClassName}>
       <img
         src={getPlayerHeadshotUrl(playerId)}
         alt=""

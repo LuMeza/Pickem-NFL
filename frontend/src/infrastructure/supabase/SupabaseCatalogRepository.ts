@@ -80,7 +80,9 @@ export class SupabaseCatalogRepository implements CatalogRepository {
   async listPlayersForTeam(teamId: string): Promise<Player[]> {
     const { data, error } = await this.client
       .from('players')
-      .select('id, team_id, full_name, position, jersey_number, unit')
+      .select(
+        'id, team_id, full_name, position, jersey_number, unit, height_in, weight_lbs, birth_date, age, college, experience_years, status',
+      )
       .eq('team_id', teamId)
       .order('unit')
       .order('full_name')
@@ -93,6 +95,13 @@ export class SupabaseCatalogRepository implements CatalogRepository {
       position: row.position as string | null,
       jerseyNumber: row.jersey_number as string | null,
       unit: row.unit as string | null,
+      heightIn: row.height_in as number | null,
+      weightLbs: row.weight_lbs as number | null,
+      birthDate: row.birth_date as string | null,
+      age: row.age as number | null,
+      college: row.college as string | null,
+      experienceYears: row.experience_years as number | null,
+      status: row.status as string | null,
     }))
   }
 

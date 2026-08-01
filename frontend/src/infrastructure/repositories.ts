@@ -1,5 +1,7 @@
 import type { Repositories } from '@/core/ports'
 import { supabaseClient } from '@/infrastructure/supabase/client'
+import { SupabaseAchievementsRepository } from '@/infrastructure/supabase/SupabaseAchievementsRepository'
+import { SupabaseAdminPicksRepository } from '@/infrastructure/supabase/SupabaseAdminPicksRepository'
 import { SupabaseAuthRepository } from '@/infrastructure/supabase/SupabaseAuthRepository'
 import { SupabaseGroupRepository } from '@/infrastructure/supabase/SupabaseGroupRepository'
 import { SupabaseModuleAccessRepository } from '@/infrastructure/supabase/SupabaseModuleAccessRepository'
@@ -28,5 +30,7 @@ export function createSupabaseRepositories(): Repositories {
     catalogRepository: new SupabaseCatalogRepository(supabaseClient),
     resultsRepository: new SupabaseResultsRepository(supabaseClient),
     syncRepository: new SupabaseSyncRepository(supabaseClient),
+    adminPicksRepository: new SupabaseAdminPicksRepository(supabaseClient),
+    achievementsRepository: new SupabaseAchievementsRepository(supabaseClient),
   }
 }

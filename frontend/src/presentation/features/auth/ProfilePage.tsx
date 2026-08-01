@@ -1,8 +1,11 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useGetProfile } from '@/presentation/hooks/useGetProfile'
 import { useUpdateDisplayName } from '@/presentation/hooks/useUpdateDisplayName'
+import { useGetProfileStats } from '@/presentation/hooks/useGetProfileStats'
+import { useListUserAchievements } from '@/presentation/hooks/useListUserAchievements'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { ActionCard } from '@/presentation/components/ActionCard/ActionCard'
+import { AchievementBadge } from '@/presentation/components/AchievementBadge/AchievementBadge'
 import styles from './ProfilePage.module.css'
 
 function getInitials(name: string): string {
@@ -17,12 +20,16 @@ function getInitials(name: string): string {
 export function ProfilePage() {
   const { status, data: profile, error, run: loadProfile } = useGetProfile()
   const { status: saveStatus, run: saveDisplayName } = useUpdateDisplayName()
+  const { status: statsStatus, data: stats, run: loadStats } = useGetProfileStats()
+  const { status: achievementsStatus, data: achievements, run: loadAchievements } = useListUserAchievements()
   const [displayName, setDisplayName] = useState('')
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     loadProfile()
-  }, [loadProfile])
+    loadStats()
+    loadAchievements()
+  }, [loadProfile, loadStats, loadAchievements])
 
   useEffect(() => {
     if (profile) setDisplayName(profile.displayName)
@@ -38,6 +45,9 @@ export function ProfilePage() {
   if (status === 'idle' || status === 'pending') return <p>Cargando perfil...</p>
   if (error || !profile) return <p role="alert">No se pudo cargar el perfil.</p>
 
+  const hasStats = statsStatus === 'success' && stats !== null && stats.totalPicked > 0
+  const accuracy = hasStats && stats ? Math.round((stats.totalCorrect / stats.totalPicked) * 100) : null
+
   return (
     <section>
       <span className="kicker">
@@ -51,6 +61,23 @@ export function ProfilePage() {
           <p className={styles.heroName}>{profile.displayName}</p>
           <p className={`${styles.heroEmail} text-body-sm text-muted`}>{profile.email}</p>
         </div>
+
+        {hasStats && stats ? (
+          <div className={styles.statsRow}>
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{stats.totalCorrect}</span>
+              <span className={styles.statLabel}>Aciertos</span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{accuracy}%</span>
+              <span className={styles.statLabel}>Efectividad</span>
+            </div>
+          </div>
+        ) : statsStatus === 'success' ? (
+          <p className={`${styles.statsEmpty} text-body-sm text-muted`}>
+            Todavia no tienes picks registrados en el Pickem Semanal.
+          </p>
+        ) : null}
       </div>
 
       <div className="glass-surface" style={{ padding: 24, marginTop: 16, maxWidth: 420 }}>
@@ -65,6 +92,26 @@ export function ProfilePage() {
         </form>
         {saved && saveStatus === 'success' && <p>Nombre actualizado.</p>}
       </div>
+
+      <h2 className={`text-display-sm ${styles.sectionTitle}`}>
+        <Icon name="trophy" size={20} className={styles.sectionIcon} /> Logros
+      </h2>
+      {achievementsStatus === 'idle' || achievementsStatus === 'pending' ? (
+        <p className="text-body-sm text-muted">Cargando logros...</p>
+      ) : achievementsStatus === 'error' ? (
+        <p role="alert">No pudimos cargar tus logros.</p>
+      ) : (
+        <div className={styles.achievementsGrid}>
+          {achievements?.map((achievement) => (
+            <AchievementBadge
+              key={achievement.id}
+              title={achievement.title}
+              description={achievement.description}
+              unlocked={achievement.unlocked}
+            />
+          ))}
+        </div>
+      )}
 
       <h2 className={`text-display-sm ${styles.sectionTitle}`}>Accesos rapidos</h2>
       <div className="card-grid">

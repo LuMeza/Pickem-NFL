@@ -4,9 +4,74 @@
   gap: 6px;
 }
 
-.hearts {
+.heart {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.heart svg {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.toneSafe {
+  color: var(--accent-lime);
+}
+
+.toneWarning {
+  color: var(--accent-gold);
+}
+
+.toneCritical {
+  color: var(--danger);
+  animation: survivorHeartbeat 1.3s ease-in-out infinite;
+}
+
+@keyframes survivorHeartbeat {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 5px var(--danger));
+    transform: scale(1.12);
+  }
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.track {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  color: var(--accent-gold);
+  gap: 3px;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--text-muted);
+  opacity: 0.3;
+}
+
+.dotUsed {
+  opacity: 0.5;
+}
+
+.dotCurrent {
+  opacity: 1;
+  background: currentColor;
+  box-shadow: 0 0 4px currentColor;
+}
+
+.dotUpcoming {
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  opacity: 1;
 }

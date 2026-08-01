@@ -95,6 +95,12 @@ const PATHS = {
   heart: (
     <path d="M12 20s-7.2-4.4-9.6-8.7C.8 8 2.4 4.5 6 4.5c2 0 3.4 1.3 6 4 2.6-2.7 4-4 6-4 3.6 0 5.2 3.5 3.6 6.8C19.2 15.6 12 20 12 20z" />
   ),
+  download: (
+    <>
+      <path d="M12 3v12M7 10l5 5 5-5" />
+      <path d="M5 21h14" />
+    </>
+  ),
 } as const
 
 export type IconName = keyof typeof PATHS
@@ -102,6 +108,7 @@ export type IconName = keyof typeof PATHS
 export interface IconProps {
   name: IconName
   size?: number
+  className?: string
 }
 
 /**
@@ -111,7 +118,7 @@ export interface IconProps {
  * decision de no sumar un framework de terceros (ver sistema-diseno-ui
  * design.md decision 1).
  */
-export function Icon({ name, size = 20 }: IconProps) {
+export function Icon({ name, size = 20, className }: IconProps) {
   return (
     <svg
       width={size}
@@ -123,6 +130,7 @@ export function Icon({ name, size = 20 }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
+      className={className}
     >
       {PATHS[name]}
     </svg>

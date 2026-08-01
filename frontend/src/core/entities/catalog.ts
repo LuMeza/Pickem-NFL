@@ -26,4 +26,12 @@ export interface Player {
   position: string | null
   jerseyNumber: string | null
   unit: string | null
+  /** Ficha del jugador — viene del mismo roster de ESPN que ya se sincroniza (ver sync-espn-roster), sin llamadas extra. */
+  heightIn: number | null
+  weightLbs: number | null
+  birthDate: string | null
+  age: number | null
+  college: string | null
+  experienceYears: number | null
+  status: string | null
 }

@@ -10,6 +10,7 @@ import { ChangePasswordPage } from '@/presentation/features/auth/ChangePasswordP
 import { ProfilePage } from '@/presentation/features/auth/ProfilePage'
 import { HomePage } from '@/presentation/features/home/HomePage'
 import { RequestModuleAccessPage } from '@/presentation/features/groups/RequestModuleAccessPage'
+import { PickemHubPage } from '@/presentation/features/pickem/PickemHubPage'
 import { PickemAccessRedirect } from '@/presentation/features/pickem/PickemAccessRedirect'
 import { RequestWeeklyAccessPage } from '@/presentation/features/pickem/RequestWeeklyAccessPage'
 import { PickemStandingsRedirect } from '@/presentation/features/pickem/PickemStandingsRedirect'
@@ -32,6 +33,7 @@ import { AdminResultsPage } from '@/presentation/features/admin/AdminResultsPage
 import { AdminCreateGamePage } from '@/presentation/features/admin/AdminCreateGamePage'
 import { AdminSyncPage } from '@/presentation/features/admin/AdminSyncPage'
 import { AdminSurvivorPage } from '@/presentation/features/admin/AdminSurvivorPage'
+import { AdminUserPicksPage } from '@/presentation/features/admin/AdminUserPicksPage'
 
 /** Router de la app. Grupo unico global — ver specs/grupos-privados actualizado. */
 function App() {
@@ -51,6 +53,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/request-access" element={<RequestModuleAccessPage />} />
+            <Route path="/pickem" element={<PickemHubPage />} />
             <Route path="/pickem/acceso" element={<PickemAccessRedirect />} />
             <Route path="/pickem/acceso/:weekId" element={<RequestWeeklyAccessPage />} />
             <Route path="/pickem/tabla" element={<PickemStandingsRedirect />} />
@@ -75,6 +78,7 @@ function App() {
               <Route path="/admin/sync" element={<AdminSyncPage />} />
               <Route path="/admin/survivor" element={<AdminSurvivorPage />} />
               <Route path="/admin/results" element={<AdminResultsPage />} />
+              <Route path="/admin/picks" element={<AdminUserPicksPage />} />
             </Route>
           </Route>
         </Route>

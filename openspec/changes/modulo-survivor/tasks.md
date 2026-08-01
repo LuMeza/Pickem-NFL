@@ -28,3 +28,15 @@
 ## 4. Guardrails de producto
 
 - [x] 4.1 Revisión de copys: sin menciones a pago, cobro de cuota o premio en efectivo en pantallas de survivor
+
+## 5. Vidas por solicitud (feedback post-implementación, ver design.md decisión 7)
+
+- [x] 5.1 Tabla `survivor_life_requests` + RLS (solicitar propia, decidir solo admin)
+- [x] 5.2 Pantalla admin: aprobar/rechazar solicitudes pendientes (`/admin/survivor`)
+- [x] 5.3 Bloquear el flujo de elección mientras el estado es `needs_life_request`, con aviso + botón para solicitar
+- [x] 5.4 Aviso de solicitud en revisión mientras el estado es `life_request_pending` (puede seguir pickeando, provisorio)
+
+## 6. Navegación restringida a la semana abierta (feedback post-implementación, ver design.md decisión 8)
+
+- [x] 6.1 Función `survivor_current_week_number()` + `can_pick_survivor_team` no permite semanas posteriores
+- [x] 6.2 `WeekSelector` deshabilita la navegación a semanas futuras en la pantalla de Survivor

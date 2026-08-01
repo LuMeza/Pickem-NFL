@@ -35,6 +35,10 @@ export interface WeekSelectorProps {
   activeWeekId: string
   /** Construye el href de cada semana. Por defecto apunta al calendario de partidos (`/weeks/:id/games`); las pantallas de acceso semanal del pickem lo sobreescriben para quedarse en su propia ruta. */
   linkTo?: (weekId: string) => string
+  /** Semanas que no se pueden navegar todavia (ej. Survivor, design.md decision 8 — no adelantarse a una semana futura sin saber si el usuario sigue vivo). Por defecto ninguna semana esta deshabilitada. */
+  isWeekDisabled?: (week: Week) => boolean
+  /** Segmentos de temporada que la pantalla soporta (ej. Survivor solo aplica a `regular`, ver modulo-survivor design.md decision 1). Por defecto, todos. */
+  allowedSegments?: WeekType[]
 }
 
 /**
@@ -43,7 +47,12 @@ export interface WeekSelectorProps {
  * con una hoja desplegable para saltar directo. Sustituye a un carrusel plano
  * de +20 chips, que se vuelve lento de recorrer (feedback de UX).
  */
-export function WeekSelector({ activeWeekId, linkTo = (weekId) => `/weeks/${weekId}/games` }: WeekSelectorProps) {
+export function WeekSelector({
+  activeWeekId,
+  linkTo = (weekId) => `/weeks/${weekId}/games`,
+  isWeekDisabled = () => false,
+  allowedSegments = SEGMENT_ORDER,
+}: WeekSelectorProps) {
   const { data: weeks, run } = useListWeeks()
   const navigate = useNavigate()
   const [isPickerOpen, setIsPickerOpen] = useState(false)
@@ -56,8 +65,11 @@ export function WeekSelector({ activeWeekId, linkTo = (weekId) => `/weeks/${week
   const activeWeek = weeks?.find((week) => week.id === activeWeekId)
 
   const segments = useMemo(
-    () => (weeks ? SEGMENT_ORDER.filter((type) => weeks.some((week) => week.type === type)) : []),
-    [weeks],
+    () =>
+      weeks
+        ? SEGMENT_ORDER.filter((type) => allowedSegments.includes(type) && weeks.some((week) => week.type === type))
+        : [],
+    [weeks, allowedSegments],
   )
   const activeSegment = activeWeek?.type ?? segments[0]
 
@@ -68,7 +80,9 @@ export function WeekSelector({ activeWeekId, linkTo = (weekId) => `/weeks/${week
 
   const currentIndex = segmentWeeks.findIndex((week) => week.id === activeWeekId)
   const prevWeek = currentIndex > 0 ? segmentWeeks[currentIndex - 1] : null
-  const nextWeek = currentIndex >= 0 && currentIndex < segmentWeeks.length - 1 ? segmentWeeks[currentIndex + 1] : null
+  const nextCandidate =
+    currentIndex >= 0 && currentIndex < segmentWeeks.length - 1 ? segmentWeeks[currentIndex + 1] : null
+  const nextWeek = nextCandidate && !isWeekDisabled(nextCandidate) ? nextCandidate : null
 
   useEffect(() => {
     if (!isPickerOpen) return
@@ -156,17 +170,32 @@ export function WeekSelector({ activeWeekId, linkTo = (weekId) => `/weeks/${week
 
       {isPickerOpen && (
         <div className={styles.picker} ref={panelRef} role="menu" aria-label={`Semanas de ${SEGMENT_LABEL[activeSegment]}`}>
-          {segmentWeeks.map((week) => (
-            <Link
-              key={week.id}
-              to={linkTo(week.id)}
-              role="menuitem"
-              className={`${styles.pickerChip} ${week.id === activeWeekId ? styles.pickerChipActive : ''}`}
-              onClick={() => setIsPickerOpen(false)}
-            >
-              {weekLabel(week)}
-            </Link>
-          ))}
+          {segmentWeeks.map((week) => {
+            if (isWeekDisabled(week)) {
+              return (
+                <span
+                  key={week.id}
+                  role="menuitem"
+                  aria-disabled="true"
+                  className={`${styles.pickerChip} ${styles.pickerChipDisabled}`}
+                >
+                  {weekLabel(week)}
+                </span>
+              )
+            }
+
+            return (
+              <Link
+                key={week.id}
+                to={linkTo(week.id)}
+                role="menuitem"
+                className={`${styles.pickerChip} ${week.id === activeWeekId ? styles.pickerChipActive : ''}`}
+                onClick={() => setIsPickerOpen(false)}
+              >
+                {weekLabel(week)}
+              </Link>
+            )
+          })}
         </div>
       )}
     </div>

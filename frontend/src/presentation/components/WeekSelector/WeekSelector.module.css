@@ -150,3 +150,8 @@
   border-color: rgba(200, 255, 61, 0.4);
   color: var(--accent-lime);
 }
+
+.pickerChipDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

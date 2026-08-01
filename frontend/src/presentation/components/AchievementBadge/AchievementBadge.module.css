@@ -1,0 +1,50 @@
+.badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 16px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--glass-border);
+  background: var(--bg-surface);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+
+.unlocked .icon {
+  color: var(--bg-base);
+  background: var(--accent-gold);
+  box-shadow: 0 0 16px -2px rgba(242, 183, 5, 0.5);
+}
+
+.unlocked .title {
+  color: var(--accent-gold);
+}
+
+.locked {
+  opacity: 0.5;
+}
+
+.locked .icon {
+  color: var(--text-muted);
+  background: var(--bg-base);
+  border: 1px solid var(--glass-border);
+}
+
+.title {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  font-size: 14px;
+}
+
+.description {
+  font-size: 12px;
+}

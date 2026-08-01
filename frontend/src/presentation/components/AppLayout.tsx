@@ -9,7 +9,7 @@ const BASE_NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Inicio', icon: 'home' },
   { to: '/calendario', label: 'Calendario', icon: 'calendar' },
   { to: '/teams', label: 'Equipos', icon: 'football' },
-  { to: '/weeks', label: 'Semanas', icon: 'calendar' },
+  { to: '/pickem', label: 'Pickem', icon: 'trophy' },
   { to: '/profile', label: 'Perfil', icon: 'user' },
 ]
 

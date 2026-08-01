@@ -5,11 +5,11 @@ import { useListWeeks } from '@/presentation/hooks/useListWeeks'
 import { useListGamesForTeam } from '@/presentation/hooks/useListGamesForTeam'
 import { useListPlayersForTeam } from '@/presentation/hooks/useListPlayersForTeam'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
-import { PlayerPhoto } from '@/presentation/components/PlayerPhoto/PlayerPhoto'
+import { PlayerCard } from '@/presentation/components/PlayerCard/PlayerCard'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
 import { Icon } from '@/presentation/components/Icon/Icon'
-import { POSITION_LABEL, getPositionLabel } from './nflPositions'
+import { POSITION_LABEL } from './nflPositions'
 import type { Game, Player, Week, WeekType } from '@/core/entities/catalog'
 import styles from './TeamDetailPage.module.css'
 
@@ -54,24 +54,34 @@ function groupGamesByWeekType(games: Game[], weekById: Map<string, Week>): [Week
     .filter(([, sectionGames]) => sectionGames.length > 0)
 }
 
-const UNIT_LABEL: Record<string, string> = {
+type UnitKey = 'offense' | 'defense' | 'specialTeam' | 'unclassified'
+
+const UNIT_ORDER: UnitKey[] = ['offense', 'defense', 'specialTeam', 'unclassified']
+
+const UNIT_LABEL: Record<UnitKey, string> = {
   offense: 'Ofensiva',
   defense: 'Defensiva',
   specialTeam: 'Equipos especiales',
+  unclassified: 'Sin clasificar',
 }
 
-function unitLabel(unit: string | null): string {
-  return unit ? (UNIT_LABEL[unit] ?? unit) : 'Sin clasificar'
+function unitKeyOf(unit: string | null): UnitKey {
+  return unit === 'offense' || unit === 'defense' || unit === 'specialTeam' ? unit : 'unclassified'
 }
 
-function groupPlayersByUnit(players: Player[]): [string, Player[]][] {
-  const groups = new Map<string, Player[]>()
-  for (const player of players) {
-    const key = unitLabel(player.unit)
-    if (!groups.has(key)) groups.set(key, [])
-    groups.get(key)!.push(player)
-  }
-  return Array.from(groups.entries())
+// Rango Unicode U+0300-U+036F (marcas diacriticas combinantes) que separa
+// `normalize('NFD')` de una vocal con acento — se quitan para que la
+// busqueda encuentre "Jose" al escribir "jose" sin tilde.
+const COMBINING_DIACRITICS = /[̀-ͯ]/g
+
+function normalize(value: string): string {
+  return value.normalize('NFD').replace(COMBINING_DIACRITICS, '').toLowerCase()
+}
+
+function filterPlayersByName(players: Player[], query: string): Player[] {
+  const normalizedQuery = normalize(query.trim())
+  if (!normalizedQuery) return players
+  return players.filter((player) => normalize(player.fullName).includes(normalizedQuery))
 }
 
 type Tab = 'calendario' | 'plantilla'
@@ -80,6 +90,8 @@ type Tab = 'calendario' | 'plantilla'
 export function TeamDetailPage() {
   const { teamId } = useParams<{ teamId: string }>()
   const [tab, setTab] = useState<Tab>('calendario')
+  const [playerQuery, setPlayerQuery] = useState('')
+  const [unitFilter, setUnitFilter] = useState<UnitKey | 'all'>('all')
   const { data: teams, run: loadTeams } = useListTeams()
   const { data: weeks, run: loadWeeks } = useListWeeks()
   const { status: gamesStatus, data: games, error: gamesError, run: loadGames } = useListGamesForTeam()
@@ -97,7 +109,15 @@ export function TeamDetailPage() {
   const weekById = useMemo(() => new Map((weeks ?? []).map((week) => [week.id, week])), [weeks])
   const teamNameById = useMemo(() => new Map((teams ?? []).map((team) => [team.id, team.name])), [teams])
   const gameSections = useMemo(() => groupGamesByWeekType(games ?? [], weekById), [games, weekById])
-  const playerGroups = useMemo(() => groupPlayersByUnit(players ?? []), [players])
+  const filteredPlayers = useMemo(() => filterPlayersByName(players ?? [], playerQuery), [players, playerQuery])
+  const presentUnits = useMemo(
+    () => UNIT_ORDER.filter((unit) => (players ?? []).some((player) => unitKeyOf(player.unit) === unit)),
+    [players],
+  )
+  const visiblePlayers = useMemo(
+    () => (unitFilter === 'all' ? filteredPlayers : filteredPlayers.filter((player) => unitKeyOf(player.unit) === unitFilter)),
+    [filteredPlayers, unitFilter],
+  )
 
   if (!teamId) return null
 
@@ -174,35 +194,67 @@ export function TeamDetailPage() {
             <EmptyState message="Todavia no se ha sincronizado la plantilla de este equipo." />
           )}
           {players && players.length > 0 && (
-            <details className={styles.glossary}>
-              <summary>¿Qué significan las posiciones?</summary>
-              <dl className={styles.glossaryList}>
-                {Object.entries(POSITION_LABEL).map(([abbreviation, label]) => (
-                  <div key={abbreviation} className={styles.glossaryItem}>
-                    <dt>{abbreviation}</dt>
-                    <dd>{label}</dd>
-                  </div>
-                ))}
-              </dl>
-            </details>
-          )}
-          {playerGroups.map(([unit, unitPlayers]) => (
-            <div key={unit} className={styles.unitSection}>
-              <h3 className={styles.unitTitle}>{unit}</h3>
-              <div className={styles.playerGrid}>
-                {unitPlayers.map((player) => (
-                  <div key={player.id} className={`${styles.playerCard} glass-surface`}>
-                    <PlayerPhoto playerId={player.id} jerseyNumber={player.jerseyNumber} />
-                    <span className={styles.playerName}>{player.fullName}</span>
-                    <span className={styles.playerMeta}>
-                      {player.jerseyNumber ? `#${player.jerseyNumber}` : ''}{' '}
-                      <span title={getPositionLabel(player.position) ?? undefined}>{player.position ?? ''}</span>
-                    </span>
-                  </div>
+            <>
+              <div className={styles.toolbar}>
+                <div className={styles.searchField}>
+                  <Icon name="search" size={14} className={styles.searchIcon} />
+                  <input
+                    type="search"
+                    className={styles.playerSearch}
+                    placeholder="Buscar jugador..."
+                    value={playerQuery}
+                    onChange={(event) => setPlayerQuery(event.target.value)}
+                    aria-label="Buscar jugador por nombre"
+                  />
+                </div>
+                <details className={styles.glossary}>
+                  <summary>¿Qué significan las posiciones?</summary>
+                  <dl className={styles.glossaryList}>
+                    {Object.entries(POSITION_LABEL).map(([abbreviation, label]) => (
+                      <div key={abbreviation} className={styles.glossaryItem}>
+                        <dt>{abbreviation}</dt>
+                        <dd>{label}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </details>
+              </div>
+
+              <div className={styles.unitChips} role="tablist" aria-label="Filtrar por unidad">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={unitFilter === 'all'}
+                  className={`${styles.unitChip} ${unitFilter === 'all' ? styles.unitChipActive : ''}`}
+                  onClick={() => setUnitFilter('all')}
+                >
+                  Todos
+                </button>
+                {presentUnits.map((unit) => (
+                  <button
+                    key={unit}
+                    type="button"
+                    role="tab"
+                    aria-selected={unitFilter === unit}
+                    className={`${styles.unitChip} ${unitFilter === unit ? styles.unitChipActive : ''}`}
+                    onClick={() => setUnitFilter(unit)}
+                  >
+                    {UNIT_LABEL[unit]}
+                  </button>
                 ))}
               </div>
+            </>
+          )}
+          {players && players.length > 0 && visiblePlayers.length === 0 && (
+            <EmptyState message="No se encontraron jugadores." />
+          )}
+          {visiblePlayers.length > 0 && (
+            <div className={styles.playerGrid} key={`${unitFilter}-${playerQuery}`}>
+              {visiblePlayers.map((player, index) => (
+                <PlayerCard key={player.id} player={player} index={index} />
+              ))}
             </div>
-          ))}
+          )}
         </div>
       )}
     </section>

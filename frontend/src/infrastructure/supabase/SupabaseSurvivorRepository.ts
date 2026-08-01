@@ -1,6 +1,16 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { SaveSurvivorPickParams, SurvivorRepository } from '@/core/ports/SurvivorRepository'
-import type { SurvivorLife, SurvivorParticipant, SurvivorPick, SurvivorStatus } from '@/core/entities/survivor'
+import type {
+  SaveSurvivorPickParams,
+  SurvivorLifeRequestDecision,
+  SurvivorRepository,
+} from '@/core/ports/SurvivorRepository'
+import type {
+  SurvivorLife,
+  SurvivorLifeRequest,
+  SurvivorParticipant,
+  SurvivorPick,
+  SurvivorStatus,
+} from '@/core/entities/survivor'
 
 interface SurvivorStateRow {
   user_id: string
@@ -80,6 +90,50 @@ export class SupabaseSurvivorRepository implements SurvivorRepository {
 
   async recalculate(groupId: string): Promise<void> {
     const { error } = await this.client.rpc('recalculate_survivor_state', { p_group_id: groupId })
+    if (error) throw error
+  }
+
+  async getCurrentWeekNumber(): Promise<number | null> {
+    const { data, error } = await this.client.rpc('survivor_current_week_number')
+    if (error) throw error
+    return (data as number | null) ?? null
+  }
+
+  async requestLife(groupId: string, userId: string, lifeNumber: SurvivorLife): Promise<void> {
+    const { error } = await this.client
+      .from('survivor_life_requests')
+      .insert({ group_id: groupId, user_id: userId, life_number: lifeNumber })
+    if (error) throw error
+  }
+
+  async listLifeRequests(groupId: string): Promise<SurvivorLifeRequest[]> {
+    const { data, error } = await this.client
+      .from('survivor_life_requests')
+      .select('id, user_id, life_number, status, requested_at, profiles(display_name)')
+      .eq('group_id', groupId)
+      .order('requested_at')
+    if (error) throw error
+
+    return (data ?? []).map((row) => {
+      const profile = row.profiles as unknown as { display_name: string } | { display_name: string }[] | null
+      const displayName = Array.isArray(profile) ? profile[0]?.display_name : profile?.display_name
+
+      return {
+        id: row.id as string,
+        userId: row.user_id as string,
+        displayName: displayName ?? '',
+        lifeNumber: row.life_number as SurvivorLife,
+        status: row.status as SurvivorLifeRequest['status'],
+        requestedAt: row.requested_at as string,
+      }
+    })
+  }
+
+  async resolveLifeRequest(requestId: string, decision: SurvivorLifeRequestDecision): Promise<void> {
+    const { error } = await this.client
+      .from('survivor_life_requests')
+      .update({ status: decision })
+      .eq('id', requestId)
     if (error) throw error
   }
 }

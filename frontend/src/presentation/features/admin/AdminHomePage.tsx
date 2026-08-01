@@ -1,5 +1,52 @@
-import { ActionCard } from '@/presentation/components/ActionCard/ActionCard'
-import { Icon } from '@/presentation/components/Icon/Icon'
+import { Link } from 'react-router-dom'
+import { Icon, type IconName } from '@/presentation/components/Icon/Icon'
+import styles from './AdminHomePage.module.css'
+
+interface AdminAction {
+  to: string
+  icon: IconName
+  title: string
+  description: string
+}
+
+interface AdminSection {
+  title: string
+  actions: AdminAction[]
+}
+
+/** Agrupado por lo que el admin necesita hacer, no por orden de creacion — asi sabe donde buscar cada cosa. */
+const SECTIONS: AdminSection[] = [
+  {
+    title: 'Usuarios y accesos',
+    actions: [
+      { to: '/admin/users/new', icon: 'userPlus', title: 'Dar de alta un usuario', description: 'Correo, nombre y contrasena provisional' },
+      { to: '/admin/members', icon: 'users', title: 'Miembros', description: 'Ver y remover usuarios del grupo' },
+      { to: '/admin/pickem/access-requests', icon: 'ticket', title: 'Accesos al pickem semanal', description: 'Aprobar o rechazar solicitudes por semana' },
+      { to: '/admin/access-requests', icon: 'ticket', title: 'Accesos a otros modulos', description: 'Playoffs, cuando este disponible' },
+    ],
+  },
+  {
+    title: 'Calendario y resultados',
+    actions: [
+      { to: '/admin/sync', icon: 'refresh', title: 'Sincronizar con ESPN', description: 'Importa calendario y resultados automaticamente' },
+      { to: '/admin/games/new', icon: 'calendar', title: 'Agregar partido a mano', description: 'Respaldo si ESPN no tiene un partido' },
+      { to: '/admin/results', icon: 'trophy', title: 'Cargar resultados a mano', description: 'Corregir el resultado de un partido' },
+    ],
+  },
+  {
+    title: 'Quinielas',
+    actions: [
+      { to: '/admin/pickem/settings', icon: 'trophy', title: 'Visibilidad de tablas', description: 'Mostrar u ocultar las tablas del pickem a quien no jugo' },
+      { to: '/admin/survivor', icon: 'refresh', title: 'Recalcular Survivor', description: 'Plan B si el recalculo automatico no corrio' },
+    ],
+  },
+  {
+    title: 'Supervision',
+    actions: [
+      { to: '/admin/picks', icon: 'search', title: 'Ver picks de usuarios', description: 'Pickem semanal y Survivor, por semana o por usuario' },
+    ],
+  },
+]
 
 /** Panel de administrador (tarea 7.3: solo accesible para platform_admins via RequireAdmin). */
 export function AdminHomePage() {
@@ -9,17 +56,28 @@ export function AdminHomePage() {
         <Icon name="gear" size={13} /> Solo administradores
       </span>
       <h1 className="text-display-lg">Panel de administrador</h1>
-      <div className="card-grid">
-        <ActionCard to="/admin/sync" icon="refresh" title="Sincronizar con ESPN" description="Importa calendario y resultados automaticamente" />
-        <ActionCard to="/admin/users/new" icon="userPlus" title="Dar de alta un usuario" description="Correo, nombre y contrasena provisional" />
-        <ActionCard to="/admin/members" icon="users" title="Miembros" description="Ver y remover usuarios del grupo" />
-        <ActionCard to="/admin/pickem/access-requests" icon="ticket" title="Accesos al pickem semanal" description="Aprobar o rechazar solicitudes por semana" />
-        <ActionCard to="/admin/access-requests" icon="ticket" title="Accesos a otros modulos" description="Playoffs, cuando este disponible" />
-        <ActionCard to="/admin/survivor" icon="refresh" title="Recalcular Survivor" description="Plan B si el recalculo automatico no corrio" />
-        <ActionCard to="/admin/games/new" icon="calendar" title="Agregar partido a mano" description="Respaldo si ESPN no tiene un partido" />
-        <ActionCard to="/admin/results" icon="trophy" title="Cargar resultados a mano" description="Corregir el resultado de un partido" />
-        <ActionCard to="/admin/pickem/settings" icon="trophy" title="Visibilidad de tablas" description="Mostrar u ocultar las tablas del pickem a quien no jugo" />
-      </div>
+      <p className="text-body-sm text-muted">Elegi una seccion para gestionar el grupo.</p>
+
+      {SECTIONS.map((section) => (
+        <div key={section.title} className={styles.section}>
+          <h2 className={styles.sectionTitle}>{section.title}</h2>
+          <ul className={styles.list}>
+            {section.actions.map((action) => (
+              <li key={action.to}>
+                <Link to={action.to} className={`${styles.row} glass-surface glass-interactive`}>
+                  <span className={styles.iconWrap}>
+                    <Icon name={action.icon} size={18} />
+                  </span>
+                  <span className={styles.body}>
+                    <span className={styles.title}>{action.title}</span>
+                    <span className={styles.description}>{action.description}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </section>
   )
 }

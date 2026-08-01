@@ -1,6 +1,23 @@
 export type SurvivorLife = 1 | 2 | 3
 
-export type SurvivorStatus = 'alive' | 'eliminated'
+/**
+ * Feedback de producto (post-implementacion, ver design.md decision 7): las
+ * vidas extra ya no se otorgan solas al perder — hay dos estados intermedios
+ * mientras se resuelve la solicitud de la siguiente vida.
+ */
+export type SurvivorStatus = 'alive' | 'needs_life_request' | 'life_request_pending' | 'eliminated'
+
+export type SurvivorLifeRequestStatus = 'solicitado' | 'aprobado' | 'rechazado'
+
+/** Solicitud de vida extra — ver design.md decision 7. */
+export interface SurvivorLifeRequest {
+  id: string
+  userId: string
+  displayName: string
+  lifeNumber: SurvivorLife
+  status: SurvivorLifeRequestStatus
+  requestedAt: string
+}
 
 export interface SurvivorState {
   currentLife: SurvivorLife
