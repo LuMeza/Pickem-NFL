@@ -14,11 +14,19 @@ de verdad final.
 - Sincronización periódica (Edge Function de Supabase + cron) que consulta el
   scoreboard de ESPN y actualiza automáticamente el resultado oficial
   (ganador/empate y marcador) de los partidos correspondientes.
+- **Importación automática del calendario** (ampliado post-implementación de
+  `base-plataforma`): si un partido reportado por ESPN no existe todavía en
+  `games` para esa semana, la sincronización lo crea (equipo local, visitante,
+  kickoff), en vez de solo omitirlo. Esto reemplaza la carga manual de
+  calendario como flujo principal — la pantalla manual de `base-plataforma`
+  (`/admin/games/new`) queda como respaldo si ESPN no tiene un partido o hay
+  que corregirlo.
 - Botón "Sincronizar ahora" en el panel admin para disparar la sincronización
-  bajo demanda, sin esperar a la siguiente corrida programada.
+  (calendario + resultados de las 25 semanas de temporada) bajo demanda, sin
+  esperar a la siguiente corrida programada.
 - Mapeo de equipos ESPN ↔ equipos internos (`teams.espn_abbreviation`) y de
   partidos ESPN ↔ partidos internos (`games.espn_event_id`, guardado la
-  primera vez que se encuentra una coincidencia por semana + equipos).
+  primera vez que se encuentra o se crea una coincidencia por semana + equipos).
 - Respeto estricto de la precedencia de la carga manual ya definida en
   `base-plataforma` (`result_source`): la sincronización solo escribe si el
   resultado está vacío o fue puesto por una sincronización previa, nunca si
@@ -52,6 +60,6 @@ comportamiento, solo lo consume)
 - Introduce la primera pieza de infraestructura fuera de `frontend/`: una
   Supabase Edge Function (`supabase/functions/sync-espn-results`) programada
   por cron, más el botón correspondiente en el panel admin del frontend.
-- No afecta a `modulo-quiniela-semanal`, `modulo-survivor` ni
+- No afecta a `modulo-pickem-semanal`, `modulo-survivor` ni
   `modulo-playoffs` — todos siguen leyendo resultados oficiales de `games`
   sin importar si el origen fue manual o automático.

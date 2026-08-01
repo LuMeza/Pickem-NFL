@@ -11,6 +11,17 @@ El sistema SHALL sincronizar periódicamente los resultados oficiales de los par
 - **WHEN** la sincronización periódica encuentra un partido que ESPN reporta como no iniciado o en curso
 - **THEN** el sistema no registra ningún resultado para ese partido en esa corrida
 
+### Requirement: Importación automática del calendario de partidos
+El sistema SHALL crear un partido nuevo (semana, equipo local, equipo visitante, kickoff) cuando la sincronización encuentra un evento en el scoreboard de ESPN que no tiene equivalente todavía en el catálogo interno. La carga manual del calendario (`base-plataforma`, `/admin/games/new`) SHALL seguir disponible como respaldo.
+
+#### Scenario: ESPN reporta un partido que no existe en el catalogo interno
+- **WHEN** la sincronización encuentra un evento de ESPN cuya semana y par de equipos no coinciden con ningún partido ya registrado
+- **THEN** el sistema crea el partido con los datos de ESPN (semana, equipo local, equipo visitante, kickoff) antes de intentar registrar cualquier resultado
+
+#### Scenario: ESPN reporta un partido que ya existe
+- **WHEN** la sincronización encuentra un evento de ESPN que ya coincide con un partido existente (por `espn_event_id` o por semana + equipos)
+- **THEN** el sistema no crea un partido duplicado, solo actualiza su resultado si corresponde
+
 ### Requirement: Sincronización manual bajo demanda
 El administrador de plataforma SHALL poder disparar manualmente una sincronización desde el panel admin, sin esperar a la siguiente corrida programada.
 

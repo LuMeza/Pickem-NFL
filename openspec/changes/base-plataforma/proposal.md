@@ -14,10 +14,10 @@ reutilizable, antes de proponer cada módulo como un change independiente.
   provisional, entregada fuera de la plataforma). El usuario SHALL cambiar esa
   contraseña obligatoriamente en su primer inicio de sesión.
 - Login y perfil básico de usuario.
-- Grupos privados: el administrador crea el grupo y genera su link/código de
-  invitación; un usuario ya dado de alta se une él mismo con ese link/código; el
-  administrador administra los miembros de cualquier grupo (no existe rol de owner
-  por grupo).
+- Grupo único global (actualizado post-implementación): todo usuario dado de
+  alta por el administrador queda agregado automáticamente al único grupo de
+  la plataforma, sin flujo de invitación por link/código. El administrador
+  administra los miembros del grupo (no existe rol de owner por grupo).
 - Catálogo de temporada NFL: equipos (32), semanas (incluye pretemporada Pre Sem. 1/2/3),
   partidos por semana, y carga/actualización manual de resultados oficiales por el
   administrador (deja el modelo abierto a una futura integración con API deportiva,

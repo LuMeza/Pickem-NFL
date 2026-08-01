@@ -1,12 +1,77 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AppLayout } from '@/presentation/components/AppLayout'
+import { RequireAuth } from '@/presentation/components/RequireAuth'
+import { RequireActiveSession } from '@/presentation/components/RequireActiveSession'
+import { RequireAdmin } from '@/presentation/components/RequireAdmin'
+import { LoginPage } from '@/presentation/features/auth/LoginPage'
+import { ForgotPasswordPage } from '@/presentation/features/auth/ForgotPasswordPage'
+import { ResetPasswordPage } from '@/presentation/features/auth/ResetPasswordPage'
+import { ChangePasswordPage } from '@/presentation/features/auth/ChangePasswordPage'
+import { ProfilePage } from '@/presentation/features/auth/ProfilePage'
+import { HomePage } from '@/presentation/features/home/HomePage'
+import { RequestModuleAccessPage } from '@/presentation/features/groups/RequestModuleAccessPage'
+import { PickemAccessRedirect } from '@/presentation/features/pickem/PickemAccessRedirect'
+import { RequestWeeklyAccessPage } from '@/presentation/features/pickem/RequestWeeklyAccessPage'
+import { PickemStandingsRedirect } from '@/presentation/features/pickem/PickemStandingsRedirect'
+import { PickemStandingsPage } from '@/presentation/features/pickem/PickemStandingsPage'
+import { TeamsPage } from '@/presentation/features/catalog/TeamsPage'
+import { TeamDetailPage } from '@/presentation/features/catalog/TeamDetailPage'
+import { WeeksRedirect } from '@/presentation/features/catalog/WeeksRedirect'
+import { GamesPage } from '@/presentation/features/catalog/GamesPage'
+import { CalendarPage } from '@/presentation/features/catalog/CalendarPage'
+import { AdminHomePage } from '@/presentation/features/admin/AdminHomePage'
+import { CreateUserPage } from '@/presentation/features/admin/CreateUserPage'
+import { GroupMembersPage } from '@/presentation/features/admin/GroupMembersPage'
+import { ModuleAccessRequestsPage } from '@/presentation/features/admin/ModuleAccessRequestsPage'
+import { WeeklyAccessRequestsPage } from '@/presentation/features/admin/WeeklyAccessRequestsPage'
+import { AdminPickemSettingsPage } from '@/presentation/features/admin/AdminPickemSettingsPage'
+import { AdminResultsPage } from '@/presentation/features/admin/AdminResultsPage'
+import { AdminCreateGamePage } from '@/presentation/features/admin/AdminCreateGamePage'
+import { AdminSyncPage } from '@/presentation/features/admin/AdminSyncPage'
+
+/** Router de la app. Grupo unico global — ver specs/grupos-privados actualizado. */
 function App() {
   return (
-    <main>
-      <h1>Quiniela NFL</h1>
-      <p>
-        Base de arquitectura lista (core / infrastructure / presentation). El shell
-        visual se implementa en el change <code>sistema-diseno-ui</code>.
-      </p>
-    </main>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+        <Route element={<RequireAuth />}>
+          <Route path="/change-password" element={<ChangePasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+        </Route>
+
+        <Route element={<RequireActiveSession />}>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/request-access" element={<RequestModuleAccessPage />} />
+            <Route path="/pickem/acceso" element={<PickemAccessRedirect />} />
+            <Route path="/pickem/acceso/:weekId" element={<RequestWeeklyAccessPage />} />
+            <Route path="/pickem/tabla" element={<PickemStandingsRedirect />} />
+            <Route path="/pickem/tabla/:weekId" element={<PickemStandingsPage />} />
+            <Route path="/teams" element={<TeamsPage />} />
+            <Route path="/teams/:teamId" element={<TeamDetailPage />} />
+            <Route path="/calendario" element={<CalendarPage />} />
+            <Route path="/weeks" element={<WeeksRedirect />} />
+            <Route path="/weeks/:weekId/games" element={<GamesPage />} />
+
+            <Route element={<RequireAdmin />}>
+              <Route path="/admin" element={<AdminHomePage />} />
+              <Route path="/admin/users/new" element={<CreateUserPage />} />
+              <Route path="/admin/members" element={<GroupMembersPage />} />
+              <Route path="/admin/access-requests" element={<ModuleAccessRequestsPage />} />
+              <Route path="/admin/pickem/access-requests" element={<WeeklyAccessRequestsPage />} />
+              <Route path="/admin/pickem/settings" element={<AdminPickemSettingsPage />} />
+              <Route path="/admin/games/new" element={<AdminCreateGamePage />} />
+              <Route path="/admin/sync" element={<AdminSyncPage />} />
+              <Route path="/admin/results" element={<AdminResultsPage />} />
+            </Route>
+          </Route>
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 

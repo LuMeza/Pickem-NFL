@@ -29,6 +29,17 @@ El sistema SHALL registrar los partidos de cada semana, cada uno con equipo loca
 - **WHEN** cualquier módulo de predicciones necesita saber si un partido ya arrancó (para bloquear cambios de predicción)
 - **THEN** el sistema permite determinarlo comparando la hora actual contra la fecha/hora de inicio del partido
 
+### Requirement: Registro de partidos por el administrador
+Un administrador de plataforma SHALL poder registrar un partido nuevo (semana, equipo local, equipo visitante y kickoff) para construir el calendario de la temporada. Sin esta operación no hay forma de crear partidos, ya que la carga de resultados (`carga-resultados`) solo edita partidos existentes.
+
+#### Scenario: Administrador agrega un partido
+- **WHEN** un administrador de plataforma envía semana, equipo local, equipo visitante y fecha/hora de kickoff válidos
+- **THEN** el sistema crea el partido en esa semana
+
+#### Scenario: Usuario regular intenta agregar un partido
+- **WHEN** un usuario autenticado que no es administrador de plataforma intenta registrar un partido
+- **THEN** el sistema rechaza la operación
+
 ### Requirement: Catálogo de solo lectura para usuarios sin rol de administrador
 Cualquier usuario autenticado SHALL poder leer equipos, semanas y partidos. El sistema SHALL NOT permitir que un usuario sin permiso de administrador de plataforma los cree, edite o elimine.
 

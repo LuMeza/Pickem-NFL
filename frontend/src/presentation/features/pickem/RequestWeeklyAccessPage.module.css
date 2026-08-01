@@ -1,0 +1,36 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.label {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 18px;
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.badgeSolicitado {
+  color: var(--bg-base);
+  background: var(--accent-gold);
+}
+.badgeAprobado {
+  color: var(--bg-base);
+  background: var(--accent-lime);
+}
+.badgeRechazado {
+  color: var(--text-primary);
+  background: var(--danger);
+}

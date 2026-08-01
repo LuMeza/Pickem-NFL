@@ -23,7 +23,7 @@ arquitectura de frontend.
   verdad de paleta/tipografía/patrones; este design.md solo decide
   implementación.
 - No se implementa contenido específico de ningún módulo (eso vive en
-  `modulo-quiniela-semanal`, `modulo-survivor`, `modulo-playoffs`).
+  `modulo-pickem-semanal`, `modulo-survivor`, `modulo-playoffs`).
 
 ## Decisions
 

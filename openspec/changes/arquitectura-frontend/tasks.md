@@ -35,6 +35,6 @@
 > cada modulo, se consuman desde ahi en vez de reimplementarse.
 
 - [ ] 5.1 Ajustar la implementación de `base-plataforma` para construir sus pantallas sobre casos de uso/hooks en vez de llamadas directas a Supabase
-- [ ] 5.2 Ajustar la implementación de `modulo-quiniela-semanal` y `modulo-playoffs` para reutilizar `resolveTiedRanking` de `core/rules` en su tabla de posiciones
-- [ ] 5.3 Ajustar la implementación de `modulo-quiniela-semanal`, `modulo-survivor` y `modulo-playoffs` para reutilizar `isPredictionLocked` de `core/rules` en sus pantallas de predicción
+- [ ] 5.2 Ajustar la implementación de `modulo-pickem-semanal` y `modulo-playoffs` para reutilizar `resolveTiedRanking` de `core/rules` en su tabla de posiciones
+- [ ] 5.3 Ajustar la implementación de `modulo-pickem-semanal`, `modulo-survivor` y `modulo-playoffs` para reutilizar `isPredictionLocked` de `core/rules` en sus pantallas de predicción
 - [ ] 5.4 Ajustar la implementación de `modulo-playoffs` para reutilizar `classifyPointDifference` de `core/rules` en su tabla de resultados

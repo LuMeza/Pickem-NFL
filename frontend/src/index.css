@@ -1,13 +1,308 @@
 /*
- * Reset minimo. Los tokens de diseno reales (paleta, tipografia) se
- * implementan en el change sistema-diseno-ui — ver doc/design-system.md.
+ * Sistema de diseno — ver doc/design-system.md y
+ * openspec/changes/sistema-diseno-ui. Tokens como CSS custom properties
+ * globales (design.md decision 1), consumidos por index.css y por los
+ * CSS Modules de cada componente.
  */
+
+:root {
+  --bg-base: #0b0f14;
+  --bg-surface: #141b23;
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(20, 27, 35, 0.55);
+  --accent-lime: #c8ff3d;
+  --accent-gold: #f2b705;
+  --danger: #ff5468;
+  --text-primary: #f4f6f8;
+  /* Verificado (tarea 5.2): --text-muted sobre --bg-surface da ~5.83:1,
+     por encima del minimo AA (4.5:1) para texto normal. Sobre glass-bg el
+     fondo efectivo se mezcla con --bg-base (aun mas oscuro), por lo que el
+     contraste real solo mejora, nunca empeora. */
+  --text-muted: #8a97a6;
+
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Breakpoints (mobile <768, tablet 768-1023, desktop >=1024) — mantener en
+     sync con frontend/src/presentation/styles/breakpoints.ts (tarea 2.1). */
+  --bp-tablet: 768px;
+  --bp-desktop: 1024px;
+
+  --touch-target-min: 44px;
+
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-  color-scheme: light dark;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  background-color: var(--bg-base);
+  /* Glow de fondo (energia "carta de juego", ver doc/design-system.md
+     inspiracion onetouch.football) — sutil, fijo, no compite con el contenido. */
+  background-image:
+    radial-gradient(600px circle at 15% -10%, rgba(200, 255, 61, 0.13), transparent 60%),
+    radial-gradient(500px circle at 100% 10%, rgba(242, 183, 5, 0.11), transparent 55%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Escala tipografica (tarea 1.3): display en Bebas Neue mayusculas, cuerpo en
+   Inter, datos/numerica en JetBrains Mono con tabular-nums. */
+.text-display-lg,
+.text-display-md,
+.text-display-sm {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+.text-display-lg {
+  font-size: 40px;
+}
+.text-display-md {
+  font-size: 32px;
+}
+.text-display-sm {
+  font-size: 24px;
+}
+
+.text-body-md {
+  font-family: var(--font-body);
+  font-size: 16px;
+}
+.text-body-sm {
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+
+.text-mono-md,
+.text-mono-sm {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.text-mono-md {
+  font-size: 14px;
+}
+.text-mono-sm {
+  font-size: 12px;
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* Superficie glass (tarea 1.4) — usar con moderacion (tarjetas de pick,
+   navegacion flotante), no en toda la interfaz. Sombra + sheen superior para
+   que se sienta como una tarjeta flotante de verdad, no un rectangulo plano. */
+.glass-surface {
+  position: relative;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 45%),
+    var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 14px 32px -16px rgba(0, 0, 0, 0.65),
+    0 4px 12px -6px rgba(0, 0, 0, 0.5);
+}
+
+/* Modificador para tarjetas clickeables/enlaces — hover con lift + glow lime. */
+.glass-interactive {
+  cursor: pointer;
+  transition:
+    transform 150ms ease-out,
+    border-color 150ms ease-out,
+    box-shadow 150ms ease-out;
+}
+.glass-interactive:hover,
+.glass-interactive:focus-visible {
+  transform: translateY(-3px);
+  border-color: rgba(200, 255, 61, 0.4);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.07) inset,
+    0 20px 40px -16px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(200, 255, 61, 0.12),
+    0 0 24px -4px rgba(200, 255, 61, 0.18);
+}
+
+/* Foco de teclado visible (tarea 5.3) — outline lime 2px en toda la app. */
+:focus-visible {
+  outline: 2px solid var(--accent-lime);
+  outline-offset: 2px;
+}
+
+a {
+  color: var(--accent-lime);
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Controles base: objetivo tactil minimo 44x44px (spec accesibilidad). */
+button {
+  min-height: var(--touch-target-min);
+  padding: 0 16px;
+  background: var(--accent-lime);
+  color: var(--bg-base);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+button.button-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
+}
+button.button-danger {
+  background: var(--danger);
+  color: var(--text-primary);
+}
+
+input,
+select {
+  min-height: var(--touch-target-min);
+  padding: 0 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+[role='alert'] {
+  color: var(--danger);
+}
+
+/* Pantallas fuera del AppShell (login, cambio de contrasena obligatorio):
+   tarjeta centrada sobre una "cancha" de fondo — lineas de yarda sutiles,
+   coherente con Cancha Nocturna (ver propuesta de rediseno). */
+.auth-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.035) 0,
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 1px,
+      transparent 64px
+    ),
+    radial-gradient(500px circle at 50% 0%, rgba(200, 255, 61, 0.1), transparent 60%);
+}
+.auth-screen > section {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  padding: 32px 28px 28px;
+  overflow: hidden;
+}
+.auth-screen > section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-lime), var(--accent-gold));
+}
+.auth-kicker,
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-lime);
+  background: rgba(200, 255, 61, 0.1);
+  border: 1px solid rgba(200, 255, 61, 0.25);
+  border-radius: 999px;
+  padding: 5px 12px 5px 10px;
+  margin-bottom: 16px;
+}
+
+/* Grid de partidos (tarea 2.6): 1 columna mobile, 2 tablet, 3 desktop —
+   consumido por las cartas de prediccion de los modulos de juego. */
+.games-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 768px) {
+  .games-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .games-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Grid de tarjetas de navegacion (dashboards de Inicio/Admin). */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+@media (min-width: 768px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Respeta prefers-reduced-motion globalmente (tarea 5.x / spec accesibilidad):
+   cualquier transicion/animacion se anula salvo que un componente defina su
+   propia alternativa estatica explicita. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

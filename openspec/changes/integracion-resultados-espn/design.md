@@ -26,7 +26,15 @@ explícitas antes de specs/tasks.
   funcionar, no se implementan ahora).
 - No se implementa una interfaz de administración para remapear manualmente
   un equipo/partido mal identificado — si el mapeo automático falla, el admin
-  sigue teniendo la carga manual como respaldo completo.
+  sigue teniendo la carga manual como respaldo completo (`/admin/games/new`,
+  de `base-plataforma`).
+
+> **Ampliado post-implementación:** originalmente este change era "solo
+> resultados" (no creaba partidos nuevos). Se amplía para que también
+> importe el calendario — ver decision 4 actualizada. La razón del cambio de
+> alcance: cargar 25 semanas de partidos a mano es el mismo trabajo repetitivo
+> que cargar resultados a mano, y ESPN ya expone el calendario completo desde
+> antes de que se jueguen los partidos.
 
 ## Decisions
 
@@ -56,15 +64,30 @@ Columna nueva en `teams`, poblada una sola vez junto con el seed de equipos
 por nombre.
 
 **4. Mapeo de partidos: `games.espn_event_id`, resuelto por semana + equipos
-la primera vez**
-En la primera sincronización de un partido, se busca en `games` por
-`week_id` + par de `espn_abbreviation` (local/visita) y, al encontrar
-coincidencia, se guarda el `id` del evento de ESPN en `games.espn_event_id`.
-Sincronizaciones siguientes para ese partido hacen match directo por
-`espn_event_id` (más rápido y no depende de que el mapeo semana/equipos siga
-siendo único). Si no se encuentra coincidencia (partido reprogramado, semana
-mal alineada), se omite ese evento y se registra el caso — no se crea un
-partido nuevo automáticamente.
+la primera vez; SI CREA el partido si no existe**
+En cada sincronización, para cada evento del scoreboard de ESPN se busca en
+`games` primero por `espn_event_id` (match rápido para sincronizaciones ya
+conocidas) y si no existe, por `week_id` + par de `espn_abbreviation`
+(local/visita). Si tampoco hay coincidencia por semana+equipos, **se crea el
+partido** (`week_id`, `home_team_id`, `away_team_id`, `kickoff_at` desde el
+`date` de ESPN) y se guarda su `espn_event_id`. Esto reemplaza la carga
+manual de calendario como flujo principal (ver Non-Goals actualizado). El
+`week_id` interno se resuelve mapeando `seasontype`/`week` de ESPN
+(`1`=pretemporada, `2`=regular, `3`=playoffs, más el número de semana) contra
+`weeks.type`/`weeks.number` — mapeo directo, sin tabla adicional, porque nuestro
+esquema de `weeks` ya sigue esa misma numeración (ver `base-plataforma`
+design.md decision 6).
+
+**4b. Sincronización cubre las 25 semanas de temporada en cada corrida**
+En vez de sincronizar solo la semana "vigente", cada corrida (programada o
+manual) recorre las 25 filas de `weeks` (3 pretemporada + 18 regular + 4
+playoffs), consulta el scoreboard de ESPN para cada una
+(`?seasontype=X&week=Y`) y aplica creación de partidos + escritura
+condicionada de resultados a cada una. Esto unifica "importar calendario" y
+"sincronizar resultados" en una sola operación — 25 llamadas HTTP livianas
+por corrida, aceptable en frecuencia de cada 15-30 min. Semanas ya completas
+(todos los partidos con resultado) siguen consultándose igual; el costo es
+despreciable frente a la simplicidad de no mantener dos flujos separados.
 
 **5. Precedencia de la carga manual (reutiliza `result_source` de
 `base-plataforma`)**
@@ -94,6 +117,13 @@ que impida seguir usando la carga manual con normalidad.
   semana comparten exactamente el mismo par de equipos — no ocurre en la NFL
   real, pero se documenta como supuesto] → Aceptado: es una garantía real del
   dominio (un mismo par de equipos no juega dos veces en la misma semana).
+- [Ahora que la sincronización SI crea partidos automáticamente, un mapeo de
+  semana equivocado (ej. `seasontype`/`week` de ESPN mal alineado) podría
+  crear un partido en la semana interna incorrecta] → Mitigado por: el mapeo
+  `seasontype`/`week` ↔ `weeks.type`/`weeks.number` es fijo y estable (no
+  depende de fuzzy matching); si igual ocurre, el admin sigue teniendo
+  `/admin/games/new` y el panel de resultados para corregir a mano — no hay
+  borrado automático de partidos, solo creación aditiva.
 - [Guardar `espn_event_id` ata el catálogo interno a IDs de un tercero] →
   Aceptado: es nullable y no se usa para ninguna lógica de negocio fuera de
   esta sincronización; no compromete el resto del modelo de datos.

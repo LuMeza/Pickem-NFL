@@ -1,6 +1,6 @@
-# Quiniela NFL — frontend
+# Pickem NFL — frontend
 
-App web (React + TypeScript + Vite) del proyecto Quiniela NFL.
+App web (React + TypeScript + Vite) del proyecto Pickem NFL.
 
 La arquitectura, specs y tareas de este proyecto se documentan con OpenSpec en
 `../openspec/`. Ver especialmente `../openspec/changes/arquitectura-frontend/`

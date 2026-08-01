@@ -1,54 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { GroupMember, GroupRepository } from '@/core/ports/GroupRepository'
+import type { GroupMember, GroupRepository, GroupSummary } from '@/core/ports/GroupRepository'
 
-/**
- * `createGroup`, `regenerateInviteCode` y `joinGroupByCode` se apoyan en
- * funciones RPC (SECURITY DEFINER) de Postgres en vez de construir la logica
- * de generacion/validacion de codigo en el cliente — ver
- * openspec/changes/base-plataforma design.md, decision 5.
- */
 export class SupabaseGroupRepository implements GroupRepository {
   private readonly client: SupabaseClient
 
   constructor(client: SupabaseClient) {
     this.client = client
-  }
-
-  async createGroup(name: string): Promise<{ groupId: string; inviteCode: string }> {
-    const { data, error } = await this.client
-      .rpc('create_group', { group_name: name })
-      .single<{ group_id: string; invite_code: string }>()
-    if (error || !data) throw error ?? new Error('No se pudo crear el grupo')
-
-    return { groupId: data.group_id, inviteCode: data.invite_code }
-  }
-
-  async getInviteCode(groupId: string): Promise<string> {
-    const { data, error } = await this.client
-      .from('group_invites')
-      .select('code')
-      .eq('group_id', groupId)
-      .eq('is_active', true)
-      .single()
-    if (error) throw error
-
-    return data.code as string
-  }
-
-  async regenerateInviteCode(groupId: string): Promise<string> {
-    const { data, error } = await this.client
-      .rpc('regenerate_invite_code', { p_group_id: groupId })
-      .single<{ code: string }>()
-    if (error || !data) throw error ?? new Error('No se pudo regenerar el codigo de invitacion')
-
-    return data.code
-  }
-
-  async joinGroupByCode(code: string): Promise<{ groupId: string }> {
-    const { data, error } = await this.client.rpc('join_group_by_code', { p_code: code }).single<{ group_id: string }>()
-    if (error || !data) throw error ?? new Error('Codigo de invitacion invalido')
-
-    return { groupId: data.group_id }
   }
 
   async listMembers(groupId: string): Promise<GroupMember[]> {
@@ -77,5 +34,12 @@ export class SupabaseGroupRepository implements GroupRepository {
       .eq('group_id', groupId)
       .eq('user_id', userId)
     if (error) throw error
+  }
+
+  async listGroups(): Promise<GroupSummary[]> {
+    const { data, error } = await this.client.from('groups').select('id, name').order('name')
+    if (error) throw error
+
+    return (data ?? []).map((row) => ({ id: row.id as string, name: row.name as string }))
   }
 }

@@ -42,5 +42,5 @@ propuesta en `base-plataforma` (catálogo NFL con marcador oficial `home_score`/
   `design.md`.
 - No afecta a Quiniela Semanal ni a Survivor. La relación con Quiniela Semanal es
   solo temporal (Quiniela Semanal deja de generar semanas nuevas al arrancar
-  playoffs, según su propio spec en `modulo-quiniela-semanal`); este change no
+  playoffs, según su propio spec en `modulo-pickem-semanal`); este change no
   modifica esa capability.

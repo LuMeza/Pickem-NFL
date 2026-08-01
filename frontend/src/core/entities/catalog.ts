@@ -3,7 +3,7 @@ export interface Team {
   name: string
 }
 
-export type WeekType = 'pretemporada' | 'regular' | 'playoffs'
+export type WeekType = 'hof' | 'pretemporada' | 'regular' | 'playoffs'
 
 export interface Week {
   id: string
@@ -17,4 +17,13 @@ export interface Game {
   homeTeamId: string
   awayTeamId: string
   kickoffAt: Date
+}
+
+export interface Player {
+  id: string
+  teamId: string
+  fullName: string
+  position: string | null
+  jerseyNumber: string | null
+  unit: string | null
 }

@@ -1,0 +1,46 @@
+.section {
+  margin-top: 24px;
+}
+
+.sectionTitle {
+  margin-bottom: 12px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+}
+
+.position {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+
+.winnerBanner {
+  margin-top: 16px;
+  padding: 16px;
+}

@@ -1,0 +1,152 @@
+.selector {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.segmentGroup {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 2px;
+  padding: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.segmentTab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0 14px;
+  min-height: 36px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 150ms ease-out,
+    color 150ms ease-out;
+}
+
+.segmentTabActive {
+  background: var(--accent-lime);
+  color: var(--bg-base);
+  font-weight: 700;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stepButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target-min);
+  height: var(--touch-target-min);
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition:
+    border-color 150ms ease-out,
+    color 150ms ease-out;
+}
+
+.stepButton:hover,
+.stepButton:focus-visible {
+  border-color: rgba(200, 255, 61, 0.4);
+  color: var(--accent-lime);
+}
+
+.stepButtonDisabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.currentWeekButton {
+  flex: 1;
+  min-height: var(--touch-target-min);
+  padding: 0 18px;
+  border-radius: 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 16px;
+  cursor: pointer;
+  transition: border-color 150ms ease-out;
+}
+
+.currentWeekButton:hover,
+.currentWeekButton:focus-visible {
+  border-color: rgba(200, 255, 61, 0.4);
+}
+
+.picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.pickerChip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 12px;
+  text-align: center;
+  transition:
+    border-color 150ms ease-out,
+    color 150ms ease-out;
+}
+
+.pickerChip:hover,
+.pickerChip:focus-visible {
+  color: var(--text-primary);
+  border-color: rgba(200, 255, 61, 0.3);
+}
+
+.pickerChipActive {
+  background: rgba(200, 255, 61, 0.12);
+  border-color: rgba(200, 255, 61, 0.4);
+  color: var(--accent-lime);
+}

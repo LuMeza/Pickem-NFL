@@ -1,0 +1,156 @@
+.agenda {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 16px;
+}
+
+.dayGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dayHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 4px;
+  background: linear-gradient(var(--bg-base) 62%, transparent);
+}
+
+.dayName {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.dayDate {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.dayCount {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  white-space: nowrap;
+}
+
+.gameSlot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gameMetaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.kickoffTime {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.resultPending {
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+}
+
+.resultDone {
+  color: var(--accent-lime);
+  background: rgba(200, 255, 61, 0.12);
+  border: 1px solid rgba(200, 255, 61, 0.25);
+}
+
+/* Scorebug: marcador grande tipo transmision, solo aparece cuando hay algo
+   real que mostrar (partido en vivo o resultado final) — ver Cancha Nocturna. */
+.scoreboard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 2px 4px 6px;
+}
+
+.scoreboardTeam {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.scoreboardValue {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.scoreboardLive {
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--danger);
+}
+
+.resultLive {
+  color: var(--danger);
+  background: rgba(255, 84, 104, 0.12);
+  border: 1px solid rgba(255, 84, 104, 0.3);
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(255, 84, 104, 0.45);
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 0 4px rgba(255, 84, 104, 0);
+  }
+}

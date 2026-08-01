@@ -1,3 +1,5 @@
+import type { Profile } from '@/core/entities/profile'
+
 export interface ProvisionalUserAccount {
   userId: string
   provisionalPassword: string
@@ -13,6 +15,10 @@ export interface AuthRepository {
   signIn(email: string, password: string): Promise<void>
   signOut(): Promise<void>
   changePassword(newPassword: string): Promise<void>
+  requestPasswordReset(email: string): Promise<void>
   getCurrentUserId(): Promise<string | null>
   mustChangePassword(): Promise<boolean>
+  getProfile(): Promise<Profile>
+  updateDisplayName(displayName: string): Promise<void>
+  isPlatformAdmin(): Promise<boolean>
 }

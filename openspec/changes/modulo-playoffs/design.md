@@ -18,7 +18,7 @@ specs/tasks.
 - No se define reparto de dinero entre los 3 lugares premiados (fuera de la
   plataforma).
 - No se modifica el cierre automático de la Quiniela Semanal (ya definido en
-  `modulo-quiniela-semanal`); este change solo agrega el módulo de Playoffs.
+  `modulo-pickem-semanal`); este change solo agrega el módulo de Playoffs.
 
 ## Decisions
 

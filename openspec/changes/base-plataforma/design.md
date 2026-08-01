@@ -19,8 +19,9 @@ datos y el modelo de permisos que todo lo demás va a usar) y con dependencias n
   login) y cómo se otorga acceso a un grupo (invitación por link/código generado
   por el administrador).
 - Definir cómo el administrador aprueba solicitudes de acceso a módulos opt-in
-  (usado por Quiniela Semanal en un change futuro, pero el modelo de "estado de
-  acceso" se define aquí porque es genérico a nivel grupo↔módulo).
+  (el modelo de "estado de acceso" se define aquí porque es genérico a nivel
+  grupo↔módulo; Survivor y Playoffs lo usan tal cual — Quiniela Semanal terminó
+  necesitando un grano más fino, ver nota de la decisión 4).
 - Dejar el modelo de partidos/resultados listo para que los módulos de juego solo
   necesiten agregar sus propias tablas de predicciones referenciando `games`.
 
@@ -81,11 +82,18 @@ al completarse, se actualiza `must_change_password = false`.
 - `group_members`: pertenecer al grupo (puede ver info general, tablas si el
   administrador lo permite).
 - `module_access`: fila por (grupo, usuario, módulo) con estado
-  `solicitado | aprobado | rechazado`, para modelar el flujo opt-in de la Quiniela
-  Semanal (solicitud → aprobación del administrador) sin acoplar esa lógica a la
+  `solicitado | aprobado | rechazado`, para modelar un flujo opt-in
+  (solicitud → aprobación del administrador) sin acoplar esa lógica a la
   tabla de membresía del grupo. Survivor y Playoffs pueden usar la misma tabla si
-  en el futuro también requieren aprobación, o simplemente no generar filas
-  (acceso implícito por ser miembro) — se decide por módulo en su propio change.
+  requieren aprobación, o simplemente no generar filas (acceso implícito por ser
+  miembro) — se decide por módulo en su propio change.
+
+**Actualizado por `modulo-pickem-semanal`:** el grano de `module_access`
+(un estado por temporada) no encajó para la Quiniela Semanal, que requiere
+decidir el acceso semana a semana. Ese módulo no usa `module_access` — define
+su propia tabla `weekly_access` (grano `grupo, usuario, semana`) en su propio
+design.md. `module_access` sigue siendo el modelo vigente para Survivor y
+Playoffs.
 
 **5. Invitación por link/código con tabla `group_invites`, generado solo por el
 administrador**
@@ -96,6 +104,14 @@ link de invitación embebe el código. Un usuario ya dado de alta (con cuenta
 existente) que abre el link o ingresa el código se agrega a sí mismo como miembro
 mediante una función controlada (SECURITY DEFINER / RPC) que valida el código —
 no requiere que el administrador lo agregue manualmente uno por uno.
+
+**Actualizado post-implementación (feedback de producto):** se descarta este
+flujo de invitación. La plataforma opera con un único grupo global — la
+Edge Function de alta de usuario (`admin-create-user`) agrega automáticamente
+a cada usuario nuevo a ese grupo. Las funciones `create_group`,
+`regenerate_invite_code` y `join_group_by_code`, y la tabla `group_invites`,
+quedan en el esquema (no se eliminaron, son inofensivas sin uso) pero sin
+ningún flujo de UI que las invoque. Ver specs/grupos-privados actualizado.
 
 **6. Semanas como entidad explícita (`weeks`), no solo un número**
 `weeks` incluye tipo (`pretemporada | regular | playoffs`) y número, para soportar
@@ -125,7 +141,9 @@ los grupos, es el catálogo NFL); su escritura también se restringe a
   con una futura fuente automática sin migración destructiva.
 - [Modelo de `module_access` genérico puede no encajar igual para los 3 módulos] →
   Se revisa y ajusta (delta spec) cuando se proponga cada change de módulo, en vez
-  de sobre-diseñarlo ahora sin conocer el detalle fino de cada uno.
+  de sobre-diseñarlo ahora sin conocer el detalle fino de cada uno. Materializado
+  para Quiniela Semanal: ese módulo no usa `module_access`, define su propia
+  tabla `weekly_access` (ver decisión 4, actualizada por `modulo-pickem-semanal`).
 - [Un solo administrador es un punto único de fallo operativo (si pierde acceso,
   nadie más puede dar de alta usuarios o cargar resultados)] → Aceptado
   explícitamente para v1 según lo pedido; el esquema (`platform_admins` como

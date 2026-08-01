@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Game, Team, Week, WeekType } from '@/core/entities/catalog'
-import type { CatalogRepository } from '@/core/ports/CatalogRepository'
+import type { Game, Player, Team, Week, WeekType } from '@/core/entities/catalog'
+import type { CatalogRepository, NewGame } from '@/core/ports/CatalogRepository'
 
 export class SupabaseCatalogRepository implements CatalogRepository {
   private readonly client: SupabaseClient
@@ -42,5 +42,79 @@ export class SupabaseCatalogRepository implements CatalogRepository {
       awayTeamId: row.away_team_id as string,
       kickoffAt: new Date(row.kickoff_at as string),
     }))
+  }
+
+  async listAllGames(): Promise<Game[]> {
+    const { data, error } = await this.client
+      .from('games')
+      .select('id, week_id, home_team_id, away_team_id, kickoff_at')
+      .order('kickoff_at')
+    if (error) throw error
+
+    return (data ?? []).map((row) => ({
+      id: row.id as string,
+      weekId: row.week_id as string,
+      homeTeamId: row.home_team_id as string,
+      awayTeamId: row.away_team_id as string,
+      kickoffAt: new Date(row.kickoff_at as string),
+    }))
+  }
+
+  async listGamesForTeam(teamId: string): Promise<Game[]> {
+    const { data, error } = await this.client
+      .from('games')
+      .select('id, week_id, home_team_id, away_team_id, kickoff_at')
+      .or(`home_team_id.eq.${teamId},away_team_id.eq.${teamId}`)
+      .order('kickoff_at')
+    if (error) throw error
+
+    return (data ?? []).map((row) => ({
+      id: row.id as string,
+      weekId: row.week_id as string,
+      homeTeamId: row.home_team_id as string,
+      awayTeamId: row.away_team_id as string,
+      kickoffAt: new Date(row.kickoff_at as string),
+    }))
+  }
+
+  async listPlayersForTeam(teamId: string): Promise<Player[]> {
+    const { data, error } = await this.client
+      .from('players')
+      .select('id, team_id, full_name, position, jersey_number, unit')
+      .eq('team_id', teamId)
+      .order('unit')
+      .order('full_name')
+    if (error) throw error
+
+    return (data ?? []).map((row) => ({
+      id: row.id as string,
+      teamId: row.team_id as string,
+      fullName: row.full_name as string,
+      position: row.position as string | null,
+      jerseyNumber: row.jersey_number as string | null,
+      unit: row.unit as string | null,
+    }))
+  }
+
+  async createGame(game: NewGame): Promise<Game> {
+    const { data, error } = await this.client
+      .from('games')
+      .insert({
+        week_id: game.weekId,
+        home_team_id: game.homeTeamId,
+        away_team_id: game.awayTeamId,
+        kickoff_at: game.kickoffAt.toISOString(),
+      })
+      .select('id, week_id, home_team_id, away_team_id, kickoff_at')
+      .single()
+    if (error) throw error
+
+    return {
+      id: data.id as string,
+      weekId: data.week_id as string,
+      homeTeamId: data.home_team_id as string,
+      awayTeamId: data.away_team_id as string,
+      kickoffAt: new Date(data.kickoff_at as string),
+    }
   }
 }

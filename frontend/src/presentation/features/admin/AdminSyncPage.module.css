@@ -1,0 +1,36 @@
+.card {
+  padding: 24px;
+  margin-top: 16px;
+}
+
+.statsRow {
+  display: flex;
+  gap: 24px;
+  margin: 16px 0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statValue {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-lime);
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.errorList {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--danger);
+}

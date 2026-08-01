@@ -1,0 +1,65 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(200, 255, 61, 0.18);
+}
+
+.brand {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 24px;
+  color: var(--text-primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.context {
+  display: none;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 14px;
+  min-width: 0;
+}
+
+.context span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.countdown {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent-lime);
+  background: rgba(200, 255, 61, 0.1);
+  border: 1px solid rgba(200, 255, 61, 0.3);
+  border-radius: 6px;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .context {
+    display: flex;
+  }
+}
+
+.signOut {
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+  flex-shrink: 0;
+}

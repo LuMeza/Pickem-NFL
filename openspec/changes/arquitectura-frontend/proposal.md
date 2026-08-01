@@ -49,7 +49,7 @@ ni en los 3 módulos, solo cómo se organiza el código que lo implementa)
 ## Impact
 
 - Afecta cómo se ejecutan las tareas de implementación de `base-plataforma`,
-  `modulo-quiniela-semanal`, `modulo-survivor` y `modulo-playoffs`: sus pantallas
+  `modulo-pickem-semanal`, `modulo-survivor` y `modulo-playoffs`: sus pantallas
   se construyen sobre casos de uso/hooks en vez de llamar a Supabase
   directamente, y reutilizan `core/rules` en vez de reimplementar bloqueo/empates
   por módulo.

@@ -1,0 +1,71 @@
+.section {
+  margin-top: 24px;
+}
+
+.sectionTitle {
+  margin-bottom: 12px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.module {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.statusPill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.statusAprobado {
+  color: var(--accent-lime);
+  background: rgba(200, 255, 61, 0.12);
+  border: 1px solid rgba(200, 255, 61, 0.25);
+}
+
+.statusRechazado {
+  color: var(--danger);
+  background: rgba(255, 84, 104, 0.12);
+  border: 1px solid rgba(255, 84, 104, 0.25);
+}

@@ -43,7 +43,7 @@ la UI de los tres módulos.
 
 ## Impact
 
-- Es la base visual/estructural que consumen `modulo-quiniela-semanal`,
+- Es la base visual/estructural que consumen `modulo-pickem-semanal`,
   `modulo-survivor` y `modulo-playoffs` al construir sus pantallas — no modifica
   las specs funcionales de esos changes (predicciones, tablas, cálculo de
   aciertos siguen igual), solo cómo se presentan.

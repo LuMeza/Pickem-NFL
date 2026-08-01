@@ -4,17 +4,20 @@ export interface GroupMember {
   joinedAt: Date
 }
 
+export interface GroupSummary {
+  id: string
+  name: string
+}
+
 /**
- * Ver openspec/changes/base-plataforma specs/grupos-privados.
- * Crear grupo, regenerar/leer codigo de invitacion y administrar miembros
- * son operaciones exclusivas del administrador de plataforma (impuesto por
- * RLS; el adapter no duplica esa validacion).
+ * Ver openspec/changes/base-plataforma specs/grupos-privados (actualizado:
+ * grupo unico global, sin flujo de creacion/invitacion — todo usuario queda
+ * agregado automaticamente al darse de alta, ver admin-create-user).
+ * `listGroups` siempre retorna ese unico grupo; se mantiene como lista (no
+ * `getDefaultGroup`) por si en el futuro se reintroduce mas de un grupo.
  */
 export interface GroupRepository {
-  createGroup(name: string): Promise<{ groupId: string; inviteCode: string }>
-  getInviteCode(groupId: string): Promise<string>
-  regenerateInviteCode(groupId: string): Promise<string>
-  joinGroupByCode(code: string): Promise<{ groupId: string }>
   listMembers(groupId: string): Promise<GroupMember[]>
   removeMember(groupId: string, userId: string): Promise<void>
+  listGroups(): Promise<GroupSummary[]>
 }

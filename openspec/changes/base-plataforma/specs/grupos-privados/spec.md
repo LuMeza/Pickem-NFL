@@ -1,79 +1,60 @@
 ## ADDED Requirements
 
-### Requirement: Creación de grupo privado exclusiva por el administrador
-Solo el administrador de plataforma SHALL poder crear un grupo privado. El sistema SHALL generar automáticamente un código de invitación al crear el grupo.
+> **Actualizado post-implementación (feedback de producto):** se descarta el
+> modelo de múltiples grupos con invitación por link/código. La plataforma
+> opera con un **único grupo global**: todo usuario dado de alta por el
+> administrador queda agregado automáticamente a ese grupo, sin flujo de
+> creación de grupo ni de unión por código. Lo único que varía por usuario es
+> su estado de acceso a cada módulo opcional que use este modelo genérico
+> (p. ej. Survivor, Playoffs — Quiniela Semanal usa su propio modelo de acceso
+> semanal, ver nota en el requirement de solicitud/aprobación más abajo). El
+> esquema de datos (`groups`/`group_members`) no se eliminó — sigue siendo
+> genérico por si en el futuro se retoma soporte a múltiples grupos — pero no
+> hay ninguna pantalla ni requirement que exponga esa capacidad hoy.
 
-#### Scenario: Administrador crea un grupo
-- **WHEN** el administrador de plataforma envía un nombre de grupo válido
-- **THEN** el sistema crea el grupo y genera un código de invitación inicial
+### Requirement: Grupo único global, sin flujo de invitación
+El sistema SHALL operar con un único grupo. Todo usuario dado de alta por el administrador de plataforma SHALL quedar agregado automáticamente a ese grupo al momento del alta, sin código ni link de invitación.
 
-#### Scenario: Usuario regular intenta crear un grupo
-- **WHEN** un usuario autenticado que no es administrador de plataforma intenta crear un grupo
-- **THEN** el sistema rechaza la operación
+#### Scenario: Alta de usuario agrega al grupo automáticamente
+- **WHEN** el administrador de plataforma da de alta a un usuario nuevo
+- **THEN** el sistema lo agrega como miembro del único grupo de la plataforma en la misma operación, sin pasos adicionales
 
-### Requirement: Invitación por link o código, generada solo por el administrador
-El administrador de plataforma SHALL poder obtener el código/link de invitación de cualquier grupo y regenerarlo cuando lo necesite.
-
-#### Scenario: Obtener código de invitación
-- **WHEN** el administrador abre la sección de invitación de un grupo
-- **THEN** el sistema muestra el código/link vigente para compartir fuera de la plataforma
-
-#### Scenario: Regenerar código
-- **WHEN** el administrador solicita regenerar el código de invitación de un grupo
-- **THEN** el sistema invalida el código anterior y genera uno nuevo, de forma que links previos ya no permiten unirse
-
-### Requirement: Unirse a un grupo mediante invitación
-Un usuario autenticado (dado de alta previamente por el administrador) SHALL poder unirse por sí mismo a un grupo existente usando un código o link de invitación válido, sin intervención adicional del administrador.
-
-#### Scenario: Unión exitosa
-- **WHEN** un usuario autenticado abre un link de invitación válido o ingresa un código válido
-- **THEN** el sistema lo agrega como miembro del grupo
-
-#### Scenario: Código inválido o revocado
-- **WHEN** un usuario intenta unirse con un código que no existe o fue regenerado
-- **THEN** el sistema rechaza la unión y muestra un mensaje de error
-
-#### Scenario: Usuario ya es miembro
-- **WHEN** un usuario que ya pertenece al grupo intenta unirse de nuevo con el mismo código
-- **THEN** el sistema no crea una membresía duplicada
+#### Scenario: No existe flujo de creación de grupos adicionales
+- **WHEN** cualquier usuario, incluido el administrador de plataforma, busca una forma de crear un grupo nuevo o unirse por código
+- **THEN** el sistema no ofrece esa funcionalidad
 
 ### Requirement: Administración de miembros por el administrador de plataforma
-El administrador de plataforma SHALL poder ver la lista de miembros de cualquier grupo y remover a un miembro de ese grupo.
+El administrador de plataforma SHALL poder ver la lista de miembros del grupo y remover a un miembro.
 
 #### Scenario: Ver miembros
-- **WHEN** el administrador abre la pantalla de miembros de un grupo
+- **WHEN** el administrador abre la pantalla de miembros
 - **THEN** el sistema muestra la lista de todos los miembros actuales
 
 #### Scenario: Remover miembro
-- **WHEN** el administrador remueve a un miembro de un grupo
-- **THEN** el sistema elimina su membresía y ese usuario deja de ver los datos del grupo
+- **WHEN** el administrador remueve a un miembro
+- **THEN** el sistema elimina su membresía
 
 #### Scenario: Miembro sin permisos de administración
-- **WHEN** un usuario que no es administrador de plataforma intenta remover a otro miembro de un grupo
+- **WHEN** un usuario que no es administrador de plataforma intenta remover a otro miembro
 - **THEN** el sistema rechaza la acción por falta de permisos
 
 ### Requirement: Solicitud y aprobación de acceso a un módulo opcional
-El sistema SHALL permitir registrar, por cada combinación de grupo, usuario y módulo, un estado de acceso (solicitado, aprobado, rechazado), gestionable exclusivamente por el administrador de plataforma. Esta es la base genérica que usarán los módulos de juego que requieran aprobación explícita (p. ej. Quiniela Semanal); las reglas específicas de cada módulo se definen en su propio spec.
+El sistema SHALL permitir registrar, por cada combinación de usuario y módulo, un estado de acceso (solicitado, aprobado, rechazado), gestionable exclusivamente por el administrador de plataforma. Esta es la base genérica que usarán los módulos de juego que requieran aprobación explícita a nivel de temporada (p. ej. Survivor, Playoffs); las reglas específicas de cada módulo se definen en su propio spec.
+
+> **Nota (`modulo-pickem-semanal`):** la Quiniela Semanal NO usa este modelo genérico de acceso por módulo — requiere aprobación semana a semana, no una única aprobación por temporada, así que define su propio modelo de acceso (`weekly_access`) en su propio spec.
 
 #### Scenario: Usuario solicita acceso a un módulo
-- **WHEN** un miembro del grupo solicita acceso a un módulo que requiere aprobación
-- **THEN** el sistema registra el estado como "solicitado" para ese usuario, grupo y módulo
+- **WHEN** un usuario solicita acceso a un módulo que requiere aprobación
+- **THEN** el sistema registra el estado como "solicitado" para ese usuario y módulo
 
 #### Scenario: Administrador aprueba una solicitud
 - **WHEN** el administrador de plataforma aprueba una solicitud de acceso pendiente
-- **THEN** el sistema cambia el estado a "aprobado" para ese usuario, grupo y módulo
+- **THEN** el sistema cambia el estado a "aprobado" para ese usuario y módulo
 
 #### Scenario: Administrador rechaza una solicitud
 - **WHEN** el administrador de plataforma rechaza una solicitud de acceso pendiente
-- **THEN** el sistema cambia el estado a "rechazado" para ese usuario, grupo y módulo
+- **THEN** el sistema cambia el estado a "rechazado" para ese usuario y módulo
 
 #### Scenario: Usuario sin acceso aprobado no puede participar
 - **WHEN** un usuario sin estado "aprobado" para un módulo intenta registrar datos propios de ese módulo (p. ej. una predicción)
 - **THEN** el sistema rechaza la operación
-
-### Requirement: Aislamiento de datos entre grupos
-El sistema SHALL asegurar que los datos de un grupo (miembros, accesos a módulos, invitaciones) solo sean visibles para los usuarios que pertenecen a ese grupo o para el administrador de plataforma.
-
-#### Scenario: Usuario ajeno intenta ver datos de otro grupo
-- **WHEN** un usuario autenticado que no pertenece a un grupo ni es administrador de plataforma intenta consultar los datos de ese grupo directamente
-- **THEN** el sistema no retorna ningún dato del grupo

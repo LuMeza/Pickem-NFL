@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type {
   GameModule,
   ModuleAccessRepository,
+  ModuleAccessRequest,
   ModuleAccessStatus,
 } from '@/core/ports/ModuleAccessRepository'
 
@@ -38,6 +39,27 @@ export class SupabaseModuleAccessRepository implements ModuleAccessRepository {
     if (error) throw error
 
     return (data?.status as ModuleAccessStatus | undefined) ?? null
+  }
+
+  async listRequests(groupId: string): Promise<ModuleAccessRequest[]> {
+    const { data, error } = await this.client
+      .from('module_access')
+      .select('user_id, module, status, profiles(display_name)')
+      .eq('group_id', groupId)
+      .order('requested_at')
+    if (error) throw error
+
+    return (data ?? []).map((row) => {
+      const profile = row.profiles as unknown as { display_name: string } | { display_name: string }[] | null
+      const displayName = Array.isArray(profile) ? profile[0]?.display_name : profile?.display_name
+
+      return {
+        userId: row.user_id as string,
+        displayName: displayName ?? '',
+        module: row.module as GameModule,
+        status: row.status as ModuleAccessStatus,
+      }
+    })
   }
 
   private async setStatus(
