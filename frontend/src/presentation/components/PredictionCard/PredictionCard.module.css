@@ -37,6 +37,14 @@
   display: flex;
   opacity: 1;
 }
+/* .back siempre trae su propio rotateY(180deg) (linea ~52) para quedar al
+   derecho cuando el padre .card gira; en reduced motion el padre ya no gira
+   (transform: none arriba), asi que hay que neutralizar tambien el propio
+   giro de .back o su backface-visibility:hidden lo deja invisible aunque
+   display sea flex. */
+.card[data-reduced-motion='true'] .back {
+  transform: none;
+}
 
 .face {
   position: absolute;
@@ -88,6 +96,7 @@
 }
 
 .optionButton {
+  position: relative;
   flex: 1;
   align-self: stretch;
   min-height: var(--touch-target-min);
@@ -110,6 +119,31 @@
 .optionButton:not(:disabled):focus-visible {
   border-color: rgba(200, 255, 61, 0.4);
   background: rgba(200, 255, 61, 0.06);
+}
+
+/* Pick elegido: resaltado directo en el boton, sin voltear la carta — se
+   puede tocar otra opcion en cualquier momento para cambiarlo (feedback de
+   producto: voltear solo para "confirmar" agregaba friccion sin payoff). */
+.optionButton[data-selected='true'],
+.tripleOption[data-selected='true'] {
+  border-color: var(--picked-accent, var(--accent-lime));
+  background: color-mix(in srgb, var(--picked-accent, var(--accent-lime)) 12%, transparent);
+}
+.optionButton[data-selected='true'][data-urgent='true'],
+.tripleOption[data-selected='true'][data-urgent='true'] {
+  border-color: var(--danger);
+  background: rgba(255, 84, 104, 0.1);
+}
+
+.selectedBadge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  color: var(--picked-accent, var(--accent-lime));
+}
+.optionButton[data-urgent='true'] .selectedBadge {
+  color: var(--danger);
 }
 
 .optionLabel {
@@ -140,22 +174,6 @@
   color: var(--picked-accent, var(--accent-lime));
 }
 
-.seal {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  text-transform: uppercase;
-}
-.sealGold {
-  color: var(--bg-base);
-  background: var(--accent-gold);
-}
-.sealUrgent {
-  color: var(--text-primary);
-  background: var(--danger);
-}
-
 .resultBadge {
   position: absolute;
   top: 8px;
@@ -177,10 +195,13 @@
 
 .tripleOption {
   flex: 1;
+  align-self: stretch;
   min-height: var(--touch-target-min);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   text-align: center;
   background: transparent;
   border: 1px solid var(--glass-border);
@@ -188,8 +209,35 @@
   padding: 8px;
   color: var(--text-primary);
   font-size: 13px;
+  transition:
+    border-color 150ms ease-out,
+    background 150ms ease-out;
+}
+
+.tripleOption:not(:disabled):hover,
+.tripleOption:not(:disabled):focus-visible {
+  border-color: rgba(200, 255, 61, 0.4);
+  background: rgba(200, 255, 61, 0.06);
 }
 
 .tripleOption:nth-child(2) {
   flex: 0.7;
+}
+
+.tripleOptionLogo {
+  display: flex;
+}
+
+.tripleOptionLabel {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.tripleOption[data-selected='true'] {
+  color: var(--picked-accent, var(--accent-lime));
+}
+.tripleOption[data-selected='true'][data-urgent='true'] {
+  color: var(--danger);
 }

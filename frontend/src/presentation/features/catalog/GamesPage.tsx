@@ -160,9 +160,9 @@ function GameProposal({
         pickedAccent={pickedAccent}
         onSelect={(optionId) => onPick(game.id, optionId as WeeklyPickValue)}
         options={[
-          { id: 'home', label: teamName(game.homeTeamId), logo: <TeamBadge teamId={game.homeTeamId} size="md" /> },
+          { id: 'home', label: teamName(game.homeTeamId), logo: <TeamBadge teamId={game.homeTeamId} size="sm" /> },
           { id: 'tie', label: 'Empate' },
-          { id: 'away', label: teamName(game.awayTeamId), logo: <TeamBadge teamId={game.awayTeamId} size="md" /> },
+          { id: 'away', label: teamName(game.awayTeamId), logo: <TeamBadge teamId={game.awayTeamId} size="sm" /> },
         ]}
       />
     </div>
@@ -274,7 +274,7 @@ export function GamesPage() {
       <span className="kicker">
         <Icon name="football" size={13} /> Pickem semanal
       </span>
-      <h1 className="text-display-lg">Propuestas de la semana</h1>
+      <h1 className="text-display-lg">Tu pick de la semana</h1>
       <WeekSelector activeWeekId={weekId} />
 
       {isPlayoffsWeek && (
