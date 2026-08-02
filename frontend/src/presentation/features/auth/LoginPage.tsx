@@ -24,6 +24,7 @@ export function LoginPage() {
   return (
     <div className="auth-screen">
       <section className="glass-surface">
+        <span className={styles.watermark} aria-hidden="true">12</span>
         <span className="auth-kicker">
           <Icon name="football" size={13} /> Pickem NFL
         </span>
@@ -32,31 +33,43 @@ export function LoginPage() {
         <form onSubmit={handleSubmit}>
           <label>
             Correo
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-              autoComplete="email"
-            />
+            <div className={styles.inputWrap}>
+              <Icon name="mail" size={16} className={styles.inputIcon} />
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                autoComplete="email"
+                className={styles.inputWithIcon}
+              />
+            </div>
           </label>
           <label>
             Contraseña
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              autoComplete="current-password"
-            />
+            <div className={styles.inputWrap}>
+              <Icon name="lock" size={16} className={styles.inputIcon} />
+              <input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                autoComplete="current-password"
+                className={styles.inputWithIcon}
+              />
+            </div>
           </label>
           <button type="submit" className={styles.submit} disabled={status === 'pending'}>
+            <Icon name="football" size={16} />
             {status === 'pending' ? 'Ingresando...' : 'Ingresar'}
           </button>
         </form>
         {error && <p role="alert">Correo o contraseña incorrectos.</p>}
-        <p className="text-body-sm text-muted" style={{ marginTop: 16 }}>
-          <Link to="/forgot-password">Olvide mi contraseña</Link>
+        <p className={styles.footer}>
+          <Link to="/forgot-password" className={styles.forgotLink}>
+            Olvidé mi contraseña
+            <Icon name="arrowLeft" size={14} className={styles.forgotIcon} />
+          </Link>
         </p>
       </section>
     </div>

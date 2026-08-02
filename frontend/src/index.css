@@ -150,6 +150,11 @@ body {
 
 a {
   color: var(--accent-lime);
+  text-decoration: none;
+}
+a:hover,
+a:focus-visible {
+  color: var(--accent-gold);
 }
 
 button,
