@@ -4,6 +4,7 @@ import { useListTeams } from '@/presentation/hooks/useListTeams'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
 import { Icon } from '@/presentation/components/Icon/Icon'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import styles from './TeamsPage.module.css'
 
 /** Tarea 6.1 (base-plataforma): listado de equipos NFL. */
@@ -21,7 +22,7 @@ export function TeamsPage() {
       </span>
       <h1 className="text-display-lg">Equipos</h1>
       <p className="text-body-sm text-muted">Los 32 equipos de la NFL.</p>
-      {status === 'pending' && <p>Cargando equipos...</p>}
+      {status === 'pending' && <LoadingSpinner variant="inline" label="Cargando equipos" />}
       {error && <p role="alert">No se pudieron cargar los equipos.</p>}
       <div className={styles.grid}>
         {teams?.map((team) => (

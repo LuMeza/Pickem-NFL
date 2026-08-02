@@ -9,6 +9,7 @@ import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { Icon } from '@/presentation/components/Icon/Icon'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import styles from './CalendarPage.module.css'
 
 const SEGMENT_ORDER: WeekType[] = ['hof', 'pretemporada', 'regular', 'playoffs']
@@ -260,7 +261,7 @@ export function CalendarPage() {
         )}
       </div>
 
-      {status === 'pending' && <p>Cargando calendario...</p>}
+      {status === 'pending' && <LoadingSpinner variant="inline" label="Cargando calendario" />}
       {error && <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />}
       {weeks && weeks.length === 0 && <EmptyState message={EMPTY_STATE_COPY.noWeeksAvailable} />}
 

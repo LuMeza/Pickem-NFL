@@ -3,6 +3,7 @@ import { AppLayout } from '@/presentation/components/AppLayout'
 import { RequireAuth } from '@/presentation/components/RequireAuth'
 import { RequireActiveSession } from '@/presentation/components/RequireActiveSession'
 import { RequireAdmin } from '@/presentation/components/RequireAdmin'
+import { NotFoundRedirect } from '@/presentation/components/NotFoundRedirect'
 import { LoginPage } from '@/presentation/features/auth/LoginPage'
 import { ForgotPasswordPage } from '@/presentation/features/auth/ForgotPasswordPage'
 import { ResetPasswordPage } from '@/presentation/features/auth/ResetPasswordPage'
@@ -82,6 +83,8 @@ function App() {
             </Route>
           </Route>
         </Route>
+
+        <Route path="*" element={<NotFoundRedirect />} />
       </Routes>
     </BrowserRouter>
   )

@@ -9,6 +9,7 @@ import { PlayerCard } from '@/presentation/components/PlayerCard/PlayerCard'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
 import { Icon } from '@/presentation/components/Icon/Icon'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import { POSITION_LABEL } from './nflPositions'
 import type { Game, Player, Week, WeekType } from '@/core/entities/catalog'
 import styles from './TeamDetailPage.module.css'
@@ -155,7 +156,7 @@ export function TeamDetailPage() {
 
       {tab === 'calendario' && (
         <div role="tabpanel">
-          {gamesStatus === 'pending' && <p>Cargando calendario...</p>}
+          {gamesStatus === 'pending' && <LoadingSpinner variant="inline" label="Cargando calendario" />}
           {gamesError && <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />}
           {games && games.length === 0 && <EmptyState message="Este equipo todavia no tiene partidos cargados." />}
           {gameSections.map(([type, sectionGames]) => (
@@ -188,7 +189,7 @@ export function TeamDetailPage() {
 
       {tab === 'plantilla' && (
         <div role="tabpanel">
-          {playersStatus === 'pending' && <p>Cargando plantilla...</p>}
+          {playersStatus === 'pending' && <LoadingSpinner variant="inline" label="Cargando plantilla" />}
           {playersError && <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />}
           {players && players.length === 0 && (
             <EmptyState message="Todavia no se ha sincronizado la plantilla de este equipo." />

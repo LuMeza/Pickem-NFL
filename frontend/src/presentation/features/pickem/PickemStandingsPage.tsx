@@ -10,6 +10,7 @@ import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelecto
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import { isPlayoffsStarted } from '@/core/rules/isPlayoffsStarted'
 import { resolveTiedRanking } from '@/core/rules/resolveTiedRanking'
 import type { StandingRow } from '@/core/entities/standings'
@@ -109,7 +110,7 @@ export function PickemStandingsPage() {
             <h2 className={`text-display-sm ${styles.sectionTitle}`}>
               {activeWeek ? weekLabel(activeWeek) : 'Esta semana'}
             </h2>
-            {weeklyStatus === 'pending' && <p>Cargando...</p>}
+            {weeklyStatus === 'pending' && <LoadingSpinner variant="inline" />}
             <StandingsList rows={weeklyStandings ?? []} />
           </div>
 

@@ -5,6 +5,7 @@ import { useResolveWeeklyAccessRequest } from '@/presentation/hooks/useResolveWe
 import { useListWeeks } from '@/presentation/hooks/useListWeeks'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
 import { Icon } from '@/presentation/components/Icon/Icon'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import type { Week } from '@/core/entities/catalog'
 import type { WeeklyAccessRequest } from '@/core/ports/WeeklyAccessRepository'
 import { isWeekAccessLocked } from '@/core/rules/isWeekAccessLocked'
@@ -138,7 +139,7 @@ export function WeeklyAccessRequestsPage() {
         <Icon name="ticket" size={13} /> Aprobaciones
       </span>
       <h1 className="text-display-lg">Solicitudes de acceso semanal</h1>
-      {status === 'pending' && <p>Cargando...</p>}
+      {status === 'pending' && <LoadingSpinner variant="inline" />}
       {error && <p role="alert">No se pudieron cargar las solicitudes.</p>}
       {requests && requests.length === 0 && <p className="text-body-sm text-muted">No hay solicitudes todavia.</p>}
 

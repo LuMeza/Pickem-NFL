@@ -4,6 +4,7 @@ import { useListWeeks } from '@/presentation/hooks/useListWeeks'
 import type { Week } from '@/core/entities/catalog'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 
 function pickDefaultWeek(weeks: Week[]): Week {
   const regularWeeks = weeks.filter((week) => week.type === 'regular')
@@ -19,7 +20,7 @@ export function PickemAccessRedirect() {
     run()
   }, [run])
 
-  if (status === 'pending' || status === 'idle') return <p>Cargando semanas...</p>
+  if (status === 'pending' || status === 'idle') return <LoadingSpinner label="Cargando semanas" />
   if (error) return <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />
   if (!weeks || weeks.length === 0) return <EmptyState message={EMPTY_STATE_COPY.noWeeksAvailable} />
 

@@ -11,6 +11,7 @@ import { useListAdminSurvivorPicksForUser } from '@/presentation/hooks/useListAd
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import type { Game, Week } from '@/core/entities/catalog'
 import type { AdminUserWeeklyPick, AdminWeeklyPickRow } from '@/core/ports/AdminPicksRepository'
 import styles from './AdminUserPicksPage.module.css'
@@ -223,7 +224,7 @@ export function AdminUserPicksPage() {
 
           {selectedWeekId && quiniela === 'weekly' && (
             <>
-              {weeklyWeekStatus === 'pending' && <p>Cargando...</p>}
+              {weeklyWeekStatus === 'pending' && <LoadingSpinner variant="inline" />}
               {weeklyWeekStatus === 'error' && <p role="alert">No se pudieron cargar los picks.</p>}
               {weeklyByUser.size === 0 && weeklyWeekStatus === 'success' && (
                 <EmptyState message="Nadie tiene picks para esta semana." />
@@ -274,7 +275,7 @@ export function AdminUserPicksPage() {
 
           {selectedWeekId && quiniela === 'survivor' && (
             <>
-              {survivorWeekStatus === 'pending' && <p>Cargando...</p>}
+              {survivorWeekStatus === 'pending' && <LoadingSpinner variant="inline" />}
               {survivorWeekStatus === 'error' && <p role="alert">No se pudieron cargar los picks.</p>}
               {survivorWeekRows && survivorWeekRows.length === 0 && (
                 <EmptyState message="Nadie tiene picks de survivor para esta semana." />
@@ -332,7 +333,7 @@ export function AdminUserPicksPage() {
           {selectedUserId && (
             <>
               <h2 className="text-display-sm">Pickem semanal</h2>
-              {userWeeklyStatus === 'pending' && <p>Cargando...</p>}
+              {userWeeklyStatus === 'pending' && <LoadingSpinner variant="inline" />}
               {userWeeklyStatus === 'error' && <p role="alert">No se pudo cargar el historico.</p>}
               {userWeeklyWeeksOrdered.length === 0 && userWeeklyStatus === 'success' && (
                 <EmptyState message="No hay partidos registrados para este usuario." />
@@ -364,7 +365,7 @@ export function AdminUserPicksPage() {
               ))}
 
               <h2 className="text-display-sm">Survivor</h2>
-              {userSurvivorStatus === 'pending' && <p>Cargando...</p>}
+              {userSurvivorStatus === 'pending' && <LoadingSpinner variant="inline" />}
               {userSurvivorStatus === 'error' && <p role="alert">No se pudo cargar el historico.</p>}
               {userSurvivorWeeksOrdered.length === 0 && userSurvivorStatus === 'success' && (
                 <EmptyState message="No hay semanas de survivor registradas para este usuario." />

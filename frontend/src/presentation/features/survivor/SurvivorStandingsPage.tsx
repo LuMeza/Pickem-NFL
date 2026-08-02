@@ -4,6 +4,7 @@ import { useListWeeks } from '@/presentation/hooks/useListWeeks'
 import { useListSurvivorGroupState } from '@/presentation/hooks/useListSurvivorGroupState'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import type { SurvivorParticipant } from '@/core/entities/survivor'
 import { weekLabel } from '@/presentation/features/pickem/weekLabel'
 import { SurvivorLifeIndicator } from './SurvivorLifeIndicator'
@@ -59,7 +60,7 @@ export function SurvivorStandingsPage() {
       </span>
       <h1 className="text-display-lg">Estado del grupo</h1>
 
-      {status === 'pending' && <p>Cargando...</p>}
+      {status === 'pending' && <LoadingSpinner variant="inline" />}
       {error && <EmptyState message="No pudimos cargar el estado de survivor." />}
 
       {podium.length > 0 && (

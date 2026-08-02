@@ -17,6 +17,7 @@ import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import type { Game } from '@/core/entities/catalog'
 import { weekLabel } from '@/presentation/features/pickem/weekLabel'
 import { SurvivorLifeIndicator } from './SurvivorLifeIndicator'
@@ -159,7 +160,7 @@ export function SurvivorPickPage() {
               picks no van a contar.
             </p>
           )}
-          {gamesStatus === 'pending' && <p>Cargando partidos...</p>}
+          {gamesStatus === 'pending' && <LoadingSpinner variant="inline" label="Cargando partidos" />}
           {gamesError && <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />}
           {games && games.length === 0 && <EmptyState message="Esta semana todavia no tiene partidos cargados." />}
 

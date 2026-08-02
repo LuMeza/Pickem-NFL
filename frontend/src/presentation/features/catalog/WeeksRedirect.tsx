@@ -5,6 +5,7 @@ import { useListAllGames } from '@/presentation/hooks/useListAllGames'
 import type { Game, Week } from '@/core/entities/catalog'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 
 /** Un partido dura ~4h en cancha — mismo margen que usa GamesPage para considerar un partido "en vivo". */
 const LIVE_WINDOW_MS = 4 * 60 * 60 * 1000
@@ -56,7 +57,7 @@ export function WeeksRedirect() {
   }, [loadWeeks, loadGames])
 
   if (weeksStatus === 'pending' || weeksStatus === 'idle' || gamesStatus === 'pending' || gamesStatus === 'idle') {
-    return <p>Cargando semanas...</p>
+    return <LoadingSpinner label="Cargando semanas" />
   }
   if (weeksError || gamesError) return <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />
   if (!weeks || weeks.length === 0) return <EmptyState message={EMPTY_STATE_COPY.noWeeksAvailable} />

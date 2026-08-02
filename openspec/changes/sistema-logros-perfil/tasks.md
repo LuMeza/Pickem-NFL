@@ -13,7 +13,7 @@
 - [x] 2.4 RPC `recalculate_achievements(p_group_id)` solo para `platform_admins` (plan B manual, mismo patrón que `recalculate_survivor_state`)
 - [x] 2.5 Evaluación perezosa de `veterano` (antigüedad) vía `sync_my_achievements()`, disparada por el propio usuario al consultar su perfil
 - [x] 2.6 Evaluación de `doble_jugador` (acceso aprobado a Pickem + al menos un pick de Survivor en el mismo grupo), dentro de `_evaluate_survivor_achievements_for_group`
-- [ ] 2.7 Verificar idempotencia (`on conflict do nothing`) con datos reales en una transacción de prueba con ROLLBACK — **pendiente**: esta sesión no tuvo acceso a una base Supabase real (local ni remota) para correrlo; revisar antes de dar por cerrado el change, mismo criterio que `modulo-survivor`
+- [x] 2.7 Migraciones aplicadas al proyecto Supabase remoto (`supabase db push`, sin errores — confirma que todas las funciones/triggers se crearon correctamente contra el esquema real). **Pendiente**: no se probó todavía la idempotencia con datos reales (llamar `recalculate_achievements` dos veces sobre un grupo con actividad y confirmar que no duplica filas en `user_achievements`), ya que este entorno no tiene una sesión de admin autenticada contra la app para dispararlo
 
 ## 3. Estadísticas agregadas de perfil (`perfil-estadisticas`)
 

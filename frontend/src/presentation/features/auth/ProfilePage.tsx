@@ -6,6 +6,7 @@ import { useListUserAchievements } from '@/presentation/hooks/useListUserAchieve
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { ActionCard } from '@/presentation/components/ActionCard/ActionCard'
 import { AchievementBadge } from '@/presentation/components/AchievementBadge/AchievementBadge'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import styles from './ProfilePage.module.css'
 
 function getInitials(name: string): string {
@@ -42,7 +43,7 @@ export function ProfilePage() {
     setSaved(true)
   }
 
-  if (status === 'idle' || status === 'pending') return <p>Cargando perfil...</p>
+  if (status === 'idle' || status === 'pending') return <LoadingSpinner label="Cargando perfil" />
   if (error || !profile) return <p role="alert">No se pudo cargar el perfil.</p>
 
   const hasStats = statsStatus === 'success' && stats !== null && stats.totalPicked > 0
@@ -97,7 +98,7 @@ export function ProfilePage() {
         <Icon name="trophy" size={20} className={styles.sectionIcon} /> Logros
       </h2>
       {achievementsStatus === 'idle' || achievementsStatus === 'pending' ? (
-        <p className="text-body-sm text-muted">Cargando logros...</p>
+        <LoadingSpinner variant="inline" label="Cargando logros" />
       ) : achievementsStatus === 'error' ? (
         <p role="alert">No pudimos cargar tus logros.</p>
       ) : (

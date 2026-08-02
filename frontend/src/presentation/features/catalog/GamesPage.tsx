@@ -19,6 +19,7 @@ import { getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
 import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
 import { PredictionCard, type PredictionCardStatus } from '@/presentation/components/PredictionCard/PredictionCard'
 import { Icon } from '@/presentation/components/Icon/Icon'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import styles from './GamesPage.module.css'
 
 const NOW_REFRESH_MS = 30_000
@@ -287,7 +288,7 @@ export function GamesPage() {
         </p>
       )}
 
-      {status === 'pending' && <p>Cargando partidos...</p>}
+      {status === 'pending' && <LoadingSpinner variant="inline" label="Cargando partidos" />}
       {error && <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />}
       {games && games.length === 0 && <EmptyState message="Esta semana todavia no tiene partidos cargados." />}
       <div className={styles.agenda}>

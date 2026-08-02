@@ -4,6 +4,7 @@ import { useListWeeks } from '@/presentation/hooks/useListWeeks'
 import type { Week } from '@/core/entities/catalog'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 
 /** Survivor solo aplica a temporada regular (ver design.md decision 1) — entra directo a la primera semana regular. */
 function pickDefaultWeek(weeks: Week[]): Week | null {
@@ -19,7 +20,7 @@ export function SurvivorRedirect() {
     run()
   }, [run])
 
-  if (status === 'pending' || status === 'idle') return <p>Cargando semanas...</p>
+  if (status === 'pending' || status === 'idle') return <LoadingSpinner label="Cargando semanas" />
   if (error) return <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />
 
   const defaultWeek = weeks ? pickDefaultWeek(weeks) : null

@@ -3,6 +3,7 @@ import { useDefaultGroup } from '@/presentation/hooks/useDefaultGroup'
 import { useListModuleAccessRequests } from '@/presentation/hooks/useListModuleAccessRequests'
 import { useResolveModuleAccessRequest } from '@/presentation/hooks/useResolveModuleAccessRequest'
 import { Icon } from '@/presentation/components/Icon/Icon'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import styles from './ModuleAccessRequestsPage.module.css'
 
 /** Tarea 5.6 (base-plataforma): aprobar/rechazar solicitudes de acceso a modulo. */
@@ -38,7 +39,7 @@ export function ModuleAccessRequestsPage() {
         <Icon name="ticket" size={13} /> Aprobaciones
       </span>
       <h1 className="text-display-lg">Solicitudes de acceso</h1>
-      {status === 'pending' && <p>Cargando...</p>}
+      {status === 'pending' && <LoadingSpinner variant="inline" />}
       {error && <p role="alert">No se pudieron cargar las solicitudes.</p>}
 
       <div className={styles.section}>

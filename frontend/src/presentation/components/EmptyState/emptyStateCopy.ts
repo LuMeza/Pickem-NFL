@@ -8,4 +8,5 @@ export const EMPTY_STATE_COPY = {
   groupWithoutMembers: 'Todavia no hay usuarios. Dalos de alta desde el panel admin para que aparezcan aqui.',
   resultsLoadError: 'No pudimos actualizar los resultados. Intenta de nuevo.',
   noWeeksAvailable: 'Todavia no hay semanas cargadas.',
+  pageNotFound: 'Esta pagina no existe.',
 } as const
