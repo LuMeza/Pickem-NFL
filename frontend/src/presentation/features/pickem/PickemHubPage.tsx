@@ -9,7 +9,7 @@ export function PickemHubPage() {
         <Icon name="trophy" size={13} /> Modos de juego
       </span>
       <h1 className="text-display-lg">Pickem</h1>
-      <p className="text-body-sm text-muted">Elegi con que modo queres jugar esta semana.</p>
+      <p className="text-body-sm text-muted">Elige con qué modo quieres jugar esta semana.</p>
       <div className="card-grid">
         <ActionCard
           to="/weeks"
@@ -22,7 +22,7 @@ export function PickemHubPage() {
           to="/survivor"
           icon="football"
           title="Survivor"
-          description="Elegi tu equipo de la semana, sin repetir en toda la temporada"
+          description="Elige tu equipo de la semana, sin repetir en toda la temporada"
         />
         <ActionCard
           to="/playoffs"

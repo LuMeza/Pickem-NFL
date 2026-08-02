@@ -220,7 +220,7 @@ export function AdminUserPicksPage() {
             </label>
           </div>
 
-          {!selectedWeekId && <p className="text-body-sm text-muted">Elegi una semana para ver los picks.</p>}
+          {!selectedWeekId && <p className="text-body-sm text-muted">Elige una semana para ver los picks.</p>}
 
           {selectedWeekId && quiniela === 'weekly' && (
             <>
@@ -328,7 +328,7 @@ export function AdminUserPicksPage() {
             </select>
           </label>
 
-          {!selectedUserId && <p className="text-body-sm text-muted">Elegi un usuario para ver su historial.</p>}
+          {!selectedUserId && <p className="text-body-sm text-muted">Elige un usuario para ver su historial.</p>}
 
           {selectedUserId && (
             <>

@@ -3,6 +3,14 @@ import type { Profile } from '@/core/entities/profile'
 export interface ProvisionalUserAccount {
   userId: string
   provisionalPassword: string
+  emailSent: boolean
+}
+
+export interface AdminUserSummary {
+  userId: string
+  displayName: string
+  email: string
+  createdAt: Date
 }
 
 /**
@@ -12,6 +20,9 @@ export interface ProvisionalUserAccount {
  */
 export interface AuthRepository {
   createUser(email: string, displayName: string): Promise<ProvisionalUserAccount>
+  listUsers(): Promise<AdminUserSummary[]>
+  updateUser(userId: string, displayName: string, email: string): Promise<void>
+  deleteUser(userId: string): Promise<void>
   signIn(email: string, password: string): Promise<void>
   signOut(): Promise<void>
   changePassword(newPassword: string): Promise<void>

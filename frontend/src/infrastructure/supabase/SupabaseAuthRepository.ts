@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { AuthRepository, ProvisionalUserAccount } from '@/core/ports/AuthRepository'
+import type { AdminUserSummary, AuthRepository, ProvisionalUserAccount } from '@/core/ports/AuthRepository'
 import type { Profile } from '@/core/entities/profile'
 
 /**
@@ -24,6 +24,35 @@ export class SupabaseAuthRepository implements AuthRepository {
     }
 
     return data
+  }
+
+  async listUsers(): Promise<AdminUserSummary[]> {
+    const { data, error } = await this.client
+      .from('profiles')
+      .select('id, display_name, email, created_at')
+      .order('created_at', { ascending: false })
+    if (error) throw error
+
+    return (data ?? []).map((row) => ({
+      userId: row.id as string,
+      displayName: row.display_name as string,
+      email: row.email as string,
+      createdAt: new Date(row.created_at as string),
+    }))
+  }
+
+  async updateUser(userId: string, displayName: string, email: string): Promise<void> {
+    const { error } = await this.client.functions.invoke('admin-update-user', {
+      body: { userId, displayName, email },
+    })
+    if (error) throw error
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    const { error } = await this.client.functions.invoke('admin-delete-user', {
+      body: { userId },
+    })
+    if (error) throw error
   }
 
   async signIn(email: string, password: string): Promise<void> {

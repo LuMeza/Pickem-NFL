@@ -4,9 +4,12 @@
 // está en platform_admins ANTES de usarla.
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
+import { sendEmail } from '../_shared/sendEmail.ts'
+import { buildWelcomeEmailHtml } from '../_shared/welcomeEmail.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://pickem-nfl.vercel.app'
 
 function generateProvisionalPassword(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(12))
@@ -126,5 +129,19 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: `No se pudo agregar al usuario al grupo: ${membershipError.message}` }, 500)
   }
 
-  return jsonResponse({ userId: created.user.id, provisionalPassword }, 200)
+  const emailResult = await sendEmail({
+    to: email,
+    subject: 'Bienvenido a Pickem NFL — tu acceso',
+    html: buildWelcomeEmailHtml({
+      displayName,
+      email,
+      provisionalPassword,
+      loginUrl: `${SITE_URL}/login`,
+    }),
+  })
+  if (!emailResult.ok) {
+    console.error(`No se pudo enviar el correo de bienvenida a ${email}: ${emailResult.error}`)
+  }
+
+  return jsonResponse({ userId: created.user.id, provisionalPassword, emailSent: emailResult.ok }, 200)
 })

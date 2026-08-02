@@ -143,7 +143,7 @@ export function SurvivorPickPage() {
 
       {isRegularWeek && !isWeekLocked && needsLifeRequest && (
         <EmptyState
-          message="Perdiste con tu vida actual. Pedile una vida extra al admin para poder seguir pickeando."
+          message="Perdiste con tu vida actual. Pídele una vida extra al admin para poder seguir pickeando."
           action={
             <button type="button" onClick={handleRequestLife} disabled={requestLifeStatus === 'pending'}>
               {requestLifeStatus === 'pending' ? 'Enviando...' : 'Solicitar vida extra'}
@@ -156,7 +156,7 @@ export function SurvivorPickPage() {
         <>
           {lifeRequestPending && (
             <p className="text-body-sm text-muted">
-              Tu solicitud de vida extra está en revisión — podes seguir pickeando, pero si el admin la rechaza estos
+              Tu solicitud de vida extra está en revisión — puedes seguir pickeando, pero si el admin la rechaza estos
               picks no van a contar.
             </p>
           )}

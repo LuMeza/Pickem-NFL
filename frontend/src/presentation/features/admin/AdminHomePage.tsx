@@ -20,6 +20,7 @@ const SECTIONS: AdminSection[] = [
     title: 'Usuarios y accesos',
     actions: [
       { to: '/admin/users/new', icon: 'userPlus', title: 'Dar de alta un usuario', description: 'Correo, nombre y contraseña provisional' },
+      { to: '/admin/users', icon: 'users', title: 'Editar o eliminar usuarios', description: 'Cambiar nombre/correo, o dar de baja una cuenta' },
       { to: '/admin/members', icon: 'users', title: 'Miembros', description: 'Ver y remover usuarios del grupo' },
       { to: '/admin/pickem/access-requests', icon: 'ticket', title: 'Accesos al pickem semanal', description: 'Aprobar o rechazar solicitudes por semana' },
       { to: '/admin/access-requests', icon: 'ticket', title: 'Accesos a otros módulos', description: 'Playoffs, cuando este disponible' },
@@ -56,7 +57,7 @@ export function AdminHomePage() {
         <Icon name="gear" size={13} /> Solo administradores
       </span>
       <h1 className="text-display-lg">Panel de administrador</h1>
-      <p className="text-body-sm text-muted">Elegi una sección para gestionar el grupo.</p>
+      <p className="text-body-sm text-muted">Elige una sección para gestionar el grupo.</p>
 
       {SECTIONS.map((section) => (
         <div key={section.title} className={styles.section}>

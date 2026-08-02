@@ -37,7 +37,11 @@ export function CreateUserPage() {
       {error && <p role="alert">No se pudo crear el usuario: {error.message}</p>}
       {data && (
         <div role="status" className="glass-surface" style={{ padding: 16, marginTop: 16 }}>
-          <p>Usuario creado. Entrega esta contraseña provisional fuera de la plataforma (no se muestra de nuevo):</p>
+          <p>
+            {data.emailSent
+              ? 'Usuario creado. Le enviamos la contraseña provisional por correo. Guárdala también por las dudas (no se muestra de nuevo):'
+              : 'Usuario creado, pero no se pudo enviar el correo. Entrega esta contraseña provisional fuera de la plataforma (no se muestra de nuevo):'}
+          </p>
           <p className="text-mono-md" style={{ color: 'var(--accent-lime)' }}>
             {data.provisionalPassword}
           </p>

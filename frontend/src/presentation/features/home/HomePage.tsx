@@ -32,7 +32,7 @@ export function HomePage() {
             to="/survivor"
             icon="football"
             title="Survivor"
-            description="Elegi tu equipo de la semana, sin repetir en toda la temporada"
+            description="Elige tu equipo de la semana, sin repetir en toda la temporada"
           />
         </div>
       </div>

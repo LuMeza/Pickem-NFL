@@ -26,6 +26,7 @@ import { GamesPage } from '@/presentation/features/catalog/GamesPage'
 import { CalendarPage } from '@/presentation/features/catalog/CalendarPage'
 import { AdminHomePage } from '@/presentation/features/admin/AdminHomePage'
 import { CreateUserPage } from '@/presentation/features/admin/CreateUserPage'
+import { AdminUsersPage } from '@/presentation/features/admin/AdminUsersPage'
 import { GroupMembersPage } from '@/presentation/features/admin/GroupMembersPage'
 import { ModuleAccessRequestsPage } from '@/presentation/features/admin/ModuleAccessRequestsPage'
 import { WeeklyAccessRequestsPage } from '@/presentation/features/admin/WeeklyAccessRequestsPage'
@@ -71,6 +72,7 @@ function App() {
             <Route element={<RequireAdmin />}>
               <Route path="/admin" element={<AdminHomePage />} />
               <Route path="/admin/users/new" element={<CreateUserPage />} />
+              <Route path="/admin/users" element={<AdminUsersPage />} />
               <Route path="/admin/members" element={<GroupMembersPage />} />
               <Route path="/admin/access-requests" element={<ModuleAccessRequestsPage />} />
               <Route path="/admin/pickem/access-requests" element={<WeeklyAccessRequestsPage />} />

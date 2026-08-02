@@ -1,4 +1,4 @@
-export type { AuthRepository, ProvisionalUserAccount } from './AuthRepository'
+export type { AuthRepository, ProvisionalUserAccount, AdminUserSummary } from './AuthRepository'
 export type { GroupRepository, GroupMember, GroupSummary } from './GroupRepository'
 export type {
   ModuleAccessRepository,

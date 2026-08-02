@@ -3,7 +3,7 @@
  * doc/design-system.md §7. Tono directo, sin disculpas, sin emojis.
  */
 export const EMPTY_STATE_COPY = {
-  noModuleAccess: 'Todavía no tienes acceso a este módulo. Pidele al administrador que lo active.',
+  noModuleAccess: 'Todavía no tienes acceso a este módulo. Pídele al administrador que lo active.',
   weekClosedNoPicks: 'No registraste predicciones esta semana.',
   groupWithoutMembers: 'Todavía no hay usuarios. Dalos de alta desde el panel admin para que aparezcan aquí.',
   resultsLoadError: 'No pudimos actualizar los resultados. Intenta de nuevo.',
