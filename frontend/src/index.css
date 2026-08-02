@@ -1,5 +1,5 @@
 /*
- * Sistema de diseno — ver doc/design-system.md y
+ * Sistema de diseño — ver doc/design-system.md y
  * openspec/changes/sistema-diseno-ui. Tokens como CSS custom properties
  * globales (design.md decision 1), consumidos por index.css y por los
  * CSS Modules de cada componente.
@@ -15,8 +15,8 @@
   --danger: #ff5468;
   --text-primary: #f4f6f8;
   /* Verificado (tarea 5.2): --text-muted sobre --bg-surface da ~5.83:1,
-     por encima del minimo AA (4.5:1) para texto normal. Sobre glass-bg el
-     fondo efectivo se mezcla con --bg-base (aun mas oscuro), por lo que el
+     por encima del mínimo AA (4.5:1) para texto normal. Sobre glass-bg el
+     fondo efectivo se mezcla con --bg-base (aún más oscuro), por lo que el
      contraste real solo mejora, nunca empeora. */
   --text-muted: #8a97a6;
 
@@ -52,7 +52,7 @@ body {
   line-height: 1.5;
   background-color: var(--bg-base);
   /* Glow de fondo (energia "carta de juego", ver doc/design-system.md
-     inspiracion onetouch.football) — sutil, fijo, no compite con el contenido. */
+     inspiración onetouch.football) — sutil, fijo, no compite con el contenido. */
   background-image:
     radial-gradient(600px circle at 15% -10%, rgba(200, 255, 61, 0.13), transparent 60%),
     radial-gradient(500px circle at 100% 10%, rgba(242, 183, 5, 0.11), transparent 55%);
@@ -60,7 +60,7 @@ body {
   background-attachment: fixed;
 }
 
-/* Escala tipografica (tarea 1.3): display en Bebas Neue mayusculas, cuerpo en
+/* Escala tipografica (tarea 1.3): display en Bebas Neue mayúsculas, cuerpo en
    Inter, datos/numerica en JetBrains Mono con tabular-nums. */
 .text-display-lg,
 .text-display-md,
@@ -105,8 +105,8 @@ body {
   color: var(--text-muted);
 }
 
-/* Superficie glass (tarea 1.4) — usar con moderacion (tarjetas de pick,
-   navegacion flotante), no en toda la interfaz. Sombra + sheen superior para
+/* Superficie glass (tarea 1.4) — usar con moderación (tarjetas de pick,
+   navegación flotante), no en toda la interfaz. Sombra + sheen superior para
    que se sienta como una tarjeta flotante de verdad, no un rectangulo plano. */
 .glass-surface {
   position: relative;
@@ -161,7 +161,7 @@ textarea {
   color: inherit;
 }
 
-/* Controles base: objetivo tactil minimo 44x44px (spec accesibilidad). */
+/* Controles base: objetivo tactil mínimo 44x44px (spec accesibilidad). */
 button {
   min-height: var(--touch-target-min);
   padding: 0 16px;
@@ -208,8 +208,8 @@ label {
   color: var(--danger);
 }
 
-/* Pantallas fuera del AppShell (login, cambio de contrasena obligatorio):
-   tarjeta centrada sobre una "cancha" de fondo — lineas de yarda sutiles,
+/* Pantallas fuera del AppShell (login, cambio de contraseña obligatorio):
+   tarjeta centrada sobre una "cancha" de fondo — líneas de yarda sutiles,
    coherente con Cancha Nocturna (ver propuesta de rediseno). */
 .auth-screen {
   min-height: 100vh;
@@ -263,7 +263,7 @@ label {
 }
 
 /* Grid de partidos (tarea 2.6): 1 columna mobile, 2 tablet, 3 desktop —
-   consumido por las cartas de prediccion de los modulos de juego. */
+   consumido por las cartas de predicción de los módulos de juego. */
 .games-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -280,7 +280,7 @@ label {
   }
 }
 
-/* Grid de tarjetas de navegacion (dashboards de Inicio/Admin). */
+/* Grid de tarjetas de navegación (dashboards de Inicio/Admin). */
 .card-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -294,8 +294,8 @@ label {
 }
 
 /* Respeta prefers-reduced-motion globalmente (tarea 5.x / spec accesibilidad):
-   cualquier transicion/animacion se anula salvo que un componente defina su
-   propia alternativa estatica explicita. */
+   cualquier transición/animación se anula salvo que un componente defina su
+   propia alternativa estatica explícita. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

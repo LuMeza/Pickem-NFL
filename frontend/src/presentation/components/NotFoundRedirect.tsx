@@ -6,8 +6,8 @@ import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
 
 /**
- * Ruta catch-all ("*"). Si la sesion no es valida redirige a /login en vez
- * de mostrar una pagina rota; si hay sesion activa, muestra que la ruta no
+ * Ruta catch-all ("*"). Si la sesión no es válida redirige a /login en vez
+ * de mostrar una página rota; si hay sesión activa, muestra que la ruta no
  * existe con un link de vuelta al inicio.
  */
 export function NotFoundRedirect() {
@@ -18,7 +18,7 @@ export function NotFoundRedirect() {
   }, [run])
 
   if (status === 'idle' || status === 'pending') {
-    return <LoadingSpinner label="Cargando sesion..." />
+    return <LoadingSpinner label="Cargando sesión..." />
   }
 
   if (status === 'error' || !data?.userId) {

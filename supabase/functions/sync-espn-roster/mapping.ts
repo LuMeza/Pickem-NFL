@@ -1,4 +1,4 @@
-// Funciones puras de parseo del roster publico de ESPN — sin llamadas de
+// Funciones puras de parseo del roster público de ESPN — sin llamadas de
 // red, para poder probarse aisladas (mismo patron que sync-espn-results).
 
 export interface EspnRosterAthleteItem {

@@ -11,10 +11,10 @@ import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/Loading
 const LIVE_WINDOW_MS = 4 * 60 * 60 * 1000
 
 /**
- * La semana por defecto es la que tiene los partidos mas cercanos en el
+ * La semana por defecto es la que tiene los partidos más cercanos en el
  * tiempo, sin importar el tipo (hof, pretemporada, regular, playoffs) —
  * arranca en Hall of Fame si es lo primero que se juega, pasa a Pre 1, Pre 2,
- * etc., y asi hasta la temporada regular, en vez de saltar directo a la
+ * etc., y así hasta la temporada regular, en vez de saltar directo a la
  * semana 1 de temporada regular sin mirar el calendario real.
  */
 function pickDefaultWeek(weeks: Week[], games: Game[], now: Date): Week {
@@ -45,7 +45,7 @@ function pickDefaultWeek(weeks: Week[], games: Game[], now: Date): Week {
 }
 
 /** /weeks ya no muestra un listado intermedio: entra directo a los partidos de la
- * semana con los partidos mas cercanos en el tiempo, con el WeekSelector de
+ * semana con los partidos más cercanos en el tiempo, con el WeekSelector de
  * GamesPage ya visible para saltar a cualquier otra. */
 export function WeeksRedirect() {
   const { status: weeksStatus, data: weeks, error: weeksError, run: loadWeeks } = useListWeeks()

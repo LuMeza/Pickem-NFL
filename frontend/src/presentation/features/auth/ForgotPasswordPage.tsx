@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useRequestPasswordReset } from '@/presentation/hooks/useRequestPasswordReset'
 import { Icon } from '@/presentation/components/Icon/Icon'
 
-/** Pantalla publica para solicitar el correo de recuperacion de contrasena. */
+/** Pantalla pública para solicitar el correo de recuperación de contraseña. */
 export function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const { status, error, run } = useRequestPasswordReset()
@@ -26,7 +26,7 @@ export function ForgotPasswordPage() {
           </span>
           <h1 className="text-display-lg">Listo</h1>
           <p className="text-body-sm text-muted" style={{ marginBottom: 20 }}>
-            Si {email} tiene una cuenta, te enviamos un link para elegir una nueva contrasena.
+            Si {email} tiene una cuenta, te enviamos un link para elegir una nueva contraseña.
           </p>
           <Link to="/login">Volver al login</Link>
         </section>
@@ -40,9 +40,9 @@ export function ForgotPasswordPage() {
         <span className="auth-kicker">
           <Icon name="football" size={13} /> Pickem NFL
         </span>
-        <h1 className="text-display-lg">Olvide mi contrasena</h1>
+        <h1 className="text-display-lg">Olvide mi contraseña</h1>
         <p className="text-body-sm text-muted" style={{ marginBottom: 20 }}>
-          Escribe tu correo y te mandamos un link para elegir una nueva contrasena.
+          Escribe tu correo y te mandamos un link para elegir una nueva contraseña.
         </p>
         <form onSubmit={handleSubmit}>
           <label>

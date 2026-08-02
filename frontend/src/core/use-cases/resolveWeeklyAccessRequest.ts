@@ -11,7 +11,7 @@ export interface ResolveWeeklyAccessRequestParams {
   decision: 'aprobado' | 'rechazado'
 }
 
-/** Aprobacion/rechazo de acceso semanal por el administrador — ver specs/acceso-semanal-pickem. */
+/** Aprobación/rechazo de acceso semanal por el administrador — ver specs/acceso-semanal-pickem. */
 export function resolveWeeklyAccessRequest(
   deps: ResolveWeeklyAccessRequestDeps,
   params: ResolveWeeklyAccessRequestParams,

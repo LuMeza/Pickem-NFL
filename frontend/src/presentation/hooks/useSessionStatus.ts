@@ -3,7 +3,7 @@ import { getSessionStatus, type SessionStatus } from '@/core/use-cases/getSessio
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Estado de sesion (autenticado / cambio de contrasena pendiente) para los guards de ruta. */
+/** Estado de sesión (autenticado / cambio de contraseña pendiente) para los guards de ruta. */
 export function useSessionStatus() {
   const repositories = useRepositories()
   const action = useCallback(() => getSessionStatus(repositories), [repositories])

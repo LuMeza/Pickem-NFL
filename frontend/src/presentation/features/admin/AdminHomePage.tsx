@@ -14,21 +14,21 @@ interface AdminSection {
   actions: AdminAction[]
 }
 
-/** Agrupado por lo que el admin necesita hacer, no por orden de creacion — asi sabe donde buscar cada cosa. */
+/** Agrupado por lo que el admin necesita hacer, no por orden de creación — así sabe donde buscar cada cosa. */
 const SECTIONS: AdminSection[] = [
   {
     title: 'Usuarios y accesos',
     actions: [
-      { to: '/admin/users/new', icon: 'userPlus', title: 'Dar de alta un usuario', description: 'Correo, nombre y contrasena provisional' },
+      { to: '/admin/users/new', icon: 'userPlus', title: 'Dar de alta un usuario', description: 'Correo, nombre y contraseña provisional' },
       { to: '/admin/members', icon: 'users', title: 'Miembros', description: 'Ver y remover usuarios del grupo' },
       { to: '/admin/pickem/access-requests', icon: 'ticket', title: 'Accesos al pickem semanal', description: 'Aprobar o rechazar solicitudes por semana' },
-      { to: '/admin/access-requests', icon: 'ticket', title: 'Accesos a otros modulos', description: 'Playoffs, cuando este disponible' },
+      { to: '/admin/access-requests', icon: 'ticket', title: 'Accesos a otros módulos', description: 'Playoffs, cuando este disponible' },
     ],
   },
   {
     title: 'Calendario y resultados',
     actions: [
-      { to: '/admin/sync', icon: 'refresh', title: 'Sincronizar con ESPN', description: 'Importa calendario y resultados automaticamente' },
+      { to: '/admin/sync', icon: 'refresh', title: 'Sincronizar con ESPN', description: 'Importa calendario y resultados automáticamente' },
       { to: '/admin/games/new', icon: 'calendar', title: 'Agregar partido a mano', description: 'Respaldo si ESPN no tiene un partido' },
       { to: '/admin/results', icon: 'trophy', title: 'Cargar resultados a mano', description: 'Corregir el resultado de un partido' },
     ],
@@ -36,8 +36,8 @@ const SECTIONS: AdminSection[] = [
   {
     title: 'Quinielas',
     actions: [
-      { to: '/admin/pickem/settings', icon: 'trophy', title: 'Visibilidad de tablas', description: 'Mostrar u ocultar las tablas del pickem a quien no jugo' },
-      { to: '/admin/survivor', icon: 'refresh', title: 'Recalcular Survivor', description: 'Plan B si el recalculo automatico no corrio' },
+      { to: '/admin/pickem/settings', icon: 'trophy', title: 'Visibilidad de tablas', description: 'Mostrar u ocultar las tablas del pickem a quien no jugó' },
+      { to: '/admin/survivor', icon: 'refresh', title: 'Recalcular Survivor', description: 'Plan B si el recalculo automático no corrio' },
     ],
   },
   {
@@ -56,7 +56,7 @@ export function AdminHomePage() {
         <Icon name="gear" size={13} /> Solo administradores
       </span>
       <h1 className="text-display-lg">Panel de administrador</h1>
-      <p className="text-body-sm text-muted">Elegi una seccion para gestionar el grupo.</p>
+      <p className="text-body-sm text-muted">Elegi una sección para gestionar el grupo.</p>
 
       {SECTIONS.map((section) => (
         <div key={section.title} className={styles.section}>

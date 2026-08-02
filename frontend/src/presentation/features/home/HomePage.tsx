@@ -2,7 +2,7 @@ import { ActionCard } from '@/presentation/components/ActionCard/ActionCard'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import styles from './HomePage.module.css'
 
-/** Landing post-login — agrupada por que necesita hacer el usuario, no por orden de creacion (ver design-system.md). */
+/** Landing post-login — agrupada por que necesita hacer el usuario, no por orden de creación (ver design-system.md). */
 export function HomePage() {
   return (
     <section>
@@ -10,7 +10,7 @@ export function HomePage() {
         <Icon name="football" size={13} /> Temporada regular
       </span>
       <h1 className="text-display-lg">Pickem NFL</h1>
-      <p className="text-body-sm text-muted">Tu semana arranca aqui.</p>
+      <p className="text-body-sm text-muted">Tu semana arranca aquí.</p>
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Tu semana</h2>
@@ -62,15 +62,15 @@ export function HomePage() {
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Mas</h2>
+        <h2 className={styles.sectionTitle}>Más</h2>
         <div className="card-grid">
           <ActionCard
             to="/request-access"
             icon="ticket"
-            title="Acceso a otros modulos"
+            title="Acceso a otros módulos"
             description="Playoffs, cuando este disponible"
           />
-          <ActionCard to="/teams" icon="football" title="Equipos" description="Catalogo completo de la NFL" />
+          <ActionCard to="/teams" icon="football" title="Equipos" description="Catálogo completo de la NFL" />
           <ActionCard to="/profile" icon="user" title="Mi perfil" description="Edita tu nombre visible" />
         </div>
       </div>

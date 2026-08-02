@@ -5,7 +5,7 @@ import App from './App.tsx'
 import { RepositoriesContext } from '@/presentation/hooks/RepositoriesContext'
 import { createSupabaseRepositories } from '@/infrastructure/repositories'
 
-// Composicion (wiring) de dependencias: unico lugar del proyecto que conoce
+// Composicion (wiring) de dependencias: único lugar del proyecto que conoce
 // tanto infrastructure (adapters concretos) como presentation (React).
 // Ver openspec/changes/arquitectura-frontend design.md, decision 4.
 const repositories = createSupabaseRepositories()

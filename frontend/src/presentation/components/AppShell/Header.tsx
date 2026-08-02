@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useCountdown } from '@/presentation/hooks/useCountdown'
+import { Logo } from '@/presentation/components/Logo/Logo'
 import styles from './Header.module.css'
 
 export interface HeaderProps {
@@ -20,6 +21,7 @@ export function Header({ groupName, weekLabel, countdownTo, onSignOut }: HeaderP
   return (
     <header className={styles.header}>
       <Link to="/" className={styles.brand}>
+        <Logo size={26} />
         Pickem NFL
       </Link>
       {(groupName || weekLabel) && (

@@ -11,7 +11,7 @@ export interface AchievementBadgeProps {
  * Badge de logro del perfil (mismo patron que TeamBadge: icono + color por
  * estado). Desbloqueado en `--accent-gold` (reservado por
  * doc/design-system.md exclusivamente para logros/ranking de perfil),
- * atenuado y con candado cuando todavia no se obtuvo.
+ * atenuado y con candado cuando todavía no se obtuvo.
  */
 export function AchievementBadge({ title, description, unlocked }: AchievementBadgeProps) {
   return (

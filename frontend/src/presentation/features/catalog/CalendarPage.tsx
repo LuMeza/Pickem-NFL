@@ -94,7 +94,7 @@ interface TimeGroup {
   games: Game[]
 }
 
-/** Agrupa por fecha de kickoff para no repetir el dia en cada chip (un domingo de temporada regular puede tener 10+ partidos). */
+/** Agrupa por fecha de kickoff para no repetir el día en cada chip (un domingo de temporada regular puede tener 10+ partidos). */
 function groupByDay(sortedGames: Game[]): DayGroup[] {
   const groupByDate = new Map<string, DayGroup>()
 
@@ -111,7 +111,7 @@ function groupByDay(sortedGames: Game[]): DayGroup[] {
   return [...groupByDate.values()]
 }
 
-/** Agrupa los partidos de un dia por hora de kickoff, para mostrar la hora una sola vez por franja en vez de repetirla en cada chip. */
+/** Agrupa los partidos de un día por hora de kickoff, para mostrar la hora una sola vez por franja en vez de repetirla en cada chip. */
 function groupByTime(dayGames: Game[]): TimeGroup[] {
   const groupByClock = new Map<string, TimeGroup>()
 
@@ -160,7 +160,7 @@ function WeekCard({ week, games, teamName }: { week: Week; games: Game[]; teamNa
         </div>
 
         {sorted.length === 0 ? (
-          <p className={`text-body-sm text-muted ${styles.weekCardEmpty}`}>Sin partidos cargados todavia.</p>
+          <p className={`text-body-sm text-muted ${styles.weekCardEmpty}`}>Sin partidos cargados todavía.</p>
         ) : (
           <div className={styles.dayGroups}>
             {dayGroups.map((group) => (
@@ -198,7 +198,7 @@ function WeekCard({ week, games, teamName }: { week: Week; games: Game[]; teamNa
   )
 }
 
-/** Calendario general de toda la temporada (hof/pretemporada/regular/playoffs) de un vistazo, sin ir semana por semana. Partidos como chips compactos en grid (en vez de lista vertical de una fila por partido) para que quepan mas semanas en pantalla sin ocultar informacion detras de un clic. */
+/** Calendario general de toda la temporada (hof/pretemporada/regular/playoffs) de un vistazo, sin ir semana por semana. Partidos como chips compactos en grid (en vez de lista vertical de una fila por partido) para que quepan más semanas en pantalla sin ocultar información detrás de un clic. */
 export function CalendarPage() {
   const { status, data: weeks, error, run: loadWeeks } = useListWeeks()
   const { data: games, run: loadGames } = useListAllGames()

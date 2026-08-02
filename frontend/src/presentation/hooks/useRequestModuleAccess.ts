@@ -3,7 +3,7 @@ import { requestModuleAccess, type RequestModuleAccessParams } from '@/core/use-
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Solicitud de acceso a un modulo opcional (ej. Pickem Semanal). */
+/** Solicitud de acceso a un módulo opcional (ej. Pickem Semanal). */
 export function useRequestModuleAccess() {
   const repositories = useRepositories()
   const action = useCallback(

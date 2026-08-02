@@ -19,7 +19,7 @@ import styles from './PickemStandingsPage.module.css'
 
 function StandingsList({ rows }: { rows: StandingRow[] }) {
   if (rows.length === 0) {
-    return <p className="text-body-sm text-muted">Todavia no hay resultados para mostrar.</p>
+    return <p className="text-body-sm text-muted">Todavía no hay resultados para mostrar.</p>
   }
 
   let position = 0

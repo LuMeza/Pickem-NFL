@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useChangePassword } from '@/presentation/hooks/useChangePassword'
 import { Icon } from '@/presentation/components/Icon/Icon'
 
-/** Tarea 4.4 (base-plataforma): cambio de contrasena obligatorio en el primer login. */
+/** Tarea 4.4 (base-plataforma): cambio de contraseña obligatorio en el primer login. */
 export function ChangePasswordPage() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -26,15 +26,15 @@ export function ChangePasswordPage() {
     <div className="auth-screen">
       <section className="glass-surface">
         <span className="auth-kicker">
-          <Icon name="lock" size={13} /> Ultimo paso
+          <Icon name="lock" size={13} /> Último paso
         </span>
-        <h1 className="text-display-lg">Nueva contrasena</h1>
+        <h1 className="text-display-lg">Nueva contraseña</h1>
         <p className="text-body-sm text-muted" style={{ marginBottom: 20 }}>
-          Debes cambiar tu contrasena provisional antes de continuar.
+          Debes cambiar tu contraseña provisional antes de continuar.
         </p>
         <form onSubmit={handleSubmit}>
           <label>
-            Nueva contrasena
+            Nueva contraseña
             <input
               type="password"
               value={newPassword}
@@ -45,7 +45,7 @@ export function ChangePasswordPage() {
             />
           </label>
           <label>
-            Confirmar contrasena
+            Confirmar contraseña
             <input
               type="password"
               value={confirmPassword}
@@ -59,8 +59,8 @@ export function ChangePasswordPage() {
             {status === 'pending' ? 'Guardando...' : 'Guardar y continuar'}
           </button>
         </form>
-        {mismatch && <p role="alert">Las contrasenas no coinciden.</p>}
-        {error && <p role="alert">No se pudo actualizar la contrasena: {error.message}</p>}
+        {mismatch && <p role="alert">Las contraseñas no coinciden.</p>}
+        {error && <p role="alert">No se pudo actualizar la contraseña: {error.message}</p>}
       </section>
     </div>
   )

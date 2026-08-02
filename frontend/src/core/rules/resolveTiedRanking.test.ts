@@ -16,7 +16,7 @@ describe('resolveTiedRanking', () => {
     ])
   })
 
-  it('reporta empate en el primer lugar sin desempatar, y salta la siguiente posicion', () => {
+  it('reporta empate en el primer lugar sin desempatar, y salta la siguiente posición', () => {
     const result = resolveTiedRanking([
       { userId: 'a', total: 10 },
       { userId: 'b', total: 10 },

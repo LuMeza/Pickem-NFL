@@ -14,6 +14,6 @@ export interface GetProfileStatsDeps {
  */
 export async function getProfileStats(deps: GetProfileStatsDeps): Promise<ProfilePickemSummary> {
   const userId = await deps.authRepository.getCurrentUserId()
-  if (!userId) throw new Error('No hay sesion activa')
+  if (!userId) throw new Error('No hay sesión activa')
   return deps.achievementsRepository.getProfilePickemSummary(userId)
 }

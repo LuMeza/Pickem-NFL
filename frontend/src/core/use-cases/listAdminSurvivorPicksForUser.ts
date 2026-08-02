@@ -9,7 +9,7 @@ export interface ListAdminSurvivorPicksForUserParams {
   userId: string
 }
 
-/** Panel admin: historico completo de picks de survivor de un usuario. */
+/** Panel admin: histórico completo de picks de survivor de un usuario. */
 export function listAdminSurvivorPicksForUser(
   deps: ListAdminSurvivorPicksForUserDeps,
   params: ListAdminSurvivorPicksForUserParams,

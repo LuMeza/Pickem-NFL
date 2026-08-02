@@ -10,7 +10,7 @@ export interface WeeklyAccessRequest {
 /**
  * Acceso al pickem semanal, por (grupo, usuario, semana) — ver
  * openspec/changes/modulo-pickem-semanal specs/acceso-semanal-pickem.
- * Reemplaza, solo para este modulo, al `ModuleAccessRepository` generico de
+ * Reemplaza, solo para este módulo, al `ModuleAccessRepository` genérico de
  * `grupos-privados` (que sigue vigente para Survivor y Playoffs).
  */
 export interface WeeklyAccessRepository {

@@ -12,11 +12,11 @@ export interface PredictionOption {
 
 /**
  * unpicked: sin elegir, opciones disponibles.
- * picked: elegido, aun no cierra — opciones siguen disponibles para cambiar
+ * picked: elegido, aún no cierra — opciones siguen disponibles para cambiar
  *   de opinion, la elegida queda resaltada.
  * locked: bloqueada — sin acceso o partido ya cerrado sin resultado cargado. Sin flip.
- * closed: partido con resultado oficial — unico estado que voltea la carta,
- *   revela acierto/fallo, sin interaccion.
+ * closed: partido con resultado oficial — único estado que voltea la carta,
+ *   revela acierto/fallo, sin interacción.
  */
 export type PredictionCardStatus = 'unpicked' | 'picked' | 'locked' | 'closed'
 
@@ -27,7 +27,7 @@ interface PredictionCardCommonProps {
   correct?: boolean
   /** Anillo dorado (>24h) vs rojo (<2h) al cierre, solo si status === 'picked'. */
   urgent?: boolean
-  /** Color de marca del equipo elegido (hex) — tine el resaltado y el reverso en vez del lima generico. */
+  /** Color de marca del equipo elegido (hex) — tiñe el resaltado y el reverso en vez del lima genérico. */
   pickedAccent?: string
   onSelect?: (optionId: string) => void
 }
@@ -45,14 +45,14 @@ interface PredictionCardTripleProps extends PredictionCardCommonProps {
 export type PredictionCardProps = PredictionCardBinaryProps | PredictionCardTripleProps
 
 /**
- * Tareas 3.1-3.7 (sistema-diseno-ui): componente de carta de prediccion
+ * Tareas 3.1-3.7 (sistema-diseno-ui): componente de carta de predicción
  * compartido entre Pickem Semanal, Survivor y Playoffs (ver design.md
  * decision 4). Un solo componente parametrizable por `variant` y `status`,
- * en vez de una implementacion por modulo.
+ * en vez de una implementación por módulo.
  *
- * El pick se hace y se cambia tocando directo la opcion (como cualquier
+ * El pick se hace y se cambia tocando directo la opción (como cualquier
  * selector) — la elegida queda resaltada. El volteo de carta se reserva
- * unicamente para `closed` (revelar acierto/fallo): ahi la animacion
+ * únicamente para `closed` (revelar acierto/fallo): ahi la animación
  * comunica algo nuevo. Voltear solo para "confirmar" un pick que el usuario
  * ya conoce agregaba un paso extra sin payoff (feedback de producto).
  */

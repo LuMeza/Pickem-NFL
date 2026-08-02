@@ -6,7 +6,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error(
     'Faltan las variables de entorno VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY (ver .env.example). ' +
-      'Este es el unico archivo del proyecto que debe construir el cliente de Supabase.',
+      'Este es el único archivo del proyecto que debe construir el cliente de Supabase.',
   )
 }
 

@@ -8,7 +8,7 @@ export interface PlayerPhotoProps {
   size?: 'sm' | 'lg'
 }
 
-/** Foto de jugador con respaldo al numero de camiseta si ESPN no tiene headshot (rookies, practice squad, id sin mapear). */
+/** Foto de jugador con respaldo al número de camiseta si ESPN no tiene headshot (rookies, practice squad, id sin mapear). */
 export function PlayerPhoto({ playerId, jerseyNumber, size = 'sm' }: PlayerPhotoProps) {
   const [imageFailed, setImageFailed] = useState(false)
   const photoClassName = size === 'lg' ? `${styles.photo} ${styles.photoLg}` : styles.photo

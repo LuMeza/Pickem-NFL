@@ -4,8 +4,8 @@ import { useSessionStatus } from '@/presentation/hooks/useSessionStatus'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 
 /**
- * Tarea 4.6: redirige a /login si no hay sesion activa. No exige que el
- * cambio de contrasena obligatorio ya se haya hecho (lo usa /change-password,
+ * Tarea 4.6: redirige a /login si no hay sesión activa. No exige que el
+ * cambio de contraseña obligatorio ya se haya hecho (lo usa /change-password,
  * que debe ser alcanzable incluso con must_change_password = true).
  */
 export function RequireAuth() {
@@ -16,7 +16,7 @@ export function RequireAuth() {
   }, [run])
 
   if (status === 'idle' || status === 'pending') {
-    return <LoadingSpinner label="Cargando sesion..." />
+    return <LoadingSpinner label="Cargando sesión..." />
   }
 
   if (status === 'error' || !data?.userId) {

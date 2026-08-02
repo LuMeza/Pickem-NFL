@@ -6,7 +6,7 @@ import {
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Panel admin: solicitudes de acceso a modulo de un grupo. */
+/** Panel admin: solicitudes de acceso a módulo de un grupo. */
 export function useListModuleAccessRequests() {
   const repositories = useRepositories()
   const action = useCallback(

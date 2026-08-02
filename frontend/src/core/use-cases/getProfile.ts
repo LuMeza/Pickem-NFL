@@ -5,7 +5,7 @@ export interface GetProfileDeps {
   authRepository: AuthRepository
 }
 
-/** Perfil basico del usuario autenticado — ver openspec/changes/base-plataforma specs/auth-usuarios. */
+/** Perfil básico del usuario autenticado — ver openspec/changes/base-plataforma specs/auth-usuarios. */
 export function getProfile(deps: GetProfileDeps): Promise<Profile> {
   return deps.authRepository.getProfile()
 }

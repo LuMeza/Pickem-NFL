@@ -3,7 +3,7 @@ import { signOut } from '@/core/use-cases/signOut'
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Cierre de sesion. */
+/** Cierre de sesión. */
 export function useSignOut() {
   const repositories = useRepositories()
   const action = useCallback(() => signOut(repositories), [repositories])

@@ -5,7 +5,7 @@ export interface ListWeeksDeps {
   catalogRepository: CatalogRepository
 }
 
-/** Catalogo de semanas de temporada — ver openspec/changes/base-plataforma specs/catalogo-nfl. */
+/** Catálogo de semanas de temporada — ver openspec/changes/base-plataforma specs/catalogo-nfl. */
 export function listWeeks(deps: ListWeeksDeps): Promise<Week[]> {
   return deps.catalogRepository.listWeeks()
 }

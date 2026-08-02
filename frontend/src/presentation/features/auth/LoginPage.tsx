@@ -4,7 +4,7 @@ import { useSignIn } from '@/presentation/hooks/useSignIn'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import styles from './LoginPage.module.css'
 
-/** Tarea 4.3 (base-plataforma): login con correo + contrasena. */
+/** Tarea 4.3 (base-plataforma): login con correo + contraseña. */
 export function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -41,7 +41,7 @@ export function LoginPage() {
             />
           </label>
           <label>
-            Contrasena
+            Contraseña
             <input
               type="password"
               value={password}
@@ -54,9 +54,9 @@ export function LoginPage() {
             {status === 'pending' ? 'Ingresando...' : 'Ingresar'}
           </button>
         </form>
-        {error && <p role="alert">Correo o contrasena incorrectos.</p>}
+        {error && <p role="alert">Correo o contraseña incorrectos.</p>}
         <p className="text-body-sm text-muted" style={{ marginTop: 16 }}>
-          <Link to="/forgot-password">Olvide mi contrasena</Link>
+          <Link to="/forgot-password">Olvide mi contraseña</Link>
         </p>
       </section>
     </div>

@@ -9,7 +9,7 @@ export interface ListAdminWeeklyPicksForUserParams {
   userId: string
 }
 
-/** Panel admin: historico completo de picks de pickem semanal de un usuario. */
+/** Panel admin: histórico completo de picks de pickem semanal de un usuario. */
 export function listAdminWeeklyPicksForUser(
   deps: ListAdminWeeklyPicksForUserDeps,
   params: ListAdminWeeklyPicksForUserParams,

@@ -10,7 +10,7 @@ export interface GetModuleAccessStatusParams {
   module: GameModule
 }
 
-/** Estado de acceso propio a un modulo — ver specs/grupos-privados. */
+/** Estado de acceso propio a un módulo — ver specs/grupos-privados. */
 export function getModuleAccessStatus(
   deps: GetModuleAccessStatusDeps,
   params: GetModuleAccessStatusParams,

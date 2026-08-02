@@ -2,8 +2,8 @@ import type { Game, Week } from '@/core/entities/catalog'
 
 /**
  * Tarea 6.4 (base-plataforma): determina si la ronda de playoffs ya inicio,
- * consultando si algun partido de una semana tipo 'playoffs' ya tuvo kickoff.
- * Reutiliza `kickoff_at` como unica nocion de "ya inicio" (ver design.md,
+ * consultando si algún partido de una semana tipo 'playoffs' ya tuvo kickoff.
+ * Reutiliza `kickoff_at` como única noción de "ya inicio" (ver design.md,
  * Open Questions), en vez de un flag separado en `weeks`.
  */
 export function isPlayoffsStarted(weeks: Week[], games: Game[], now: Date): boolean {

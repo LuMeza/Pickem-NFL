@@ -9,7 +9,7 @@ export interface TickerProps {
 /**
  * Tareas 2.7 y 2.8 (sistema-diseno-ui): franja "EN JUEGO" con scroll
  * horizontal continuo, pausable en hover/tap; con prefers-reduced-motion
- * activo se reemplaza por paginacion manual (sin autoscroll).
+ * activo se reemplaza por paginación manual (sin autoscroll).
  */
 export function Ticker({ items }: TickerProps) {
   const [paused, setPaused] = useState(false)
@@ -21,7 +21,7 @@ export function Ticker({ items }: TickerProps) {
   if (prefersReducedMotion) {
     const current = items[page % items.length]
     return (
-      <div className={styles.ticker} role="region" aria-label="Informacion del grupo">
+      <div className={styles.ticker} role="region" aria-label="Información del grupo">
         <div className={styles.paginated}>
           <button
             type="button"
@@ -49,7 +49,7 @@ export function Ticker({ items }: TickerProps) {
     <div
       className={styles.ticker}
       role="region"
-      aria-label="Informacion del grupo"
+      aria-label="Información del grupo"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={() => setPaused((p) => !p)}

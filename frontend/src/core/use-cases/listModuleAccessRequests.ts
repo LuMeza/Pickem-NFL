@@ -8,7 +8,7 @@ export interface ListModuleAccessRequestsParams {
   groupId: string
 }
 
-/** Panel admin: solicitudes de acceso a modulo de un grupo — ver openspec/changes/base-plataforma specs/grupos-privados. */
+/** Panel admin: solicitudes de acceso a módulo de un grupo — ver openspec/changes/base-plataforma specs/grupos-privados. */
 export function listModuleAccessRequests(
   deps: ListModuleAccessRequestsDeps,
   params: ListModuleAccessRequestsParams,

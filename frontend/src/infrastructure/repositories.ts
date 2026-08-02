@@ -14,8 +14,8 @@ import { SupabaseResultsRepository } from '@/infrastructure/supabase/SupabaseRes
 import { SupabaseSyncRepository } from '@/infrastructure/supabase/SupabaseSyncRepository'
 
 /**
- * Punto unico de construccion de los adapters concretos. Solo `src/main.tsx`
- * (la raiz de la app) debe importar este modulo — ver
+ * Punto único de construcción de los adapters concretos. Solo `src/main.tsx`
+ * (la raiz de la app) debe importar este módulo — ver
  * openspec/changes/arquitectura-frontend design.md, decision 4.
  */
 export function createSupabaseRepositories(): Repositories {

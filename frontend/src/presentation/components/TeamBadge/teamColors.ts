@@ -1,5 +1,5 @@
 /**
- * Colores de marca por equipo NFL (dato publico, no logos) — usados para
+ * Colores de marca por equipo NFL (dato público, no logos) — usados para
  * renderizar un escudo de color en vez de una imagen con derechos de autor.
  */
 export interface TeamColors {

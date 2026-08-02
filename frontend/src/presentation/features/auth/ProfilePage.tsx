@@ -17,7 +17,7 @@ function getInitials(name: string): string {
   return (first + last).toUpperCase()
 }
 
-/** Tarea 4.5 (base-plataforma): edicion de perfil (nombre visible). */
+/** Tarea 4.5 (base-plataforma): edición de perfil (nombre visible). */
 export function ProfilePage() {
   const { status, data: profile, error, run: loadProfile } = useGetProfile()
   const { status: saveStatus, run: saveDisplayName } = useUpdateDisplayName()
@@ -76,7 +76,7 @@ export function ProfilePage() {
           </div>
         ) : statsStatus === 'success' ? (
           <p className={`${styles.statsEmpty} text-body-sm text-muted`}>
-            Todavia no tienes picks registrados en el Pickem Semanal.
+            Todavía no tienes picks registrados en el Pickem Semanal.
           </p>
         ) : null}
       </div>
@@ -119,8 +119,8 @@ export function ProfilePage() {
         <ActionCard
           to="/change-password"
           icon="lock"
-          title="Cambiar contrasena"
-          description="Actualiza tu contrasena de acceso"
+          title="Cambiar contraseña"
+          description="Actualiza tu contraseña de acceso"
         />
         <ActionCard
           to="/pickem/acceso"

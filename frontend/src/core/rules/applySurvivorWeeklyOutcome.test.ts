@@ -53,7 +53,7 @@ describe('applySurvivorWeeklyOutcome', () => {
     })
   })
 
-  it('trata la ausencia de eleccion igual que una derrota', () => {
+  it('trata la ausencia de elección igual que una derrota', () => {
     const result = applySurvivorWeeklyOutcome(aliveOriginalLife, 'week-3', 'loss_or_no_pick')
     expect(result.currentLife).toBe(2)
   })

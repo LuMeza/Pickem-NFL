@@ -17,9 +17,9 @@ function navLinkClassName({ isActive }: { isActive: boolean }): string {
 }
 
 /**
- * Tareas 2.4 y 2.5 (sistema-diseno-ui): navegacion inferior fija en
+ * Tareas 2.4 y 2.5 (sistema-diseno-ui): navegación inferior fija en
  * mobile/tablet, sidebar fijo en desktop — ambos markups viven en el DOM y
- * se alternan por CSS segun breakpoint (ver NavBar.module.css), asi la
+ * se alternan por CSS según breakpoint (ver NavBar.module.css), así la
  * ruta activa se resuelve una sola vez.
  */
 export function NavBar({ items }: NavBarProps) {
@@ -34,10 +34,10 @@ export function NavBar({ items }: NavBarProps) {
 
   return (
     <>
-      <nav className={styles.bottomNav} aria-label="Navegacion principal">
+      <nav className={styles.bottomNav} aria-label="Navegación principal">
         {links}
       </nav>
-      <nav className={styles.sidebar} aria-label="Navegacion principal">
+      <nav className={styles.sidebar} aria-label="Navegación principal">
         {links}
       </nav>
     </>

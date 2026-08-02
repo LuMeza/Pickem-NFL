@@ -46,7 +46,7 @@
    porque las cards usan `glass-surface` (backdrop-filter), que crea un
    stacking context por card — con el popover como hijo posicionado dentro
    de la card, el z-index no alcanza para ganarle a las cards de la fila
-   siguiente, que son otro stacking context y pintan despues. */
+   siguiente, que son otro stacking context y pintan después. */
 .statsPreview {
   position: fixed;
   z-index: 1000;

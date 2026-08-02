@@ -4,7 +4,7 @@ export interface SaveWeeklyPickDeps {
   weeklyPickRepository: WeeklyPickRepository
 }
 
-/** Registrar/editar una prediccion antes del kickoff — ver specs/prediccion-pickem-semanal. */
+/** Registrar/editar una predicción antes del kickoff — ver specs/prediccion-pickem-semanal. */
 export function saveWeeklyPick(deps: SaveWeeklyPickDeps, params: SaveWeeklyPickParams): Promise<void> {
   return deps.weeklyPickRepository.savePick(params)
 }

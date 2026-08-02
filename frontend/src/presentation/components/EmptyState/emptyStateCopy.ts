@@ -3,10 +3,10 @@
  * doc/design-system.md §7. Tono directo, sin disculpas, sin emojis.
  */
 export const EMPTY_STATE_COPY = {
-  noModuleAccess: 'Todavia no tienes acceso a este modulo. Pidele al administrador que lo active.',
+  noModuleAccess: 'Todavía no tienes acceso a este módulo. Pidele al administrador que lo active.',
   weekClosedNoPicks: 'No registraste predicciones esta semana.',
-  groupWithoutMembers: 'Todavia no hay usuarios. Dalos de alta desde el panel admin para que aparezcan aqui.',
+  groupWithoutMembers: 'Todavía no hay usuarios. Dalos de alta desde el panel admin para que aparezcan aquí.',
   resultsLoadError: 'No pudimos actualizar los resultados. Intenta de nuevo.',
-  noWeeksAvailable: 'Todavia no hay semanas cargadas.',
-  pageNotFound: 'Esta pagina no existe.',
+  noWeeksAvailable: 'Todavía no hay semanas cargadas.',
+  pageNotFound: 'Esta página no existe.',
 } as const

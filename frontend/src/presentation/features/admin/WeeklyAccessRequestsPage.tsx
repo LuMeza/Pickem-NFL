@@ -141,7 +141,7 @@ export function WeeklyAccessRequestsPage() {
       <h1 className="text-display-lg">Solicitudes de acceso semanal</h1>
       {status === 'pending' && <LoadingSpinner variant="inline" />}
       {error && <p role="alert">No se pudieron cargar las solicitudes.</p>}
-      {requests && requests.length === 0 && <p className="text-body-sm text-muted">No hay solicitudes todavia.</p>}
+      {requests && requests.length === 0 && <p className="text-body-sm text-muted">No hay solicitudes todavía.</p>}
 
       {groups.map(({ weekId, week, requests: weekRequests }) => (
         <WeekGroupSection key={weekId} weekId={weekId} week={week} requests={weekRequests} onResolve={handleResolve} />

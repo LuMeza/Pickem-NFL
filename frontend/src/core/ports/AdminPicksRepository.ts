@@ -34,9 +34,9 @@ export interface AdminUserSurvivorPick {
 /**
  * Panel admin: lectura de picks de cualquier usuario del grupo (pickem
  * semanal y survivor; playoffs fuera de alcance mientras no exista ese
- * modulo). El RLS de weekly_picks/survivor_picks solo permite leer filas
- * propias, asi que estos metodos llaman a funciones SQL security definer
- * con chequeo is_platform_admin (ver migracion 20260801000002_admin_picks_functions).
+ * módulo). El RLS de weekly_picks/survivor_picks solo permite leer filas
+ * propias, así que estos métodos llaman a funciones SQL security definer
+ * con chequeo is_platform_admin (ver migración 20260801000002_admin_picks_functions).
  */
 export interface AdminPicksRepository {
   listWeeklyPicksForWeek(groupId: string, weekId: string): Promise<AdminWeeklyPickRow[]>

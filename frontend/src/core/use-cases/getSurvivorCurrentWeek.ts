@@ -4,7 +4,7 @@ export interface GetSurvivorCurrentWeekDeps {
   survivorRepository: SurvivorRepository
 }
 
-/** Numero de la semana regular actualmente abierta — ver design.md decision 8. */
+/** Número de la semana regular actualmente abierta — ver design.md decision 8. */
 export function getSurvivorCurrentWeek(deps: GetSurvivorCurrentWeekDeps): Promise<number | null> {
   return deps.survivorRepository.getCurrentWeekNumber()
 }

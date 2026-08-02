@@ -8,7 +8,7 @@ import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import styles from './GroupMembersPage.module.css'
 
-/** Tarea 5.4 (base-plataforma): listar y remover miembros del grupo unico. */
+/** Tarea 5.4 (base-plataforma): listar y remover miembros del grupo único. */
 export function GroupMembersPage() {
   const { data: group, run: loadGroup } = useDefaultGroup()
   const { status, data: members, error, run: loadMembers } = useListGroupMembers()

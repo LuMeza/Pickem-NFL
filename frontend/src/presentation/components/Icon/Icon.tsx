@@ -113,7 +113,7 @@ export interface IconProps {
 
 /**
  * Set de iconos propio (trazo, estilo outline) para reemplazar los emojis de
- * navegacion y tarjetas de acceso — ver propuesta de rediseno "Cancha
+ * navegación y tarjetas de acceso — ver propuesta de rediseno "Cancha
  * Nocturna". Sin dependencia externa: son pocos iconos, coherente con la
  * decision de no sumar un framework de terceros (ver sistema-diseno-ui
  * design.md decision 1).

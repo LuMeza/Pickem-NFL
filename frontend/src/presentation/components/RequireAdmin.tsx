@@ -4,7 +4,7 @@ import { useCheckPlatformAdmin } from '@/presentation/hooks/useCheckPlatformAdmi
 
 /**
  * Tarea 7.3: restringe el panel admin a usuarios en platform_admins. Es una
- * verificacion de UX — la autorizacion real la impone RLS en cada operacion.
+ * verificación de UX — la autorización real la impone RLS en cada operación.
  */
 export function RequireAdmin() {
   const { status, data, run } = useCheckPlatformAdmin()

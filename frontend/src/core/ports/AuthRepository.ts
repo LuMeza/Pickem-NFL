@@ -8,7 +8,7 @@ export interface ProvisionalUserAccount {
 /**
  * Ver openspec/changes/base-plataforma specs/auth-usuarios.
  * `createUser` solo la puede invocar el administrador de plataforma; la
- * verificacion de permiso ocurre en la Edge Function, no en el cliente.
+ * verificación de permiso ocurre en la Edge Function, no en el cliente.
  */
 export interface AuthRepository {
   createUser(email: string, displayName: string): Promise<ProvisionalUserAccount>

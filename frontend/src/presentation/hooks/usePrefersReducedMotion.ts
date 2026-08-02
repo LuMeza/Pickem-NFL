@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-/** Usado por Ticker y PredictionCard para sus alternativas sin animacion. */
+/** Usado por Ticker y PredictionCard para sus alternativas sin animación. */
 export function usePrefersReducedMotion(): boolean {
   const [prefersReduced, setPrefersReduced] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,

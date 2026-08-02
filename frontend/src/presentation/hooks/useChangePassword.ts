@@ -3,7 +3,7 @@ import { changePassword, type ChangePasswordParams } from '@/core/use-cases/chan
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Pantalla obligatoria de cambio de contrasena en el primer login. */
+/** Pantalla obligatoria de cambio de contraseña en el primer login. */
 export function useChangePassword() {
   const repositories = useRepositories()
   const action = useCallback(

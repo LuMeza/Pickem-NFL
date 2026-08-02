@@ -3,7 +3,7 @@ import type { RankingEntry, RankingGroup } from '@/core/entities/ranking'
 /**
  * Regla compartida entre Pickem Semanal y Playoffs
  * (ver openspec/changes/arquitectura-frontend, decision 5 / tarea 3.3).
- * Agrupa a los usuarios empatados en una posicion sin aplicar ninguna
+ * Agrupa a los usuarios empatados en una posición sin aplicar ninguna
  * regla de desempate: el sistema solo reporta el empate.
  */
 export function resolveTiedRanking(entries: RankingEntry[]): RankingGroup[] {

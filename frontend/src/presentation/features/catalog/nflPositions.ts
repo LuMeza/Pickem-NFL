@@ -1,4 +1,4 @@
-/** Diccionario de posiciones NFL (abreviacion ESPN -> nombre en español) para el glosario de la plantilla — los usuarios nuevos al pickem no necesariamente conocen las siglas. */
+/** Diccionario de posiciones NFL (abreviación ESPN -> nombre en español) para el glosario de la plantilla — los usuarios nuevos al pickem no necesariamente conocen las siglas. */
 export const POSITION_LABEL: Record<string, string> = {
   QB: 'Mariscal de campo',
   RB: 'Corredor',
@@ -10,11 +10,11 @@ export const POSITION_LABEL: Record<string, string> = {
   G: 'Guardia ofensivo',
   OG: 'Guardia ofensivo',
   C: 'Centro',
-  OL: 'Linea ofensiva',
+  OL: 'Línea ofensiva',
   DE: 'Ala defensiva',
   DT: 'Tackle defensivo',
   NT: 'Nose tackle',
-  DL: 'Linea defensiva',
+  DL: 'Línea defensiva',
   LB: 'Apoyador',
   ILB: 'Apoyador interior',
   MLB: 'Apoyador central',

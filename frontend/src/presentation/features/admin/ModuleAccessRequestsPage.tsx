@@ -6,7 +6,7 @@ import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import styles from './ModuleAccessRequestsPage.module.css'
 
-/** Tarea 5.6 (base-plataforma): aprobar/rechazar solicitudes de acceso a modulo. */
+/** Tarea 5.6 (base-plataforma): aprobar/rechazar solicitudes de acceso a módulo. */
 export function ModuleAccessRequestsPage() {
   const { data: group, run: loadGroup } = useDefaultGroup()
   const { status, data: requests, error, run: loadRequests } = useListModuleAccessRequests()

@@ -4,7 +4,7 @@ export interface SignOutDeps {
   authRepository: AuthRepository
 }
 
-/** Cierre de sesion. */
+/** Cierre de sesión. */
 export function signOut(deps: SignOutDeps): Promise<void> {
   return deps.authRepository.signOut()
 }

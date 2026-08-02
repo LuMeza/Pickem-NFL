@@ -37,7 +37,7 @@ export function CreateUserPage() {
       {error && <p role="alert">No se pudo crear el usuario: {error.message}</p>}
       {data && (
         <div role="status" className="glass-surface" style={{ padding: 16, marginTop: 16 }}>
-          <p>Usuario creado. Entrega esta contrasena provisional fuera de la plataforma (no se muestra de nuevo):</p>
+          <p>Usuario creado. Entrega esta contraseña provisional fuera de la plataforma (no se muestra de nuevo):</p>
           <p className="text-mono-md" style={{ color: 'var(--accent-lime)' }}>
             {data.provisionalPassword}
           </p>

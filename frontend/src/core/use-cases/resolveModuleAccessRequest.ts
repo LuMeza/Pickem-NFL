@@ -11,7 +11,7 @@ export interface ResolveModuleAccessRequestParams {
   decision: 'aprobado' | 'rechazado'
 }
 
-/** Aprobacion/rechazo de acceso a modulo por el administrador — ver openspec/changes/base-plataforma specs/grupos-privados. */
+/** Aprobación/rechazo de acceso a módulo por el administrador — ver openspec/changes/base-plataforma specs/grupos-privados. */
 export function resolveModuleAccessRequest(
   deps: ResolveModuleAccessRequestDeps,
   params: ResolveModuleAccessRequestParams,

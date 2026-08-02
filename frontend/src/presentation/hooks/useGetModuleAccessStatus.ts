@@ -7,7 +7,7 @@ import type { ModuleAccessStatus } from '@/core/ports/ModuleAccessRepository'
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Estado de acceso propio a un modulo (badge en RequestModuleAccessPage). */
+/** Estado de acceso propio a un módulo (badge en RequestModuleAccessPage). */
 export function useGetModuleAccessStatus() {
   const repositories = useRepositories()
   const action = useCallback(

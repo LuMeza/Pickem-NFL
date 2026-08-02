@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { resolveSurvivorRanking } from './resolveSurvivorRanking'
 
 describe('resolveSurvivorRanking', () => {
-  it('ordena sin empates por semana de eliminacion, el ultimo en caer va primero', () => {
+  it('ordena sin empates por semana de eliminación, el último en caer va primero', () => {
     const result = resolveSurvivorRanking([
       { userId: 'a', eliminatedWeekOrder: 5, firstLossWeekOrder: 2 },
       { userId: 'b', eliminatedWeekOrder: 8, firstLossWeekOrder: 4 },
@@ -16,20 +16,20 @@ describe('resolveSurvivorRanking', () => {
     ])
   })
 
-  it('desempata por duracion con la vida original cuando la semana de eliminacion coincide', () => {
+  it('desempata por duración con la vida original cuando la semana de eliminación coincide', () => {
     const result = resolveSurvivorRanking([
       { userId: 'a', eliminatedWeekOrder: 6, firstLossWeekOrder: 2 },
       { userId: 'b', eliminatedWeekOrder: 6, firstLossWeekOrder: 4 },
     ])
 
-    // b duro mas semanas con su vida original (firstLossWeekOrder mayor) -> mejor posicion
+    // b duró más semanas con su vida original (firstLossWeekOrder mayor) -> mejor posición
     expect(result).toEqual([
       { position: 1, userIds: ['b'] },
       { position: 2, userIds: ['a'] },
     ])
   })
 
-  it('reporta empate cuando coincide semana de eliminacion y duracion de vida original', () => {
+  it('reporta empate cuando coincide semana de eliminación y duración de vida original', () => {
     const result = resolveSurvivorRanking([
       { userId: 'a', eliminatedWeekOrder: 6, firstLossWeekOrder: 2 },
       { userId: 'b', eliminatedWeekOrder: 6, firstLossWeekOrder: 2 },
@@ -38,7 +38,7 @@ describe('resolveSurvivorRanking', () => {
     expect(result).toEqual([{ position: 1, userIds: ['a', 'b'] }])
   })
 
-  it('reporta empate cuando ninguno perdio nunca su vida original', () => {
+  it('reporta empate cuando ninguno perdió nunca su vida original', () => {
     const result = resolveSurvivorRanking([
       { userId: 'a', eliminatedWeekOrder: 6, firstLossWeekOrder: null },
       { userId: 'b', eliminatedWeekOrder: 6, firstLossWeekOrder: null },

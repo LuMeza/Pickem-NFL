@@ -1,8 +1,8 @@
 export interface SurvivorRankingCandidate {
   userId: string
-  /** Orden cronologico de la semana de eliminacion (mayor = cayo mas tarde = mejor posicion). */
+  /** Orden cronológico de la semana de eliminación (mayor = cayó más tarde = mejor posición). */
   eliminatedWeekOrder: number
-  /** Orden cronologico de la primera derrota (mayor = duro mas con su vida original), o null si nunca perdio su vida original. */
+  /** Orden cronológico de la primera derrota (mayor = duró más con su vida original), o null si nunca perdió su vida original. */
   firstLossWeekOrder: number | null
 }
 

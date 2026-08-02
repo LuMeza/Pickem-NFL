@@ -5,7 +5,7 @@ export interface ListTeamsDeps {
   catalogRepository: CatalogRepository
 }
 
-/** Catalogo de equipos NFL — ver openspec/changes/base-plataforma specs/catalogo-nfl. */
+/** Catálogo de equipos NFL — ver openspec/changes/base-plataforma specs/catalogo-nfl. */
 export function listTeams(deps: ListTeamsDeps): Promise<Team[]> {
   return deps.catalogRepository.listTeams()
 }

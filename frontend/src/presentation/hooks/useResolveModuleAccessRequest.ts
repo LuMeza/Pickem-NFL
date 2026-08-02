@@ -6,7 +6,7 @@ import {
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Panel admin: aprobar/rechazar una solicitud de acceso a modulo. */
+/** Panel admin: aprobar/rechazar una solicitud de acceso a módulo. */
 export function useResolveModuleAccessRequest() {
   const repositories = useRepositories()
   const action = useCallback(

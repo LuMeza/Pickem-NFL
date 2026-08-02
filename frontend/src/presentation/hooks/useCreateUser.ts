@@ -3,7 +3,7 @@ import { createUser, type CreateUserParams } from '@/core/use-cases/createUser'
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Panel admin: alta de usuario con contrasena provisional. */
+/** Panel admin: alta de usuario con contraseña provisional. */
 export function useCreateUser() {
   const repositories = useRepositories()
   const action = useCallback((params: CreateUserParams) => createUser(repositories, params), [repositories])

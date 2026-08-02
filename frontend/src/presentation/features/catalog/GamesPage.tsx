@@ -39,7 +39,7 @@ function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1)
 }
 
-/** Agrupa partidos por dia calendario (hora local) y ordena dias y partidos cronologicamente. */
+/** Agrupa partidos por día calendario (hora local) y ordena días y partidos cronologicamente. */
 function groupGamesByDay(games: Game[]): DayGroup[] {
   const byDay = new Map<string, Game[]>()
   for (const game of games) {
@@ -214,7 +214,7 @@ function DayGroupSection({
   )
 }
 
-/** Tareas 6.3/7.4 (base-plataforma) y 3.1-3.5 (modulo-pickem-semanal): partidos de una semana, agrupados por dia, con guardado real de predicciones condicionado a acceso semanal aprobado. */
+/** Tareas 6.3/7.4 (base-plataforma) y 3.1-3.5 (modulo-pickem-semanal): partidos de una semana, agrupados por día, con guardado real de predicciones condicionado a acceso semanal aprobado. */
 export function GamesPage() {
   const { weekId } = useParams<{ weekId: string }>()
   const { status, data: games, error, run: loadGames } = useListGamesForWeek()
@@ -290,7 +290,7 @@ export function GamesPage() {
 
       {status === 'pending' && <LoadingSpinner variant="inline" label="Cargando partidos" />}
       {error && <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />}
-      {games && games.length === 0 && <EmptyState message="Esta semana todavia no tiene partidos cargados." />}
+      {games && games.length === 0 && <EmptyState message="Esta semana todavía no tiene partidos cargados." />}
       <div className={styles.agenda}>
         {dayGroups.map((group) => (
           <DayGroupSection

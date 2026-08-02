@@ -4,7 +4,7 @@ import type { ProfileAchievement } from '@/core/entities/achievement'
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Catalogo de logros con estado desbloqueado/bloqueado del usuario actual. */
+/** Catálogo de logros con estado desbloqueado/bloqueado del usuario actual. */
 export function useListUserAchievements() {
   const repositories = useRepositories()
   const action = useCallback(() => listUserAchievements(repositories), [repositories])

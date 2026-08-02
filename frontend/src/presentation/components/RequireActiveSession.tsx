@@ -4,8 +4,8 @@ import { useSessionStatus } from '@/presentation/hooks/useSessionStatus'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 
 /**
- * Tarea 4.6: redirige a /login si no hay sesion, y a /change-password si el
- * cambio de contrasena obligatorio sigue pendiente (bloquea el resto de la
+ * Tarea 4.6: redirige a /login si no hay sesión, y a /change-password si el
+ * cambio de contraseña obligatorio sigue pendiente (bloquea el resto de la
  * app hasta completarlo — ver specs/auth-usuarios).
  */
 export function RequireActiveSession() {
@@ -16,7 +16,7 @@ export function RequireActiveSession() {
   }, [run])
 
   if (status === 'idle' || status === 'pending') {
-    return <LoadingSpinner label="Cargando sesion..." />
+    return <LoadingSpinner label="Cargando sesión..." />
   }
 
   if (status === 'error' || !data?.userId) {

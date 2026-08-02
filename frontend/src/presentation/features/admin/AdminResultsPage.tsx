@@ -58,7 +58,7 @@ function GameResultForm({ game, teamName }: { game: Game; teamName: (id: string)
       </div>
       {existingResult && (
         <p className="text-body-sm text-muted">
-          Origen: {existingResult.resultSource === 'manual' ? 'carga manual' : 'sincronizacion automatica (ESPN)'}
+          Origen: {existingResult.resultSource === 'manual' ? 'carga manual' : 'sincronización automatica (ESPN)'}
         </p>
       )}
 

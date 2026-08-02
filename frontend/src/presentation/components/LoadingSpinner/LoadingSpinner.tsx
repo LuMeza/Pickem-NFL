@@ -4,14 +4,14 @@ import styles from './LoadingSpinner.module.css'
 export type LoadingSpinnerVariant = 'page' | 'inline'
 
 export interface LoadingSpinnerProps {
-  /** 'page' centra el spinner en un bloque de altura completa; 'inline' lo ajusta al flujo de una seccion. */
+  /** 'page' centra el spinner en un bloque de altura completa; 'inline' lo ajusta al flujo de una sección. */
   variant?: LoadingSpinnerVariant
   /** Solo alimenta el aria-label para lectores de pantalla — no se renderiza texto visible. */
   label?: string
 }
 
 /**
- * Animacion de carga con forma de balon (misma elipse que el icono
+ * Animación de carga con forma de balon (misma elipse que el icono
  * "football") — sin texto visible. Un tramo con gradiente lime->dorado
  * recorre el contorno del balon en loop, sobre una pista tenue fija.
  */

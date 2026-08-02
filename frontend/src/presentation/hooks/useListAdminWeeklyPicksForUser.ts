@@ -6,7 +6,7 @@ import {
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Panel admin: historico completo de picks de pickem semanal de un usuario. */
+/** Panel admin: histórico completo de picks de pickem semanal de un usuario. */
 export function useListAdminWeeklyPicksForUser() {
   const repositories = useRepositories()
   const action = useCallback(

@@ -134,7 +134,7 @@ export function SurvivorPickPage() {
       )}
 
       {isRegularWeek && isWeekLocked && (
-        <EmptyState message="Todavia no esta disponible — se habilita cuando termine la semana anterior." />
+        <EmptyState message="Todavía no está disponible — se habilita cuando termine la semana anterior." />
       )}
 
       {isRegularWeek && !isWeekLocked && isEliminated && (
@@ -156,13 +156,13 @@ export function SurvivorPickPage() {
         <>
           {lifeRequestPending && (
             <p className="text-body-sm text-muted">
-              Tu solicitud de vida extra esta en revision — podes seguir pickeando, pero si el admin la rechaza estos
+              Tu solicitud de vida extra está en revisión — podes seguir pickeando, pero si el admin la rechaza estos
               picks no van a contar.
             </p>
           )}
           {gamesStatus === 'pending' && <LoadingSpinner variant="inline" label="Cargando partidos" />}
           {gamesError && <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />}
-          {games && games.length === 0 && <EmptyState message="Esta semana todavia no tiene partidos cargados." />}
+          {games && games.length === 0 && <EmptyState message="Esta semana todavía no tiene partidos cargados." />}
 
           {games && games.length > 0 && (
             <label className={styles.searchBox}>
@@ -177,7 +177,7 @@ export function SurvivorPickPage() {
           )}
 
           {games && games.length > 0 && options.length === 0 && (
-            <p className="text-body-sm text-muted">Ningun equipo coincide con "{search}".</p>
+            <p className="text-body-sm text-muted">Ningún equipo coincide con "{search}".</p>
           )}
 
           <div className={styles.grid}>

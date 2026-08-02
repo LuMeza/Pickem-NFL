@@ -7,7 +7,7 @@ export interface ModalProps {
   children: ReactNode
 }
 
-/** Modal generico sobre <dialog> nativo — da backdrop y cierre con ESC/click-afuera gratis, sin depender de una libreria de UI. */
+/** Modal genérico sobre <dialog> nativo — da backdrop y cierre con ESC/click-afuera gratis, sin depender de una librería de UI. */
 export function Modal({ open, onClose, children }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
 

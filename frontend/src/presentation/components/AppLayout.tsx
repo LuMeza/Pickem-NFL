@@ -15,7 +15,7 @@ const BASE_NAV_ITEMS: NavItem[] = [
 
 const ADMIN_NAV_ITEM: NavItem = { to: '/admin', label: 'Admin', icon: 'gear' }
 
-/** Layout autenticado: usa el AppShell del sistema de diseno (ver sistema-diseno-ui). */
+/** Layout autenticado: usa el AppShell del sistema de diseño (ver sistema-diseno-ui). */
 export function AppLayout() {
   const navigate = useNavigate()
   const { run: doSignOut } = useSignOut()

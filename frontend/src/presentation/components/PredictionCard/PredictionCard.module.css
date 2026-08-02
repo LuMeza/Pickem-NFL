@@ -16,7 +16,7 @@
   transform: rotateY(180deg);
 }
 
-/* Alternativa sin rotacion (reduced motion, tarea 3.6): cross-fade instantaneo. */
+/* Alternativa sin rotación (reduced motion, tarea 3.6): cross-fade instantaneo. */
 .card[data-reduced-motion='true'] {
   transition: none;
   transform: none;
@@ -37,9 +37,9 @@
   display: flex;
   opacity: 1;
 }
-/* .back siempre trae su propio rotateY(180deg) (linea ~52) para quedar al
+/* .back siempre trae su propio rotateY(180deg) (línea ~52) para quedar al
    derecho cuando el padre .card gira; en reduced motion el padre ya no gira
-   (transform: none arriba), asi que hay que neutralizar tambien el propio
+   (transform: none arriba), así que hay que neutralizar también el propio
    giro de .back o su backface-visibility:hidden lo deja invisible aunque
    display sea flex. */
 .card[data-reduced-motion='true'] .back {
@@ -66,7 +66,7 @@
 }
 
 /* El reverso toma el color de marca del equipo elegido (--picked-accent, ver
-   Cancha Nocturna) en vez de un lima generico — si no llega el prop, cae al
+   Cancha Nocturna) en vez de un lima genérico — si no llega el prop, cae al
    lima de siempre. */
 .card[data-flipped='true'] {
   border-color: var(--picked-accent, var(--glass-border));
@@ -122,8 +122,8 @@
 }
 
 /* Pick elegido: resaltado directo en el boton, sin voltear la carta — se
-   puede tocar otra opcion en cualquier momento para cambiarlo (feedback de
-   producto: voltear solo para "confirmar" agregaba friccion sin payoff). */
+   puede tocar otra opción en cualquier momento para cambiarlo (feedback de
+   producto: voltear solo para "confirmar" agregaba fricción sin payoff). */
 .optionButton[data-selected='true'],
 .tripleOption[data-selected='true'] {
   border-color: var(--picked-accent, var(--accent-lime));

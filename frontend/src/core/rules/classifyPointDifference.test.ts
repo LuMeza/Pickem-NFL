@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { classifyPointDifference } from './classifyPointDifference'
 
 describe('classifyPointDifference', () => {
-  it('clasifica como local_amplio cuando el local gana por mas de 6 puntos', () => {
+  it('clasifica como local_amplio cuando el local gana por más de 6 puntos', () => {
     expect(classifyPointDifference(24, 10)).toBe('local_amplio')
   })
 
-  it('clasifica como visita_amplio cuando la visita gana por mas de 6 puntos', () => {
+  it('clasifica como visita_amplio cuando la visita gana por más de 6 puntos', () => {
     expect(classifyPointDifference(10, 24)).toBe('visita_amplio')
   })
 

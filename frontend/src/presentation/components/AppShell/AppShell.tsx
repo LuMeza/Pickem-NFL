@@ -14,7 +14,7 @@ export interface AppShellProps {
 /**
  * Tarea 2.2 (sistema-diseno-ui): layout compartido (header + nav + ticker +
  * slot de contenido) que envuelve las pantallas de la app — ver design.md
- * decision 5. Un unico componente, no reimplementado por pantalla/modulo.
+ * decision 5. Un único componente, no reimplementado por pantalla/módulo.
  */
 export function AppShell({ navItems, header, tickerItems = [], children }: AppShellProps) {
   return (

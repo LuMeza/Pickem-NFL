@@ -3,8 +3,8 @@ import type { SurvivorState, SurvivorWeeklyOutcome } from '@/core/entities/survi
 /**
  * Regla de Survivor (ver openspec/changes/modulo-survivor/design.md, decision 4
  * y openspec/changes/arquitectura-frontend, tarea 3.7).
- * Procesa la transicion de estado de un usuario para una semana ya resuelta.
- * Un usuario ya eliminado no cambia de estado (funcion idempotente ante
+ * Procesa la transición de estado de un usuario para una semana ya resuelta.
+ * Un usuario ya eliminado no cambia de estado (función idempotente ante
  * reprocesamiento de semanas ya cerradas).
  */
 export function applySurvivorWeeklyOutcome(

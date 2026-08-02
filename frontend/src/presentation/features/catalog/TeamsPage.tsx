@@ -18,7 +18,7 @@ export function TeamsPage() {
   return (
     <section>
       <span className="kicker">
-        <Icon name="football" size={13} /> Catalogo NFL
+        <Icon name="football" size={13} /> Catálogo NFL
       </span>
       <h1 className="text-display-lg">Equipos</h1>
       <p className="text-body-sm text-muted">Los 32 equipos de la NFL.</p>

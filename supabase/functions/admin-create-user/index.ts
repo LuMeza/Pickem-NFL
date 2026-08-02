@@ -1,7 +1,7 @@
 // Tarea 4.1 (base-plataforma): alta de usuario por el administrador.
-// Unica funcion del proyecto que usa la service role key (Supabase Admin API)
+// Única función del proyecto que usa la service role key (Supabase Admin API)
 // — ver design.md decision 3 y Risks/Trade-offs. Verifica que quien llama
-// esta en platform_admins ANTES de usarla.
+// está en platform_admins ANTES de usarla.
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 
@@ -48,8 +48,8 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: 'No se pudo identificar al usuario que llama' }, 401)
   }
 
-  // Cliente con service role: unico punto del sistema que la usa, y solo
-  // despues de confirmar que el llamador es administrador de plataforma.
+  // Cliente con service role: único punto del sistema que la usa, y solo
+  // después de confirmar que el llamador es administrador de plataforma.
   const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
 
   const { data: adminRow, error: adminCheckError } = await adminClient
@@ -103,8 +103,8 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: `No se pudo crear el perfil: ${profileError.message}` }, 500)
   }
 
-  // Grupo unico global (simplificacion de producto, ver specs/grupos-privados):
-  // todo usuario nuevo queda agregado automaticamente, sin flujo de invitacion.
+  // Grupo único global (simplificacion de producto, ver specs/grupos-privados):
+  // todo usuario nuevo queda agregado automáticamente, sin flujo de invitación.
   const { data: defaultGroup, error: groupLookupError } = await adminClient
     .from('groups')
     .select('id')
@@ -114,7 +114,7 @@ Deno.serve(async (req: Request) => {
 
   if (groupLookupError || !defaultGroup) {
     await adminClient.auth.admin.deleteUser(created.user.id)
-    return jsonResponse({ error: 'No se encontro el grupo unico de la plataforma' }, 500)
+    return jsonResponse({ error: 'No se encontro el grupo único de la plataforma' }, 500)
   }
 
   const { error: membershipError } = await adminClient

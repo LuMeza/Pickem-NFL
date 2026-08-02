@@ -11,10 +11,10 @@ export interface GroupSummary {
 
 /**
  * Ver openspec/changes/base-plataforma specs/grupos-privados (actualizado:
- * grupo unico global, sin flujo de creacion/invitacion — todo usuario queda
- * agregado automaticamente al darse de alta, ver admin-create-user).
- * `listGroups` siempre retorna ese unico grupo; se mantiene como lista (no
- * `getDefaultGroup`) por si en el futuro se reintroduce mas de un grupo.
+ * grupo único global, sin flujo de creación/invitación — todo usuario queda
+ * agregado automáticamente al darse de alta, ver admin-create-user).
+ * `listGroups` siempre retorna ese único grupo; se mantiene como lista (no
+ * `getDefaultGroup`) por si en el futuro se reintroduce más de un grupo.
  */
 export interface GroupRepository {
   listMembers(groupId: string): Promise<GroupMember[]>

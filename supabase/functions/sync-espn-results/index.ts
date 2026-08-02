@@ -1,5 +1,5 @@
 // Tareas 2.1-2.7 (integracion-resultados-espn): sincroniza calendario y
-// resultados desde el scoreboard publico (no oficial) de ESPN. Invocable por
+// resultados desde el scoreboard público (no oficial) de ESPN. Invocable por
 // un administrador desde el panel (boton "Sincronizar con ESPN") o por un
 // Cron Job de Supabase configurado desde el dashboard (ver tarea 3.1) — en
 // ese caso la Authorization es la service role key directamente, no un JWT

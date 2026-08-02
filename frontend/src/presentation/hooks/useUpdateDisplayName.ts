@@ -3,7 +3,7 @@ import { updateDisplayName, type UpdateDisplayNameParams } from '@/core/use-case
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Pantalla de edicion de perfil: nombre visible. */
+/** Pantalla de edición de perfil: nombre visible. */
 export function useUpdateDisplayName() {
   const repositories = useRepositories()
   const action = useCallback(

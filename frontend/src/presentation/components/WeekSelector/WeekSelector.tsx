@@ -35,7 +35,7 @@ export interface WeekSelectorProps {
   activeWeekId: string
   /** Construye el href de cada semana. Por defecto apunta al calendario de partidos (`/weeks/:id/games`); las pantallas de acceso semanal del pickem lo sobreescriben para quedarse en su propia ruta. */
   linkTo?: (weekId: string) => string
-  /** Semanas que no se pueden navegar todavia (ej. Survivor, design.md decision 8 — no adelantarse a una semana futura sin saber si el usuario sigue vivo). Por defecto ninguna semana esta deshabilitada. */
+  /** Semanas que no se pueden navegar todavía (ej. Survivor, design.md decision 8 — no adelantarse a una semana futura sin saber si el usuario sigue vivo). Por defecto ninguna semana está deshabilitada. */
   isWeekDisabled?: (week: Week) => boolean
   /** Segmentos de temporada que la pantalla soporta (ej. Survivor solo aplica a `regular`, ver modulo-survivor design.md decision 1). Por defecto, todos. */
   allowedSegments?: WeekType[]

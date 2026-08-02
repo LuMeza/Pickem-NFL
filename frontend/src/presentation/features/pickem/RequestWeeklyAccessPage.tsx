@@ -20,7 +20,7 @@ const BADGE_CLASS: Record<WeeklyAccessStatus, string> = {
 }
 
 const BADGE_LABEL: Record<WeeklyAccessStatus, string> = {
-  solicitado: 'Pendiente de aprobacion',
+  solicitado: 'Pendiente de aprobación',
   aprobado: 'Activo esta semana',
   rechazado: 'Rechazado',
 }
@@ -69,7 +69,7 @@ export function RequestWeeklyAccessPage() {
       <h1 className="text-display-md">Acceso al pickem</h1>
       <p className="text-body-sm text-muted">
         El acceso al Pickem Semanal se aprueba semana a semana: solicita entrar a la semana que quieres jugar,
-        antes de que arranque el primer partido. Ganar acceso en una semana no te da acceso a las demas.
+        antes de que arranque el primer partido. Ganar acceso en una semana no te da acceso a las demás.
       </p>
       <WeekSelector activeWeekId={weekId} linkTo={(id) => `/pickem/acceso/${id}`} />
 

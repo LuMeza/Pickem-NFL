@@ -9,7 +9,7 @@ import styles from './PlayerCard.module.css'
 
 export interface PlayerCardProps {
   player: Player
-  /** Posicion dentro de la grilla visible — controla el delay del stagger de entrada. */
+  /** Posición dentro de la grilla visible — controla el delay del stagger de entrada. */
   index: number
 }
 
@@ -29,7 +29,7 @@ function supportsHoverPreview(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches
 }
 
-/** Posicion del popover en coordenadas de viewport (para `position: fixed`), clampeada para no salirse por el borde derecho. */
+/** Posición del popover en coordenadas de viewport (para `position: fixed`), clampeada para no salirse por el borde derecho. */
 function previewPositionFor(card: HTMLElement): PreviewPosition {
   const rect = card.getBoundingClientRect()
   const left = Math.min(rect.left, window.innerWidth - PREVIEW_WIDTH - 8)

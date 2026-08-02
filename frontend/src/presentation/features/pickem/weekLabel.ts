@@ -7,7 +7,7 @@ const PLAYOFFS_ROUND_LABEL: Record<number, string> = {
   4: 'Super Bowl',
 }
 
-/** Etiqueta legible de una semana, compartida por las pantallas del modulo Pickem Semanal. */
+/** Etiqueta legible de una semana, compartida por las pantallas del módulo Pickem Semanal. */
 export function weekLabel(week: Week): string {
   if (week.type === 'playoffs') return PLAYOFFS_ROUND_LABEL[week.number] ?? `Ronda ${week.number}`
   if (week.type === 'hof') return 'Hall of Fame'

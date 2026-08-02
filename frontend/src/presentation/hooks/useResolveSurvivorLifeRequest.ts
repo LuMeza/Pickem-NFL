@@ -6,7 +6,7 @@ import {
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Aprobacion/rechazo de una solicitud de vida por el administrador. */
+/** Aprobación/rechazo de una solicitud de vida por el administrador. */
 export function useResolveSurvivorLifeRequest() {
   const repositories = useRepositories()
   const action = useCallback(

@@ -1,9 +1,9 @@
-// Sincroniza la plantilla ("roster") de cada equipo desde el sitio publico
+// Sincroniza la plantilla ("roster") de cada equipo desde el sitio público
 // (no oficial) de ESPN. Invocable por un administrador desde el panel (boton
 // "Sincronizar plantillas") — mismo patron que sync-espn-results.
 //
 // Estrategia "reemplazo completo": se borra el roster actual y se inserta el
-// roster fresco de los 32 equipos en un solo batch. Es mas simple que hacer
+// roster fresco de los 32 equipos en un solo batch. Es más simple que hacer
 // diff altas/bajas/traspasos jugador por jugador, y el roster de un equipo
 // solo se usa para mostrarlo (no hay relaciones de otras tablas hacia
 // players que se puedan romper con un id que cambie).
@@ -121,7 +121,7 @@ Deno.serve(async (req: Request) => {
   }
 
   if (rowsToInsert.length === 0) {
-    summary.errors.push('No se obtuvo ningun jugador de ESPN; no se toco la plantilla existente.')
+    summary.errors.push('No se obtuvo ningún jugador de ESPN; no se toco la plantilla existente.')
     return jsonResponse(summary, 200)
   }
 

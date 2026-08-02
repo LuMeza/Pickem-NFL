@@ -8,7 +8,7 @@ export interface NewGame {
 }
 
 /**
- * Ver openspec/changes/base-plataforma specs/catalogo-nfl. Lectura publica
+ * Ver openspec/changes/base-plataforma specs/catalogo-nfl. Lectura pública
  * para cualquier autenticado; `createGame` exclusivo de platform_admins
  * (impuesto por RLS).
  */

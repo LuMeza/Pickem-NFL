@@ -4,7 +4,7 @@ import type { Profile } from '@/core/entities/profile'
 
 /**
  * Ver openspec/changes/base-plataforma design.md, decision 3: `createUser`
- * invoca una Edge Function (la unica que puede usar la Supabase Admin API);
+ * invoca una Edge Function (la única que puede usar la Supabase Admin API);
  * este adapter nunca usa la service role key directamente.
  */
 export class SupabaseAuthRepository implements AuthRepository {
@@ -41,7 +41,7 @@ export class SupabaseAuthRepository implements AuthRepository {
     if (updateError) throw updateError
 
     const userId = await this.getCurrentUserId()
-    if (!userId) throw new Error('No hay sesion activa para completar el cambio de contrasena')
+    if (!userId) throw new Error('No hay sesión activa para completar el cambio de contraseña')
 
     const { error: profileError } = await this.client
       .from('profiles')
@@ -79,7 +79,7 @@ export class SupabaseAuthRepository implements AuthRepository {
 
   async getProfile(): Promise<Profile> {
     const userId = await this.getCurrentUserId()
-    if (!userId) throw new Error('No hay sesion activa')
+    if (!userId) throw new Error('No hay sesión activa')
 
     const { data, error } = await this.client
       .from('profiles')
@@ -93,7 +93,7 @@ export class SupabaseAuthRepository implements AuthRepository {
 
   async updateDisplayName(displayName: string): Promise<void> {
     const userId = await this.getCurrentUserId()
-    if (!userId) throw new Error('No hay sesion activa')
+    if (!userId) throw new Error('No hay sesión activa')
 
     const { error } = await this.client.from('profiles').update({ display_name: displayName }).eq('id', userId)
     if (error) throw error

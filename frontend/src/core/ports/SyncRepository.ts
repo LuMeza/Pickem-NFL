@@ -13,7 +13,7 @@ export interface RosterSyncSummary {
 
 /**
  * Ver openspec/changes/integracion-resultados-espn. Invoca las Edge Functions
- * `sync-espn-results` y `sync-espn-roster` (unica pieza del sistema que llama
+ * `sync-espn-results` y `sync-espn-roster` (única pieza del sistema que llama
  * a ESPN — nunca desde el cliente directamente).
  */
 export interface SyncRepository {

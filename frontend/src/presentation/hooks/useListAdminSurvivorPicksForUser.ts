@@ -6,7 +6,7 @@ import {
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Panel admin: historico completo de picks de survivor de un usuario. */
+/** Panel admin: histórico completo de picks de survivor de un usuario. */
 export function useListAdminSurvivorPicksForUser() {
   const repositories = useRepositories()
   const action = useCallback(

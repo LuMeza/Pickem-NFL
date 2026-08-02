@@ -3,13 +3,13 @@ import type { SurvivorRankingCandidate, SurvivorRankingGroup } from '@/core/enti
 /**
  * Regla de Survivor (ver openspec/changes/modulo-survivor specs/estado-survivor
  * y openspec/changes/arquitectura-frontend, tarea 3.7).
- * Ordena a los candidatos al podio por semana de eliminacion (mas tarde = mejor
- * posicion) y desempata por duracion con la vida original. Si tras ese
- * desempate persiste el empate, se reporta el grupo empatado sin forzar mas
- * resolucion.
+ * Ordena a los candidatos al podio por semana de eliminación (más tarde = mejor
+ * posición) y desempata por duración con la vida original. Si tras ese
+ * desempate persiste el empate, se reporta el grupo empatado sin forzar más
+ * resolución.
  *
- * El llamador es responsable de asignarle al ultimo usuario "vivo" (1er lugar)
- * un `eliminatedWeekOrder` mayor a cualquier semana real de eliminacion.
+ * El llamador es responsable de asignarle al último usuario "vivo" (1er lugar)
+ * un `eliminatedWeekOrder` mayor a cualquier semana real de eliminación.
  */
 export function resolveSurvivorRanking(candidates: SurvivorRankingCandidate[]): SurvivorRankingGroup[] {
   const sorted = [...candidates].sort((a, b) => {

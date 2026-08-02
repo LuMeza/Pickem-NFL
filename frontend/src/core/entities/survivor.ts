@@ -22,22 +22,22 @@ export interface SurvivorLifeRequest {
 export interface SurvivorState {
   currentLife: SurvivorLife
   status: SurvivorStatus
-  /** Semana de la primera derrota (fin de la vida original), o null si nunca perdio con su vida original. */
+  /** Semana de la primera derrota (fin de la vida original), o null si nunca perdió con su vida original. */
   firstLossWeekId: string | null
-  /** Semana de la eliminacion definitiva, o null mientras siga vivo. */
+  /** Semana de la eliminación definitiva, o null mientras siga vivo. */
   eliminatedWeekId: string | null
 }
 
 /**
- * La ausencia de eleccion de equipo se trata igual que una derrota
+ * La ausencia de elección de equipo se trata igual que una derrota
  * (ver openspec/changes/modulo-survivor specs/estado-survivor).
  */
 export type SurvivorWeeklyOutcome = 'win' | 'loss_or_no_pick'
 
 /**
  * Estado de un participante del grupo, para las pantallas de estado/podio
- * (tareas 3.4/3.7). El calculo de `SurvivorState` en si corre server-side
- * (funcion SQL `_survivor_recompute`, ver design.md decision 4 actualizada)
+ * (tareas 3.4/3.7). El cálculo de `SurvivorState` en si corre server-side
+ * (función SQL `_survivor_recompute`, ver design.md decision 4 actualizada)
  * para no tener que exponer las elecciones de cada semana de todo el grupo
  * via RLS solo para poder recalcular en el cliente.
  */
@@ -47,7 +47,7 @@ export interface SurvivorParticipant extends SurvivorState {
   finalRank: 1 | 2 | 3 | null
 }
 
-/** Eleccion semanal propia — ver specs/prediccion-survivor. */
+/** Elección semanal propia — ver specs/prediccion-survivor. */
 export interface SurvivorPick {
   weekId: string
   teamId: string

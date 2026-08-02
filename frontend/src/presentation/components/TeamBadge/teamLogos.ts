@@ -1,8 +1,8 @@
 /**
- * Logo oficial de cada equipo, servido directo desde el CDN publico de ESPN
+ * Logo oficial de cada equipo, servido directo desde el CDN público de ESPN
  * (no se copian/redistribuyen los archivos, solo se referencian por URL —
  * mismo origen de datos que ya usa `integracion-resultados-espn`).
- * El slug es la abreviacion de ESPN en minusculas; coincide con nuestro id
+ * El slug es la abreviación de ESPN en minúsculas; coincide con nuestro id
  * interno salvo Washington (WAS interno -> wsh en ESPN, ver
  * supabase/migrations/20260719010000_espn_integration_columns.sql).
  */

@@ -36,7 +36,7 @@ import { AdminSyncPage } from '@/presentation/features/admin/AdminSyncPage'
 import { AdminSurvivorPage } from '@/presentation/features/admin/AdminSurvivorPage'
 import { AdminUserPicksPage } from '@/presentation/features/admin/AdminUserPicksPage'
 
-/** Router de la app. Grupo unico global — ver specs/grupos-privados actualizado. */
+/** Router de la app. Grupo único global — ver specs/grupos-privados actualizado. */
 function App() {
   return (
     <BrowserRouter>

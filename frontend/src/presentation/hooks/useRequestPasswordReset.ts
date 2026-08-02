@@ -3,7 +3,7 @@ import { requestPasswordReset, type RequestPasswordResetParams } from '@/core/us
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Pantalla "Olvide mi contrasena". */
+/** Pantalla "Olvide mi contraseña". */
 export function useRequestPasswordReset() {
   const repositories = useRepositories()
   const action = useCallback(

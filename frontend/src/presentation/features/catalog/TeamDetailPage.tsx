@@ -158,7 +158,7 @@ export function TeamDetailPage() {
         <div role="tabpanel">
           {gamesStatus === 'pending' && <LoadingSpinner variant="inline" label="Cargando calendario" />}
           {gamesError && <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />}
-          {games && games.length === 0 && <EmptyState message="Este equipo todavia no tiene partidos cargados." />}
+          {games && games.length === 0 && <EmptyState message="Este equipo todavía no tiene partidos cargados." />}
           {gameSections.map(([type, sectionGames]) => (
             <div key={type} className={styles.gameSection}>
               <h3 className={styles.gameSectionTitle}>{SECTION_LABEL[type]}</h3>
@@ -192,7 +192,7 @@ export function TeamDetailPage() {
           {playersStatus === 'pending' && <LoadingSpinner variant="inline" label="Cargando plantilla" />}
           {playersError && <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />}
           {players && players.length === 0 && (
-            <EmptyState message="Todavia no se ha sincronizado la plantilla de este equipo." />
+            <EmptyState message="Todavía no se ha sincronizado la plantilla de este equipo." />
           )}
           {players && players.length > 0 && (
             <>

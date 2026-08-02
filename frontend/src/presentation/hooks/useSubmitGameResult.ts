@@ -4,7 +4,7 @@ import type { ManualGameResult } from '@/core/entities/gameResult'
 import { useRepositories } from './RepositoriesContext'
 import { useAsyncAction } from './useAsyncAction'
 
-/** Panel admin: carga/edicion de resultado oficial de un partido. */
+/** Panel admin: carga/edición de resultado oficial de un partido. */
 export function useSubmitGameResult() {
   const repositories = useRepositories()
   const action = useCallback(

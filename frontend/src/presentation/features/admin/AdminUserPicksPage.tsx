@@ -334,7 +334,7 @@ export function AdminUserPicksPage() {
             <>
               <h2 className="text-display-sm">Pickem semanal</h2>
               {userWeeklyStatus === 'pending' && <LoadingSpinner variant="inline" />}
-              {userWeeklyStatus === 'error' && <p role="alert">No se pudo cargar el historico.</p>}
+              {userWeeklyStatus === 'error' && <p role="alert">No se pudo cargar el histórico.</p>}
               {userWeeklyWeeksOrdered.length === 0 && userWeeklyStatus === 'success' && (
                 <EmptyState message="No hay partidos registrados para este usuario." />
               )}
@@ -366,7 +366,7 @@ export function AdminUserPicksPage() {
 
               <h2 className="text-display-sm">Survivor</h2>
               {userSurvivorStatus === 'pending' && <LoadingSpinner variant="inline" />}
-              {userSurvivorStatus === 'error' && <p role="alert">No se pudo cargar el historico.</p>}
+              {userSurvivorStatus === 'error' && <p role="alert">No se pudo cargar el histórico.</p>}
               {userSurvivorWeeksOrdered.length === 0 && userSurvivorStatus === 'success' && (
                 <EmptyState message="No hay semanas de survivor registradas para este usuario." />
               )}

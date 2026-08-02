@@ -15,14 +15,14 @@ export interface EspnWeekParams {
 }
 
 /**
- * Mapea una semana interna a los parametros seasontype/week del scoreboard
+ * Mapea una semana interna a los parámetros seasontype/week del scoreboard
  * de ESPN. Verificado contra la API real (2026-07-19):
  * - Preseason: ESPN week 1 = Hall of Fame Game, mapeado por separado como
  *   tipo `hof` (change agregar-semana-hof). "Pre Sem 1/2/3" empiezan en ESPN
  *   week 2, por eso conservan el offset +1.
- * - Regular: coincide 1:1 con nuestro numero de semana.
+ * - Regular: coincide 1:1 con nuestro número de semana.
  * - Playoffs: ESPN week 4 es una semana vacia (Pro Bowl); el Super Bowl es
- *   ESPN week 5, no 4. Nuestro numero 4 (Super Bowl) mapea a ESPN week 5.
+ *   ESPN week 5, no 4. Nuestro número 4 (Super Bowl) mapea a ESPN week 5.
  */
 export function espnParamsForWeek(week: InternalWeek): EspnWeekParams {
   if (week.type === 'hof') return { seasontype: 1, week: 1 }
@@ -34,10 +34,10 @@ export function espnParamsForWeek(week: InternalWeek): EspnWeekParams {
 }
 
 /**
- * Año de temporada NFL para el parametro `dates` del scoreboard de ESPN. Sin
- * este parametro, ESPN resuelve a su nocion de "temporada actual" de forma
+ * Año de temporada NFL para el parámetro `dates` del scoreboard de ESPN. Sin
+ * este parámetro, ESPN resuelve a su noción de "temporada actual" de forma
  * inconsistente en offseason (puede devolver la temporada ya terminada en
- * vez de la proxima) — se fuerza explicitamente. Una temporada se nombra por
+ * vez de la próxima) — se fuerza explicitamente. Una temporada se nombra por
  * el año en que arranca (ago-dic) y se extiende hasta feb del año siguiente;
  * en enero/febrero seguimos dentro de la temporada del año anterior.
  */
@@ -49,7 +49,7 @@ export function nflSeasonYear(now: Date): number {
 
 export type GameOutcome = 'home' | 'away' | 'tie'
 
-/** Clasifica ganador/empate a partir del marcador (mas confiable que el flag `winner` de ESPN, que en teoria puede venir false/false en empate). */
+/** Clasifica ganador/empate a partir del marcador (más confiable que el flag `winner` de ESPN, que en teoría puede venir false/false en empate). */
 export function classifyOutcome(homeScore: number, awayScore: number): GameOutcome {
   if (homeScore > awayScore) return 'home'
   if (awayScore > homeScore) return 'away'
@@ -79,7 +79,7 @@ export interface ParsedEspnGame {
   awayScore: number | null
 }
 
-/** Extrae los datos relevantes de un evento del scoreboard, o null si el evento no trae ambos equipos definidos (ej. playoffs con matchup aun no decidido, "TBD"). */
+/** Extrae los datos relevantes de un evento del scoreboard, o null si el evento no trae ambos equipos definidos (ej. playoffs con matchup aún no decidido, "TBD"). */
 export function parseEspnEvent(event: EspnEvent): ParsedEspnGame | null {
   const competitors = event.competitions[0]?.competitors ?? []
   const home = competitors.find((c) => c.homeAway === 'home')

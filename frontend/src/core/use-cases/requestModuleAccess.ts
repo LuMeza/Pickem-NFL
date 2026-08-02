@@ -10,7 +10,7 @@ export interface RequestModuleAccessParams {
   module: GameModule
 }
 
-/** Solicitud de acceso a un modulo opcional — ver openspec/changes/base-plataforma specs/grupos-privados. */
+/** Solicitud de acceso a un módulo opcional — ver openspec/changes/base-plataforma specs/grupos-privados. */
 export function requestModuleAccess(
   deps: RequestModuleAccessDeps,
   params: RequestModuleAccessParams,
