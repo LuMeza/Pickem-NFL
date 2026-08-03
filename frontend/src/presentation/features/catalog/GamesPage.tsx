@@ -9,7 +9,9 @@ import { useGetProfile } from '@/presentation/hooks/useGetProfile'
 import { useGetWeeklyAccessStatus } from '@/presentation/hooks/useGetWeeklyAccessStatus'
 import { useListWeeklyPicksForWeek } from '@/presentation/hooks/useListWeeklyPicksForWeek'
 import { useSaveWeeklyPick } from '@/presentation/hooks/useSaveWeeklyPick'
+import { useNow } from '@/presentation/hooks/useNow'
 import { isPredictionLocked } from '@/core/rules/isPredictionLocked'
+import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
 import type { Game } from '@/core/entities/catalog'
 import type { WeeklyPickValue } from '@/core/ports/WeeklyPickRepository'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
@@ -22,10 +24,7 @@ import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import styles from './GamesPage.module.css'
 
-const NOW_REFRESH_MS = 30_000
 const URGENT_THRESHOLD_MS = 2 * 60 * 60 * 1000
-/** Un partido de NFL dura ~3h en cancha — mientras no haya resultado cargado, lo tratamos como "en vivo" en esta ventana desde el kickoff. */
-const LIVE_WINDOW_MS = 4 * 60 * 60 * 1000
 
 const OUTCOME_LABEL: Record<string, string> = { home: 'Gano local', away: 'Gano visita', tie: 'Empate' }
 
@@ -57,16 +56,6 @@ function groupGamesByDay(games: Game[]): DayGroup[] {
     .sort((a, b) => a.date.getTime() - b.date.getTime())
 }
 
-/** Refresca cada NOW_REFRESH_MS para recalcular bloqueo/urgencia de picks sin un timer por tarjeta. */
-function useNow(): number {
-  const [nowMs, setNowMs] = useState(() => Date.now())
-  useEffect(() => {
-    const intervalId = setInterval(() => setNowMs(Date.now()), NOW_REFRESH_MS)
-    return () => clearInterval(intervalId)
-  }, [])
-  return nowMs
-}
-
 function GameProposal({
   game,
   teamName,
@@ -88,11 +77,11 @@ function GameProposal({
     run({ gameId: game.id })
   }, [run, game.id])
 
-  const hasResult = result != null && result.homeScore !== null && result.awayScore !== null
+  const liveStatus = getGameLiveStatus(game, result, new Date(nowMs))
+  const hasResult = liveStatus === 'final'
+  const isLive = liveStatus === 'live'
   const kickoffPassed = isPredictionLocked(game, new Date(nowMs))
   const locked = kickoffPassed || !canPredict
-  const msSinceKickoff = nowMs - game.kickoffAt.getTime()
-  const isLive = kickoffPassed && !hasResult && msSinceKickoff < LIVE_WINDOW_MS
 
   let status: PredictionCardStatus
   let correct: boolean | undefined

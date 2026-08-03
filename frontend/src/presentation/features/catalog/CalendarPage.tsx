@@ -4,7 +4,11 @@ import { toPng } from 'html-to-image'
 import { useListWeeks } from '@/presentation/hooks/useListWeeks'
 import { useListAllGames } from '@/presentation/hooks/useListAllGames'
 import { useListTeams } from '@/presentation/hooks/useListTeams'
+import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
+import { useNow } from '@/presentation/hooks/useNow'
+import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
 import type { Game, Week, WeekType } from '@/core/entities/catalog'
+import type { GameResult } from '@/core/entities/gameResult'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
@@ -71,14 +75,42 @@ async function downloadNodeAsImage(node: HTMLElement, fileName: string, excludeC
   link.click()
 }
 
-function MatchChip({ game, teamName }: { game: Game; teamName: (id: string) => string }) {
+function MatchChip({
+  game,
+  teamName,
+  result,
+  nowMs,
+}: {
+  game: Game
+  teamName: (id: string) => string
+  result: GameResult | null
+  nowMs: number
+}) {
+  const status = getGameLiveStatus(game, result, new Date(nowMs))
+  const title =
+    status === 'final' && result
+      ? `${teamName(game.homeTeamId)} ${result.homeScore} - ${result.awayScore} ${teamName(game.awayTeamId)}`
+      : `${teamName(game.homeTeamId)} vs ${teamName(game.awayTeamId)}`
+
   return (
-    <li className={styles.matchChip} title={`${teamName(game.homeTeamId)} vs ${teamName(game.awayTeamId)}`}>
+    <li className={`${styles.matchChip} ${status === 'live' ? styles.matchChipLive : ''}`} title={title}>
       <span className={styles.matchChipTeams}>
         <TeamBadge teamId={game.homeTeamId} size="sm" />
-        <span className={styles.matchChipSep}>-</span>
+        {status === 'final' && result ? (
+          <span className={styles.matchChipScore}>
+            {result.homeScore}&#8211;{result.awayScore}
+          </span>
+        ) : (
+          <span className={styles.matchChipSep}>-</span>
+        )}
         <TeamBadge teamId={game.awayTeamId} size="sm" />
       </span>
+      {status === 'live' && (
+        <span className={styles.matchChipStatus}>
+          <span className={styles.liveDot} aria-hidden="true" />
+          En vivo
+        </span>
+      )}
     </li>
   )
 }
@@ -128,7 +160,19 @@ function groupByTime(dayGames: Game[]): TimeGroup[] {
   return [...groupByClock.values()]
 }
 
-function WeekCard({ week, games, teamName }: { week: Week; games: Game[]; teamName: (id: string) => string }) {
+function WeekCard({
+  week,
+  games,
+  teamName,
+  resultsByGame,
+  nowMs,
+}: {
+  week: Week
+  games: Game[]
+  teamName: (id: string) => string
+  resultsByGame: Map<string, GameResult>
+  nowMs: number
+}) {
   const sorted = [...games].sort((a, b) => a.kickoffAt.getTime() - b.kickoffAt.getTime())
   const dayGroups = groupByDay(sorted)
   const cardRef = useRef<HTMLAnchorElement>(null)
@@ -172,7 +216,13 @@ function WeekCard({ week, games, teamName }: { week: Week; games: Game[]; teamNa
                       <span className={styles.timeLabel}>Hora {timeGroup.time}</span>
                       <ul className={styles.matchGrid}>
                         {timeGroup.games.map((game) => (
-                          <MatchChip key={game.id} game={game} teamName={teamName} />
+                          <MatchChip
+                            key={game.id}
+                            game={game}
+                            teamName={teamName}
+                            result={resultsByGame.get(game.id) ?? null}
+                            nowMs={nowMs}
+                          />
                         ))}
                       </ul>
                     </div>
@@ -203,6 +253,8 @@ export function CalendarPage() {
   const { status, data: weeks, error, run: loadWeeks } = useListWeeks()
   const { data: games, run: loadGames } = useListAllGames()
   const { data: teams, run: loadTeams } = useListTeams()
+  const { data: results, run: loadResults } = useListResultsForGames()
+  const nowMs = useNow()
 
   useEffect(() => {
     loadWeeks()
@@ -210,8 +262,13 @@ export function CalendarPage() {
     loadTeams()
   }, [loadWeeks, loadGames, loadTeams])
 
+  useEffect(() => {
+    if (games && games.length > 0) loadResults({ gameIds: games.map((game) => game.id) })
+  }, [games, loadResults])
+
   const teamNames = new Map((teams ?? []).map((team) => [team.id, team.name]))
   const teamName = (id: string) => teamNames.get(id) ?? id
+  const resultsByGame = new Map((results ?? []).map((result) => [result.gameId, result]))
 
   const gamesByWeek = new Map<string, Game[]>()
   for (const game of games ?? []) {
@@ -287,7 +344,14 @@ export function CalendarPage() {
             </h2>
             <div className={styles.weekGrid}>
               {sortByNumber((weeks ?? []).filter((week) => week.type === type)).map((week) => (
-                <WeekCard key={week.id} week={week} games={gamesByWeek.get(week.id) ?? []} teamName={teamName} />
+                <WeekCard
+                  key={week.id}
+                  week={week}
+                  games={gamesByWeek.get(week.id) ?? []}
+                  teamName={teamName}
+                  resultsByGame={resultsByGame}
+                  nowMs={nowMs}
+                />
               ))}
             </div>
           </div>

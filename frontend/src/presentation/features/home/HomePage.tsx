@@ -1,5 +1,6 @@
 import { ActionCard } from '@/presentation/components/ActionCard/ActionCard'
 import { Icon } from '@/presentation/components/Icon/Icon'
+import { UpcomingGamesStrip } from './UpcomingGamesStrip'
 import styles from './HomePage.module.css'
 
 /** Landing post-login — agrupada por que necesita hacer el usuario, no por orden de creación (ver design-system.md). */
@@ -11,6 +12,8 @@ export function HomePage() {
       </span>
       <h1 className="text-display-lg">Pickem NFL</h1>
       <p className="text-body-sm text-muted">Tu semana arranca aquí.</p>
+
+      <UpcomingGamesStrip />
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Tu semana</h2>

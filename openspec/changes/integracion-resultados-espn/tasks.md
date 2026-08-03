@@ -16,7 +16,7 @@
 
 ## 3. Programación y disparo manual
 
-- [ ] 3.1 Configurar Cron Job desde el dashboard de Supabase (Database → Cron Jobs) para invocar la función cada 15-30 minutos — pendiente: requiere una acción manual del usuario en el dashboard (ver instrucciones entregadas en el chat); no hay CLI/API disponible en este entorno para configurarlo de forma no interactiva
+- [x] 3.1 Cron Job configurado vía migración SQL (`pg_cron` + `pg_net`, migración `20260802000000_espn_sync_cron.sql`) que invoca la función cada 15 minutos, autenticando con la service role key guardada en Supabase Vault (secreto `service_role_key`, creado una sola vez a mano en el SQL Editor — nunca en el repo)
 - [x] 3.2 Caso de uso + hook en el frontend para invocar la función bajo demanda desde el panel admin (mismo patrón que `admin-create-user`)
 - [x] 3.3 Botón "Sincronizar con ESPN" en el panel admin (`/admin/sync`), con estado de carga y resumen de la corrida (semanas revisadas, partidos creados, resultados actualizados, errores)
 
