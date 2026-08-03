@@ -55,6 +55,11 @@
   gap: 8px;
 }
 
+.pickError {
+  margin: 0;
+  padding: 0 4px;
+}
+
 .gameMetaRow {
   display: flex;
   align-items: center;

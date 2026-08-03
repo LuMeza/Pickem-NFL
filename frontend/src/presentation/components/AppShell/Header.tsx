@@ -30,7 +30,11 @@ export function Header({ groupName, weekLabel, countdownTo, onSignOut }: HeaderP
           {weekLabel && <span>{weekLabel}</span>}
         </div>
       )}
-      {countdownLabel && <span className={styles.countdown}>{countdownLabel}</span>}
+      {countdownLabel && (
+        <span className={styles.countdown} title="Cierra en">
+          {countdownLabel}
+        </span>
+      )}
       {onSignOut && (
         <button type="button" className={`button-secondary ${styles.signOut}`} onClick={onSignOut}>
           Salir

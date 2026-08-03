@@ -1,22 +1,21 @@
-import { useCallback, useEffect } from 'react'
-import { useDefaultGroup } from '@/presentation/hooks/useDefaultGroup'
+import { useCallback, useEffect, useState } from 'react'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListGroupMembers } from '@/presentation/hooks/useListGroupMembers'
 import { useRemoveGroupMember } from '@/presentation/hooks/useRemoveGroupMember'
+import type { GroupMember } from '@/core/ports/GroupRepository'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
+import { Modal } from '@/presentation/components/Modal/Modal'
 import styles from './GroupMembersPage.module.css'
 
 /** Tarea 5.4 (base-plataforma): listar y remover miembros del grupo único. */
 export function GroupMembersPage() {
-  const { data: group, run: loadGroup } = useDefaultGroup()
+  const { data: group } = useSession().group
   const { status, data: members, error, run: loadMembers } = useListGroupMembers()
-  const { run: removeMember } = useRemoveGroupMember()
-
-  useEffect(() => {
-    loadGroup()
-  }, [loadGroup])
+  const { status: removeStatus, error: removeError, run: removeMember } = useRemoveGroupMember()
+  const [memberToRemove, setMemberToRemove] = useState<GroupMember | null>(null)
 
   const reload = useCallback(() => {
     if (group) loadMembers({ groupId: group.id })
@@ -26,10 +25,15 @@ export function GroupMembersPage() {
     reload()
   }, [reload])
 
-  async function handleRemove(userId: string) {
-    if (!group) return
-    await removeMember({ groupId: group.id, userId })
-    reload()
+  async function handleConfirmRemove() {
+    if (!group || !memberToRemove) return
+    try {
+      await removeMember({ groupId: group.id, userId: memberToRemove.userId })
+      setMemberToRemove(null)
+      reload()
+    } catch {
+      // el error queda reflejado via removeError, ver Modal mas abajo
+    }
   }
 
   return (
@@ -48,12 +52,33 @@ export function GroupMembersPage() {
               <span className={styles.name}>{member.displayName}</span>
               <span className={styles.joined}>Desde {member.joinedAt.toLocaleDateString()}</span>
             </span>
-            <button type="button" className="button-secondary" onClick={() => handleRemove(member.userId)}>
+            <button type="button" className="button-secondary" onClick={() => setMemberToRemove(member)}>
               Remover
             </button>
           </li>
         ))}
       </ul>
+
+      <Modal open={memberToRemove !== null} onClose={() => setMemberToRemove(null)}>
+        {memberToRemove && (
+          <div className="glass-surface" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <h2 className="text-display-sm">Remover miembro</h2>
+            <p>
+              Esto saca a <strong>{memberToRemove.displayName}</strong> del grupo y de todos los módulos del pickem
+              (Pickem Semanal, Survivor). No se puede deshacer.
+            </p>
+            {removeError && <p role="alert">No se pudo remover: {removeError.message}</p>}
+            <span style={{ display: 'flex', gap: 8 }}>
+              <button type="button" onClick={handleConfirmRemove} disabled={removeStatus === 'pending'}>
+                {removeStatus === 'pending' ? 'Removiendo...' : 'Remover definitivamente'}
+              </button>
+              <button type="button" className="button-secondary" onClick={() => setMemberToRemove(null)}>
+                Cancelar
+              </button>
+            </span>
+          </div>
+        )}
+      </Modal>
     </section>
   )
 }

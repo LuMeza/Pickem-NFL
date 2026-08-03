@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
-import { useDefaultGroup } from '@/presentation/hooks/useDefaultGroup'
-import { useListWeeks } from '@/presentation/hooks/useListWeeks'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListSurvivorGroupState } from '@/presentation/hooks/useListSurvivorGroupState'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
@@ -28,14 +27,9 @@ function sortRoster(roster: SurvivorParticipant[]): SurvivorParticipant[] {
 
 /** Tareas 3.4/3.7 (modulo-survivor): estado actual de cada participante y podio final una vez que el pool concluye. */
 export function SurvivorStandingsPage() {
-  const { data: group, run: loadGroup } = useDefaultGroup()
-  const { data: weeks, run: loadWeeks } = useListWeeks()
+  const { data: group } = useSession().group
+  const { data: weeks } = useSession().weeks
   const { status, data: roster, error, run: loadRoster } = useListSurvivorGroupState()
-
-  useEffect(() => {
-    loadGroup()
-    loadWeeks()
-  }, [loadGroup, loadWeeks])
 
   useEffect(() => {
     if (group) loadRoster({ groupId: group.id })

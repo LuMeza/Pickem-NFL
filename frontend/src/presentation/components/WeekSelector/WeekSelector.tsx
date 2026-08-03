@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useListWeeks } from '@/presentation/hooks/useListWeeks'
+import { useSession } from '@/presentation/hooks/SessionContext'
+import { weekLabel } from '@/presentation/features/pickem/weekLabel'
 import type { Week, WeekType } from '@/core/entities/catalog'
 import styles from './WeekSelector.module.css'
 
@@ -11,20 +12,6 @@ const SEGMENT_LABEL: Record<WeekType, string> = {
   pretemporada: 'Pretemporada',
   regular: 'Regular',
   playoffs: 'Playoffs',
-}
-
-const PLAYOFFS_ROUND_LABEL: Record<number, string> = {
-  1: 'Wild Card',
-  2: 'Divisional',
-  3: 'Conference',
-  4: 'Super Bowl',
-}
-
-function weekLabel(week: Week): string {
-  if (week.type === 'playoffs') return PLAYOFFS_ROUND_LABEL[week.number] ?? `Ronda ${week.number}`
-  if (week.type === 'hof') return 'Hall of Fame'
-  if (week.type === 'pretemporada') return `Pre ${week.number}`
-  return `Semana ${week.number}`
 }
 
 function sortByNumber(weeks: Week[]): Week[] {
@@ -53,14 +40,10 @@ export function WeekSelector({
   isWeekDisabled = () => false,
   allowedSegments = SEGMENT_ORDER,
 }: WeekSelectorProps) {
-  const { data: weeks, run } = useListWeeks()
+  const { data: weeks } = useSession().weeks
   const navigate = useNavigate()
   const [isPickerOpen, setIsPickerOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    run()
-  }, [run])
 
   const activeWeek = weeks?.find((week) => week.id === activeWeekId)
 

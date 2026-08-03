@@ -1,5 +1,6 @@
 import { useSyncWithEspn } from '@/presentation/hooks/useSyncWithEspn'
 import { useSyncEspnRoster } from '@/presentation/hooks/useSyncEspnRoster'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import styles from './AdminSyncPage.module.css'
 
@@ -7,6 +8,17 @@ import styles from './AdminSyncPage.module.css'
 export function AdminSyncPage() {
   const { status, data, error, run } = useSyncWithEspn()
   const { status: rosterStatus, data: rosterData, error: rosterError, run: runRosterSync } = useSyncEspnRoster()
+  const { weeks, games } = useSession()
+
+  async function handleSync() {
+    try {
+      await run()
+      weeks.reload()
+      games.reload()
+    } catch {
+      // el error queda reflejado via el estado del hook, ver render mas abajo
+    }
+  }
 
   return (
     <section>
@@ -19,7 +31,7 @@ export function AdminSyncPage() {
         sobrescribe un resultado cargado o corregido a mano.
       </p>
 
-      <button type="button" onClick={() => run()} disabled={status === 'pending'}>
+      <button type="button" onClick={handleSync} disabled={status === 'pending'}>
         {status === 'pending' ? 'Sincronizando... (puede tardar hasta 1 minuto)' : 'Sincronizar ahora'}
       </button>
 

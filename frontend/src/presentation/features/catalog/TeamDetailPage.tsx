@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { useListTeams } from '@/presentation/hooks/useListTeams'
-import { useListWeeks } from '@/presentation/hooks/useListWeeks'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListGamesForTeam } from '@/presentation/hooks/useListGamesForTeam'
 import { useListPlayersForTeam } from '@/presentation/hooks/useListPlayersForTeam'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
@@ -11,6 +10,7 @@ import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStat
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import { POSITION_LABEL } from './nflPositions'
+import { weekLabel } from '@/presentation/features/pickem/weekLabel'
 import type { Game, Player, Week, WeekType } from '@/core/entities/catalog'
 import styles from './TeamDetailPage.module.css'
 
@@ -19,21 +19,6 @@ const SECTION_LABEL: Record<WeekType, string> = {
   pretemporada: 'Pretemporada',
   regular: 'Temporada regular',
   playoffs: 'Playoffs',
-}
-
-const PLAYOFFS_ROUND_LABEL: Record<number, string> = {
-  1: 'Wild Card',
-  2: 'Divisional',
-  3: 'Conference',
-  4: 'Super Bowl',
-}
-
-function weekLabel(week: Week | undefined): string {
-  if (!week) return ''
-  if (week.type === 'playoffs') return PLAYOFFS_ROUND_LABEL[week.number] ?? `Ronda ${week.number}`
-  if (week.type === 'hof') return 'Hall of Fame'
-  if (week.type === 'pretemporada') return `Pretemporada ${week.number}`
-  return `Semana ${week.number}`
 }
 
 const KICKOFF_FORMAT = new Intl.DateTimeFormat('es-MX', {
@@ -93,21 +78,24 @@ export function TeamDetailPage() {
   const [tab, setTab] = useState<Tab>('calendario')
   const [playerQuery, setPlayerQuery] = useState('')
   const [unitFilter, setUnitFilter] = useState<UnitKey | 'all'>('all')
-  const { data: teams, run: loadTeams } = useListTeams()
-  const { data: weeks, run: loadWeeks } = useListWeeks()
+  const { teams: teamsResource, weeks: weeksResource } = useSession()
+  const { data: teams } = teamsResource
+  const { data: weeks } = weeksResource
   const { status: gamesStatus, data: games, error: gamesError, run: loadGames } = useListGamesForTeam()
   const { status: playersStatus, data: players, error: playersError, run: loadPlayers } = useListPlayersForTeam()
 
   useEffect(() => {
     if (!teamId) return
-    loadTeams()
-    loadWeeks()
     loadGames({ teamId })
     loadPlayers({ teamId })
-  }, [teamId, loadTeams, loadWeeks, loadGames, loadPlayers])
+  }, [teamId, loadGames, loadPlayers])
 
   const teamName = useMemo(() => teams?.find((team) => team.id === teamId)?.name ?? teamId ?? '', [teams, teamId])
   const weekById = useMemo(() => new Map((weeks ?? []).map((week) => [week.id, week])), [weeks])
+  const weekLabelFor = (weekId: string) => {
+    const week = weekById.get(weekId)
+    return week ? weekLabel(week) : ''
+  }
   const teamNameById = useMemo(() => new Map((teams ?? []).map((team) => [team.id, team.name])), [teams])
   const gameSections = useMemo(() => groupGamesByWeekType(games ?? [], weekById), [games, weekById])
   const filteredPlayers = useMemo(() => filterPlayersByName(players ?? [], playerQuery), [players, playerQuery])
@@ -174,7 +162,7 @@ export function TeamDetailPage() {
                           {isHome ? 'Recibe a' : 'Visita a'} {teamNameById.get(opponentId) ?? opponentId}
                         </span>
                         <span className={styles.gameWeek}>
-                          {weekLabel(weekById.get(game.weekId))} · {isHome ? 'de local' : 'de visitante'}
+                          {weekLabelFor(game.weekId)} · {isHome ? 'de local' : 'de visitante'}
                         </span>
                       </div>
                       <span className={styles.gameKickoff}>{formatKickoff(game.kickoffAt)}</span>

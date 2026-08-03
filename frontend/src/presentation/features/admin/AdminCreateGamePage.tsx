@@ -1,6 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useListWeeks } from '@/presentation/hooks/useListWeeks'
-import { useListTeams } from '@/presentation/hooks/useListTeams'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
 import { useCreateGame } from '@/presentation/hooks/useCreateGame'
 import { useUpdateGame } from '@/presentation/hooks/useUpdateGame'
@@ -8,6 +7,7 @@ import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { Modal } from '@/presentation/components/Modal/Modal'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
+import { weekLabel } from '@/presentation/features/pickem/weekLabel'
 import type { Game } from '@/core/entities/catalog'
 import tableStyles from '@/presentation/styles/adminTable.module.css'
 import styles from './AdminCreateGamePage.module.css'
@@ -21,8 +21,9 @@ function toDatetimeLocalValue(date: Date): string {
 
 /** Panel admin: cargar y corregir el calendario de partidos (falta en la spec original de carga-resultados, que solo cubria editar resultados de partidos ya existentes). */
 export function AdminCreateGamePage() {
-  const { data: weeks, run: loadWeeks } = useListWeeks()
-  const { data: teams, run: loadTeams } = useListTeams()
+  const { weeks: weeksResource, teams: teamsResource, games: gamesResource } = useSession()
+  const { data: weeks } = weeksResource
+  const { data: teams } = teamsResource
   const { data: existingGames, run: loadGames } = useListGamesForWeek()
   const { status: createStatus, error: createError, run: submitGame } = useCreateGame()
   const { status: updateStatus, error: updateError, run: runUpdateGame } = useUpdateGame()
@@ -33,11 +34,6 @@ export function AdminCreateGamePage() {
   const [awayTeamId, setAwayTeamId] = useState('')
   const [kickoffLocal, setKickoffLocal] = useState('')
   const [sameTeamError, setSameTeamError] = useState(false)
-
-  useEffect(() => {
-    loadWeeks()
-    loadTeams()
-  }, [loadWeeks, loadTeams])
 
   useEffect(() => {
     if (weekId) loadGames({ weekId })
@@ -78,6 +74,7 @@ export function AdminCreateGamePage() {
     }
     setFormModal(null)
     await loadGames({ weekId })
+    gamesResource.reload()
   }
 
   return (
@@ -95,7 +92,7 @@ export function AdminCreateGamePage() {
             <option value="">Selecciona una semana</option>
             {weeks?.map((week) => (
               <option key={week.id} value={week.id}>
-                {week.type} {week.number}
+                {weekLabel(week)}
               </option>
             ))}
           </select>

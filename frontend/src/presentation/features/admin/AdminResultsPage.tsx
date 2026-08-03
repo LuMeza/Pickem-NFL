@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { useListWeeks } from '@/presentation/hooks/useListWeeks'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
-import { useListTeams } from '@/presentation/hooks/useListTeams'
 import { useGetGameResult } from '@/presentation/hooks/useGetGameResult'
 import { useSubmitGameResult } from '@/presentation/hooks/useSubmitGameResult'
 import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
@@ -9,6 +8,7 @@ import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { Modal } from '@/presentation/components/Modal/Modal'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
+import { weekLabel } from '@/presentation/features/pickem/weekLabel'
 import type { Game } from '@/core/entities/catalog'
 import type { GameOutcome, GameResult } from '@/core/entities/gameResult'
 import tableStyles from '@/presentation/styles/adminTable.module.css'
@@ -110,6 +110,12 @@ function GameResultForm({
           <input type="number" min={0} value={awayScore} onChange={(event) => setAwayScore(event.target.value)} />
         </label>
       </div>
+      {(homeScore === '' || awayScore === '') && (
+        <p className="text-body-sm text-muted">
+          Sin marcador, el resultado ya cuenta para la tabla de posiciones pero los jugadores seguirán viendo el
+          partido como "en vivo" o "cerrado" en vez de "Final".
+        </p>
+      )}
 
       <button type="submit" disabled={status === 'pending'}>
         {existingResult ? 'Corregir resultado' : 'Guardar resultado'}
@@ -121,17 +127,12 @@ function GameResultForm({
 
 /** Tareas 7.1 y 7.2 (base-plataforma): registrar/editar el resultado oficial de un partido. */
 export function AdminResultsPage() {
-  const { data: weeks, run: loadWeeks } = useListWeeks()
+  const { data: weeks } = useSession().weeks
+  const { data: teams } = useSession().teams
   const { data: games, run: loadGames } = useListGamesForWeek()
-  const { data: teams, run: loadTeams } = useListTeams()
   const { data: results, run: loadResults } = useListResultsForGames()
   const [selectedWeekId, setSelectedWeekId] = useState('')
   const [editingGame, setEditingGame] = useState<Game | null>(null)
-
-  useEffect(() => {
-    loadWeeks()
-    loadTeams()
-  }, [loadWeeks, loadTeams])
 
   useEffect(() => {
     if (selectedWeekId) loadGames({ weekId: selectedWeekId })
@@ -160,7 +161,7 @@ export function AdminResultsPage() {
           <option value="">Selecciona una semana</option>
           {weeks?.map((week) => (
             <option key={week.id} value={week.id}>
-              {week.type} {week.number}
+              {weekLabel(week)}
             </option>
           ))}
         </select>

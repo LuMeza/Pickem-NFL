@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
-import { useDefaultGroup } from '@/presentation/hooks/useDefaultGroup'
-import { useGetProfile } from '@/presentation/hooks/useGetProfile'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useGetModuleAccessStatus } from '@/presentation/hooks/useGetModuleAccessStatus'
 import { useRequestModuleAccess } from '@/presentation/hooks/useRequestModuleAccess'
 import { Icon } from '@/presentation/components/Icon/Icon'
+import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import type { GameModule, ModuleAccessStatus } from '@/core/ports/ModuleAccessRepository'
 import styles from './RequestModuleAccessPage.module.css'
 
@@ -57,13 +57,8 @@ function ModuleRow({ groupId, userId, module, label }: { groupId: string; userId
 
 /** Tarea 5.5 (base-plataforma): un miembro solicita acceso a un módulo opcional (grupo único global). */
 export function RequestModuleAccessPage() {
-  const { data: group, run: loadGroup } = useDefaultGroup()
-  const { data: profile, run: loadProfile } = useGetProfile()
-
-  useEffect(() => {
-    loadGroup()
-    loadProfile()
-  }, [loadGroup, loadProfile])
+  const { data: group } = useSession().group
+  const { data: profile } = useSession().profile
 
   return (
     <section>
@@ -84,7 +79,7 @@ export function RequestModuleAccessPage() {
         </ul>
       )}
       {MODULES.length === 0 && (
-        <p className="text-body-sm text-muted">Todavía no hay módulos que requieran solicitud aquí.</p>
+        <EmptyState message="Todavía no hay módulos que requieran solicitud aquí — vuelve cuando se habilite Playoffs." />
       )}
     </section>
   )

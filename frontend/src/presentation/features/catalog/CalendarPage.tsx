@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toPng } from 'html-to-image'
-import { useListWeeks } from '@/presentation/hooks/useListWeeks'
-import { useListAllGames } from '@/presentation/hooks/useListAllGames'
-import { useListTeams } from '@/presentation/hooks/useListTeams'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
 import { useNow } from '@/presentation/hooks/useNow'
 import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
+import { weekLabel } from '@/presentation/features/pickem/weekLabel'
 import type { Game, Week, WeekType } from '@/core/entities/catalog'
 import type { GameResult } from '@/core/entities/gameResult'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
@@ -32,23 +31,9 @@ const SEGMENT_ACCENT: Record<WeekType, string> = {
   playoffs: styles.dotGold ?? '',
 }
 
-const PLAYOFFS_ROUND_LABEL: Record<number, string> = {
-  1: 'Wild Card',
-  2: 'Divisional',
-  3: 'Conference',
-  4: 'Super Bowl',
-}
-
 function formatDayLabel(date: Date): string {
   const raw = date.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })
   return raw.charAt(0).toUpperCase() + raw.slice(1)
-}
-
-function weekLabel(week: Week): string {
-  if (week.type === 'playoffs') return PLAYOFFS_ROUND_LABEL[week.number] ?? `Ronda ${week.number}`
-  if (week.type === 'hof') return 'Hall of Fame'
-  if (week.type === 'pretemporada') return `Pre ${week.number}`
-  return `Semana ${week.number}`
 }
 
 function segmentAnchor(type: WeekType): string {
@@ -250,17 +235,12 @@ function WeekCard({
 
 /** Calendario general de toda la temporada (hof/pretemporada/regular/playoffs) de un vistazo, sin ir semana por semana. Partidos como chips compactos en grid (en vez de lista vertical de una fila por partido) para que quepan más semanas en pantalla sin ocultar información detrás de un clic. */
 export function CalendarPage() {
-  const { status, data: weeks, error, run: loadWeeks } = useListWeeks()
-  const { data: games, run: loadGames } = useListAllGames()
-  const { data: teams, run: loadTeams } = useListTeams()
+  const { weeks: weeksResource, games: gamesResource, teams: teamsResource } = useSession()
+  const { status, data: weeks, error } = weeksResource
+  const { data: games } = gamesResource
+  const { data: teams } = teamsResource
   const { data: results, run: loadResults } = useListResultsForGames()
   const nowMs = useNow()
-
-  useEffect(() => {
-    loadWeeks()
-    loadGames()
-    loadTeams()
-  }, [loadWeeks, loadGames, loadTeams])
 
   useEffect(() => {
     if (games && games.length > 0) loadResults({ gameIds: games.map((game) => game.id) })

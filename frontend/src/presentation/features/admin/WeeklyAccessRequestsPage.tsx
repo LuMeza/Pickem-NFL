@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo } from 'react'
-import { useDefaultGroup } from '@/presentation/hooks/useDefaultGroup'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListWeeklyAccessRequests } from '@/presentation/hooks/useListWeeklyAccessRequests'
 import { useResolveWeeklyAccessRequest } from '@/presentation/hooks/useResolveWeeklyAccessRequest'
-import { useListWeeks } from '@/presentation/hooks/useListWeeks'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
@@ -35,11 +34,13 @@ function WeekGroupSection({
   weekId,
   week,
   requests: weekRequests,
+  actioningKey,
   onResolve,
 }: {
   weekId: string
   week: Week | undefined
   requests: WeeklyAccessRequest[]
+  actioningKey: string | null
   onResolve: (userId: string, weekId: string, decision: 'aprobado' | 'rechazado') => void
 }) {
   const { data: games, run: loadGames } = useListGamesForWeek()
@@ -63,26 +64,34 @@ function WeekGroupSection({
       )}
       {pending.length === 0 && <p className="text-body-sm text-muted">Sin solicitudes pendientes.</p>}
       <ul className={styles.list}>
-        {pending.map((request) => (
-          <li key={request.userId} className={`${styles.row} glass-surface`}>
-            <span className={styles.info}>
-              <span className={styles.name}>{request.displayName}</span>
-            </span>
-            <span className={styles.actions}>
-              <button type="button" disabled={locked} onClick={() => onResolve(request.userId, weekId, 'aprobado')}>
-                Aprobar
-              </button>
-              <button
-                type="button"
-                className="button-secondary"
-                disabled={locked}
-                onClick={() => onResolve(request.userId, weekId, 'rechazado')}
-              >
-                Rechazar
-              </button>
-            </span>
-          </li>
-        ))}
+        {pending.map((request) => {
+          const key = `${weekId}-${request.userId}`
+          const busy = actioningKey === key
+          return (
+            <li key={request.userId} className={`${styles.row} glass-surface`}>
+              <span className={styles.info}>
+                <span className={styles.name}>{request.displayName}</span>
+              </span>
+              <span className={styles.actions}>
+                <button
+                  type="button"
+                  disabled={locked || busy}
+                  onClick={() => onResolve(request.userId, weekId, 'aprobado')}
+                >
+                  {busy ? 'Procesando...' : 'Aprobar'}
+                </button>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  disabled={locked || busy}
+                  onClick={() => onResolve(request.userId, weekId, 'rechazado')}
+                >
+                  Rechazar
+                </button>
+              </span>
+            </li>
+          )
+        })}
       </ul>
 
       {resolved.length > 0 && (
@@ -107,15 +116,11 @@ function WeekGroupSection({
 
 /** Tarea 2.3 (modulo-pickem-semanal): aprobar/rechazar solicitudes de acceso semanal, agrupadas por semana. */
 export function WeeklyAccessRequestsPage() {
-  const { data: group, run: loadGroup } = useDefaultGroup()
-  const { data: weeks, run: loadWeeks } = useListWeeks()
+  const { data: group } = useSession().group
+  const { data: weeks } = useSession().weeks
   const { status, data: requests, error, run: loadRequests } = useListWeeklyAccessRequests()
-  const { run: resolveRequest } = useResolveWeeklyAccessRequest()
-
-  useEffect(() => {
-    loadGroup()
-    loadWeeks()
-  }, [loadGroup, loadWeeks])
+  const { error: resolveError, run: resolveRequest } = useResolveWeeklyAccessRequest()
+  const [actioningKey, setActioningKey] = useState<string | null>(null)
 
   const reload = useCallback(() => {
     if (group) loadRequests({ groupId: group.id })
@@ -127,8 +132,14 @@ export function WeeklyAccessRequestsPage() {
 
   async function handleResolve(userId: string, weekId: string, decision: 'aprobado' | 'rechazado') {
     if (!group) return
-    await resolveRequest({ groupId: group.id, userId, weekId, decision })
-    reload()
+    const key = `${weekId}-${userId}`
+    setActioningKey(key)
+    try {
+      await resolveRequest({ groupId: group.id, userId, weekId, decision })
+      reload()
+    } finally {
+      setActioningKey(null)
+    }
   }
 
   const groups = useMemo(() => groupByWeek(requests ?? [], weeks ?? []), [requests, weeks])
@@ -141,10 +152,18 @@ export function WeeklyAccessRequestsPage() {
       <h1 className="text-display-lg">Solicitudes de acceso semanal</h1>
       {status === 'pending' && <LoadingSpinner variant="inline" />}
       {error && <p role="alert">No se pudieron cargar las solicitudes.</p>}
+      {resolveError && <p role="alert">No se pudo resolver la solicitud: {resolveError.message}</p>}
       {requests && requests.length === 0 && <p className="text-body-sm text-muted">No hay solicitudes todavía.</p>}
 
       {groups.map(({ weekId, week, requests: weekRequests }) => (
-        <WeekGroupSection key={weekId} weekId={weekId} week={week} requests={weekRequests} onResolve={handleResolve} />
+        <WeekGroupSection
+          key={weekId}
+          weekId={weekId}
+          week={week}
+          requests={weekRequests}
+          actioningKey={actioningKey}
+          onResolve={handleResolve}
+        />
       ))}
     </section>
   )

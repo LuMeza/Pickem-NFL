@@ -1,13 +1,15 @@
 import { Link } from 'react-router-dom'
 import { useEffect } from 'react'
 import type { CSSProperties } from 'react'
-import { useListAllGames } from '@/presentation/hooks/useListAllGames'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
-import { useListTeams } from '@/presentation/hooks/useListTeams'
 import { useNow } from '@/presentation/hooks/useNow'
 import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
+import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
+import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import type { Game } from '@/core/entities/catalog'
 import styles from './UpcomingGamesStrip.module.css'
 
@@ -31,15 +33,11 @@ function formatKickoffLabel(kickoffAt: Date, now: Date): string {
 
 /** Partidos en vivo y los próximos por arrancar, de un vistazo desde el inicio — no reemplaza el calendario, solo adelanta lo inmediato. */
 export function UpcomingGamesStrip() {
-  const { data: games, run: loadGames } = useListAllGames()
+  const { games: gamesResource, teams: teamsResource } = useSession()
+  const { status: gamesStatus, data: games } = gamesResource
+  const { data: teams } = teamsResource
   const { data: results, run: loadResults } = useListResultsForGames()
-  const { data: teams, run: loadTeams } = useListTeams()
   const nowMs = useNow()
-
-  useEffect(() => {
-    loadGames()
-    loadTeams()
-  }, [loadGames, loadTeams])
 
   useEffect(() => {
     if (games && games.length > 0) loadResults({ gameIds: games.map((game) => game.id) })
@@ -64,16 +62,22 @@ export function UpcomingGamesStrip() {
 
   const featured = [...live, ...upcoming].slice(0, MAX_FEATURED_GAMES)
 
-  if (featured.length === 0) return null
-
   return (
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>Próximos partidos</h2>
-      <div className={styles.strip}>
-        {featured.map(({ game, status }) => (
-          <FeaturedGameCard key={game.id} game={game} isLive={status === 'live'} now={now} teamName={teamName} />
-        ))}
-      </div>
+      {gamesStatus === 'idle' || gamesStatus === 'pending' ? (
+        <LoadingSpinner variant="inline" label="Cargando partidos" />
+      ) : gamesStatus === 'error' ? (
+        <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />
+      ) : featured.length === 0 ? (
+        <EmptyState message={EMPTY_STATE_COPY.noUpcomingGames} />
+      ) : (
+        <div className={styles.strip}>
+          {featured.map(({ game, status }) => (
+            <FeaturedGameCard key={game.id} game={game} isLive={status === 'live'} now={now} teamName={teamName} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

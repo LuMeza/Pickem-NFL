@@ -8,5 +8,6 @@ export const EMPTY_STATE_COPY = {
   groupWithoutMembers: 'Todavía no hay usuarios. Dalos de alta desde el panel admin para que aparezcan aquí.',
   resultsLoadError: 'No pudimos actualizar los resultados. Intenta de nuevo.',
   noWeeksAvailable: 'Todavía no hay semanas cargadas.',
+  noUpcomingGames: 'No hay partidos en vivo ni próximos por ahora.',
   pageNotFound: 'Esta página no existe.',
 } as const

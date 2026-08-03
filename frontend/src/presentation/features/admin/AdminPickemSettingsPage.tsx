@@ -1,18 +1,14 @@
 import { useEffect } from 'react'
-import { useDefaultGroup } from '@/presentation/hooks/useDefaultGroup'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useGetPickemTablesVisibility } from '@/presentation/hooks/useGetPickemTablesVisibility'
 import { useSetPickemTablesVisibility } from '@/presentation/hooks/useSetPickemTablesVisibility'
 import { Icon } from '@/presentation/components/Icon/Icon'
 
 /** Tarea 4.5 (modulo-pickem-semanal): habilitar/deshabilitar que usuarios sin acceso semanal aprobado vean las tablas de posiciones. */
 export function AdminPickemSettingsPage() {
-  const { data: group, run: loadGroup } = useDefaultGroup()
+  const { data: group } = useSession().group
   const { data: visible, run: loadVisibility } = useGetPickemTablesVisibility()
   const { status: saveStatus, run: saveVisibility } = useSetPickemTablesVisibility()
-
-  useEffect(() => {
-    loadGroup()
-  }, [loadGroup])
 
   useEffect(() => {
     if (group) loadVisibility({ groupId: group.id })

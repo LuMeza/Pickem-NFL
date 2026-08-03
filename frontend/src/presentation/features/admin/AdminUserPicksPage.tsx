@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useDefaultGroup } from '@/presentation/hooks/useDefaultGroup'
-import { useListWeeks } from '@/presentation/hooks/useListWeeks'
-import { useListTeams } from '@/presentation/hooks/useListTeams'
-import { useListAllGames } from '@/presentation/hooks/useListAllGames'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListGroupMembers } from '@/presentation/hooks/useListGroupMembers'
 import { useListAdminWeeklyPicksForWeek } from '@/presentation/hooks/useListAdminWeeklyPicksForWeek'
 import { useListAdminSurvivorPicksForWeek } from '@/presentation/hooks/useListAdminSurvivorPicksForWeek'
@@ -12,6 +9,7 @@ import { Icon } from '@/presentation/components/Icon/Icon'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
+import { weekLabel as formatWeekLabel } from '@/presentation/features/pickem/weekLabel'
 import type { Game, Week } from '@/core/entities/catalog'
 import type { AdminUserWeeklyPick, AdminWeeklyPickRow } from '@/core/ports/AdminPicksRepository'
 import styles from './AdminUserPicksPage.module.css'
@@ -21,7 +19,7 @@ type Quiniela = 'weekly' | 'survivor'
 type PickStatus = 'correct' | 'incorrect' | 'pending' | 'noPick'
 
 function weekLabel(week: Week | undefined): string {
-  return week ? `${week.type} ${week.number}` : ''
+  return week ? formatWeekLabel(week) : ''
 }
 
 function pickStatus(pick: string | null, outcome: string | null): PickStatus {
@@ -82,10 +80,11 @@ function TeamPick({
 
 /** Panel admin: picks de cualquier usuario en pickem semanal y survivor, por semana o por usuario. */
 export function AdminUserPicksPage() {
-  const { data: group, run: loadGroup } = useDefaultGroup()
-  const { data: weeks, run: loadWeeks } = useListWeeks()
-  const { data: teams, run: loadTeams } = useListTeams()
-  const { data: games, run: loadGames } = useListAllGames()
+  const { group: groupResource, weeks: weeksResource, teams: teamsResource, games: gamesResource } = useSession()
+  const { data: group } = groupResource
+  const { data: weeks } = weeksResource
+  const { data: teams } = teamsResource
+  const { data: games } = gamesResource
   const { data: members, run: loadMembers } = useListGroupMembers()
 
   const [mode, setMode] = useState<Mode>('porSemana')
@@ -113,13 +112,6 @@ export function AdminUserPicksPage() {
     data: userSurvivorPicks,
     run: loadUserSurvivor,
   } = useListAdminSurvivorPicksForUser()
-
-  useEffect(() => {
-    loadGroup()
-    loadWeeks()
-    loadTeams()
-    loadGames()
-  }, [loadGroup, loadWeeks, loadTeams, loadGames])
 
   useEffect(() => {
     if (group) loadMembers({ groupId: group.id })

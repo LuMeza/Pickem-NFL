@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useGetProfile } from '@/presentation/hooks/useGetProfile'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useUpdateDisplayName } from '@/presentation/hooks/useUpdateDisplayName'
 import { useGetProfileStats } from '@/presentation/hooks/useGetProfileStats'
 import { useListUserAchievements } from '@/presentation/hooks/useListUserAchievements'
@@ -19,7 +19,7 @@ function getInitials(name: string): string {
 
 /** Tarea 4.5 (base-plataforma): edición de perfil (nombre visible). */
 export function ProfilePage() {
-  const { status, data: profile, error, run: loadProfile } = useGetProfile()
+  const { status, data: profile, error, reload: reloadProfile } = useSession().profile
   const { status: saveStatus, run: saveDisplayName } = useUpdateDisplayName()
   const { status: statsStatus, data: stats, run: loadStats } = useGetProfileStats()
   const { status: achievementsStatus, data: achievements, run: loadAchievements } = useListUserAchievements()
@@ -27,10 +27,9 @@ export function ProfilePage() {
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    loadProfile()
     loadStats()
     loadAchievements()
-  }, [loadProfile, loadStats, loadAchievements])
+  }, [loadStats, loadAchievements])
 
   useEffect(() => {
     if (profile) setDisplayName(profile.displayName)
@@ -40,6 +39,7 @@ export function ProfilePage() {
     event.preventDefault()
     setSaved(false)
     await saveDisplayName({ displayName })
+    reloadProfile()
     setSaved(true)
   }
 

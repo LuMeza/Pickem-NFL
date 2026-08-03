@@ -1,6 +1,5 @@
-import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useListTeams } from '@/presentation/hooks/useListTeams'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
 import { Icon } from '@/presentation/components/Icon/Icon'
@@ -9,11 +8,7 @@ import styles from './TeamsPage.module.css'
 
 /** Tarea 6.1 (base-plataforma): listado de equipos NFL. */
 export function TeamsPage() {
-  const { status, data: teams, error, run } = useListTeams()
-
-  useEffect(() => {
-    run()
-  }, [run])
+  const { status, data: teams, error } = useSession().teams
 
   return (
     <section>

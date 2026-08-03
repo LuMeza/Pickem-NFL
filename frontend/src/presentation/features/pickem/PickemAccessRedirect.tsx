@@ -1,6 +1,5 @@
-import { useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
-import { useListWeeks } from '@/presentation/hooks/useListWeeks'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import type { Week } from '@/core/entities/catalog'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
@@ -14,11 +13,7 @@ function pickDefaultWeek(weeks: Week[]): Week {
 
 /** /pickem/acceso entra directo a la semana por defecto (la primera de temporada regular), igual que WeeksRedirect. */
 export function PickemAccessRedirect() {
-  const { status, data: weeks, error, run } = useListWeeks()
-
-  useEffect(() => {
-    run()
-  }, [run])
+  const { status, data: weeks, error } = useSession().weeks
 
   if (status === 'pending' || status === 'idle') return <LoadingSpinner label="Cargando semanas" />
   if (error) return <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />

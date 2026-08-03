@@ -1,11 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
-import { useListTeams } from '@/presentation/hooks/useListTeams'
-import { useListWeeks } from '@/presentation/hooks/useListWeeks'
-import { useGetGameResult } from '@/presentation/hooks/useGetGameResult'
-import { useDefaultGroup } from '@/presentation/hooks/useDefaultGroup'
-import { useGetProfile } from '@/presentation/hooks/useGetProfile'
+import { useSession } from '@/presentation/hooks/SessionContext'
+import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
 import { useGetWeeklyAccessStatus } from '@/presentation/hooks/useGetWeeklyAccessStatus'
 import { useListWeeklyPicksForWeek } from '@/presentation/hooks/useListWeeklyPicksForWeek'
 import { useSaveWeeklyPick } from '@/presentation/hooks/useSaveWeeklyPick'
@@ -13,6 +10,7 @@ import { useNow } from '@/presentation/hooks/useNow'
 import { isPredictionLocked } from '@/core/rules/isPredictionLocked'
 import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
 import type { Game } from '@/core/entities/catalog'
+import type { GameResult } from '@/core/entities/gameResult'
 import type { WeeklyPickValue } from '@/core/ports/WeeklyPickRepository'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
@@ -62,6 +60,8 @@ function GameProposal({
   nowMs,
   canPredict,
   pickedValue,
+  result,
+  saveFailed,
   onPick,
 }: {
   game: Game
@@ -69,14 +69,10 @@ function GameProposal({
   nowMs: number
   canPredict: boolean
   pickedValue: WeeklyPickValue | null
+  result: GameResult | null
+  saveFailed: boolean
   onPick: (gameId: string, pick: WeeklyPickValue) => void
 }) {
-  const { data: result, run } = useGetGameResult()
-
-  useEffect(() => {
-    run({ gameId: game.id })
-  }, [run, game.id])
-
   const liveStatus = getGameLiveStatus(game, result, new Date(nowMs))
   const hasResult = liveStatus === 'final'
   const isLive = liveStatus === 'live'
@@ -155,6 +151,11 @@ function GameProposal({
           { id: 'away', label: teamName(game.awayTeamId), logo: <TeamBadge teamId={game.awayTeamId} size="sm" /> },
         ]}
       />
+      {saveFailed && (
+        <p className={`${styles.pickError} text-body-sm`} role="alert">
+          No se pudo guardar tu pick. Intenta de nuevo.
+        </p>
+      )}
     </div>
   )
 }
@@ -165,6 +166,8 @@ function DayGroupSection({
   nowMs,
   canPredict,
   picks,
+  resultsByGame,
+  failedGameId,
   onPick,
 }: {
   group: DayGroup
@@ -172,6 +175,8 @@ function DayGroupSection({
   nowMs: number
   canPredict: boolean
   picks: Record<string, WeeklyPickValue>
+  resultsByGame: Map<string, GameResult>
+  failedGameId: string | null
   onPick: (gameId: string, pick: WeeklyPickValue) => void
 }) {
   const dayName = capitalize(group.date.toLocaleDateString('es-MX', { weekday: 'long' }))
@@ -195,6 +200,8 @@ function DayGroupSection({
             nowMs={nowMs}
             canPredict={canPredict}
             pickedValue={picks[game.id] ?? null}
+            result={resultsByGame.get(game.id) ?? null}
+            saveFailed={failedGameId === game.id}
             onPick={onPick}
           />
         ))}
@@ -207,24 +214,23 @@ function DayGroupSection({
 export function GamesPage() {
   const { weekId } = useParams<{ weekId: string }>()
   const { status, data: games, error, run: loadGames } = useListGamesForWeek()
-  const { data: teams, run: loadTeams } = useListTeams()
-  const { data: weeks, run: loadWeeks } = useListWeeks()
-  const { data: group, run: loadGroup } = useDefaultGroup()
-  const { data: profile, run: loadProfile } = useGetProfile()
+  const { teams: teamsResource, weeks: weeksResource, group: groupResource, profile: profileResource } = useSession()
+  const { data: teams } = teamsResource
+  const { data: weeks } = weeksResource
+  const { data: group } = groupResource
+  const { data: profile } = profileResource
   const { data: accessStatus, run: loadAccessStatus } = useGetWeeklyAccessStatus()
   const { data: loadedPicks, run: loadPicks } = useListWeeklyPicksForWeek()
+  const { data: results, run: loadResults } = useListResultsForGames()
   const { run: savePick } = useSaveWeeklyPick()
   const [teamNames] = useState(() => new Map<string, string>())
   const [picks, setPicks] = useState<Record<string, WeeklyPickValue>>({})
+  const [failedGameId, setFailedGameId] = useState<string | null>(null)
   const nowMs = useNow()
 
   useEffect(() => {
     if (weekId) loadGames({ weekId })
-    loadTeams()
-    loadWeeks()
-    loadGroup()
-    loadProfile()
-  }, [weekId, loadGames, loadTeams, loadWeeks, loadGroup, loadProfile])
+  }, [weekId, loadGames])
 
   useEffect(() => {
     if (group && profile && weekId) {
@@ -234,11 +240,17 @@ export function GamesPage() {
   }, [group, profile, weekId, loadAccessStatus, loadPicks])
 
   useEffect(() => {
+    if (games && games.length > 0) loadResults({ gameIds: games.map((game) => game.id) })
+  }, [games, loadResults])
+
+  useEffect(() => {
     if (loadedPicks) setPicks(loadedPicks)
   }, [loadedPicks])
 
   teams?.forEach((team) => teamNames.set(team.id, team.name))
   const teamName = (id: string) => teamNames.get(id) ?? id
+
+  const resultsByGame = useMemo(() => new Map((results ?? []).map((result) => [result.gameId, result])), [results])
 
   const activeWeek = weeks?.find((week) => week.id === weekId)
   const isPlayoffsWeek = activeWeek?.type === 'playoffs'
@@ -248,10 +260,12 @@ export function GamesPage() {
     if (!group || !profile || !canPredict) return
     const previous = picks[gameId] ?? null
     setPicks((current) => ({ ...current, [gameId]: pick }))
+    setFailedGameId(null)
     try {
       await savePick({ groupId: group.id, userId: profile.userId, gameId, pick })
     } catch {
       setPicks((current) => (previous ? { ...current, [gameId]: previous } : current))
+      setFailedGameId(gameId)
     }
   }
 
@@ -289,6 +303,8 @@ export function GamesPage() {
             nowMs={nowMs}
             canPredict={canPredict}
             picks={picks}
+            resultsByGame={resultsByGame}
+            failedGameId={failedGameId}
             onPick={handlePick}
           />
         ))}

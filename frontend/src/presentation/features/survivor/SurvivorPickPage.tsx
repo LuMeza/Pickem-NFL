@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useDefaultGroup } from '@/presentation/hooks/useDefaultGroup'
-import { useGetProfile } from '@/presentation/hooks/useGetProfile'
-import { useListWeeks } from '@/presentation/hooks/useListWeeks'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
-import { useListTeams } from '@/presentation/hooks/useListTeams'
 import { useListMySurvivorPicks } from '@/presentation/hooks/useListMySurvivorPicks'
 import { useSaveSurvivorPick } from '@/presentation/hooks/useSaveSurvivorPick'
 import { useListSurvivorGroupState } from '@/presentation/hooks/useListSurvivorGroupState'
 import { useGetSurvivorCurrentWeek } from '@/presentation/hooks/useGetSurvivorCurrentWeek'
 import { useRequestSurvivorLife } from '@/presentation/hooks/useRequestSurvivorLife'
+import { useCountdown } from '@/presentation/hooks/useCountdown'
 import type { SurvivorLife } from '@/core/entities/survivor'
 import { isPredictionLocked } from '@/core/rules/isPredictionLocked'
 import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
@@ -41,25 +39,22 @@ function teamOptionsForWeek(games: Game[], teamName: (id: string) => string): Te
 /** Tareas 2.1-2.4 (modulo-survivor): elegir el equipo de la semana, excluyendo equipos ya usados y partidos ya iniciados; bloqueado para eliminados. */
 export function SurvivorPickPage() {
   const { weekId } = useParams<{ weekId: string }>()
-  const { data: group, run: loadGroup } = useDefaultGroup()
-  const { data: profile, run: loadProfile } = useGetProfile()
-  const { data: weeks, run: loadWeeks } = useListWeeks()
+  const { group: groupResource, profile: profileResource, weeks: weeksResource, teams: teamsResource } = useSession()
+  const { data: group } = groupResource
+  const { data: profile } = profileResource
+  const { data: weeks } = weeksResource
+  const { data: teams } = teamsResource
   const { status: gamesStatus, data: games, error: gamesError, run: loadGames } = useListGamesForWeek()
-  const { data: teams, run: loadTeams } = useListTeams()
   const { data: myPicks, run: loadMyPicks } = useListMySurvivorPicks()
   const { data: groupState, run: loadGroupState } = useListSurvivorGroupState()
-  const { status: saveStatus, run: savePick } = useSaveSurvivorPick()
+  const { status: saveStatus, error: saveError, run: savePick } = useSaveSurvivorPick()
   const { data: currentWeekNumber, run: loadCurrentWeekNumber } = useGetSurvivorCurrentWeek()
-  const { status: requestLifeStatus, run: requestLife } = useRequestSurvivorLife()
+  const { status: requestLifeStatus, error: requestLifeError, run: requestLife } = useRequestSurvivorLife()
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    loadGroup()
-    loadProfile()
-    loadWeeks()
-    loadTeams()
     loadCurrentWeekNumber()
-  }, [loadGroup, loadProfile, loadWeeks, loadTeams, loadCurrentWeekNumber])
+  }, [loadCurrentWeekNumber])
 
   useEffect(() => {
     if (weekId) loadGames({ weekId })
@@ -87,17 +82,33 @@ export function SurvivorPickPage() {
   const usedTeamIds = new Set((myPicks ?? []).map((pick) => pick.teamId))
   const currentPick = (myPicks ?? []).find((pick) => pick.weekId === weekId) ?? null
 
+  // Última ventana para elegir: el kickoff mas tardio de la semana (el ultimo
+  // partido en jugarse), no el primero — el usuario todavia puede elegir un
+  // equipo cuyo partido no haya iniciado aunque otros de la semana ya vayan.
+  const pickDeadline =
+    games && games.length > 0 ? new Date(Math.max(...games.map((game) => game.kickoffAt.getTime()))) : null
+  const showDeadlineCountdown = !currentPick && pickDeadline !== null && pickDeadline.getTime() > Date.now()
+  const deadlineLabel = useCountdown(showDeadlineCountdown ? pickDeadline : null)
+
   async function handlePick(teamId: string) {
     if (!group || !profile) return
-    await savePick({ groupId: group.id, userId: profile.userId, weekId: weekId!, teamId })
-    loadMyPicks({ groupId: group.id, userId: profile.userId })
+    try {
+      await savePick({ groupId: group.id, userId: profile.userId, weekId: weekId!, teamId })
+      loadMyPicks({ groupId: group.id, userId: profile.userId })
+    } catch {
+      // el error queda reflejado via saveError, ver render mas abajo
+    }
   }
 
   async function handleRequestLife() {
     if (!group || !profile || !myState) return
     const lifeNumber = (myState.currentLife + 1) as SurvivorLife
-    await requestLife({ groupId: group.id, userId: profile.userId, lifeNumber })
-    loadGroupState({ groupId: group.id })
+    try {
+      await requestLife({ groupId: group.id, userId: profile.userId, lifeNumber })
+      loadGroupState({ groupId: group.id })
+    } catch {
+      // el error queda reflejado via requestLifeError, ver render mas abajo
+    }
   }
 
   if (!weekId) return null
@@ -145,15 +156,28 @@ export function SurvivorPickPage() {
         <EmptyState
           message="Perdiste con tu vida actual. Pídele una vida extra al admin para poder seguir pickeando."
           action={
-            <button type="button" onClick={handleRequestLife} disabled={requestLifeStatus === 'pending'}>
-              {requestLifeStatus === 'pending' ? 'Enviando...' : 'Solicitar vida extra'}
-            </button>
+            <>
+              <button type="button" onClick={handleRequestLife} disabled={requestLifeStatus === 'pending'}>
+                {requestLifeStatus === 'pending' ? 'Enviando...' : 'Solicitar vida extra'}
+              </button>
+              {requestLifeError && (
+                <p className="text-body-sm" role="alert">
+                  No se pudo enviar la solicitud. Intenta de nuevo.
+                </p>
+              )}
+            </>
           }
         />
       )}
 
       {isRegularWeek && !isWeekLocked && !isEliminated && !needsLifeRequest && (
         <>
+          {deadlineLabel && (
+            <p className={styles.deadlineBanner} role="status">
+              <Icon name="calendar" size={14} /> Todavía no elegiste equipo esta semana — te quedan{' '}
+              <strong>{deadlineLabel}</strong> antes de que cierre el último partido.
+            </p>
+          )}
           {lifeRequestPending && (
             <p className="text-body-sm text-muted">
               Tu solicitud de vida extra está en revisión — puedes seguir pickeando, pero si el admin la rechaza estos
@@ -178,6 +202,12 @@ export function SurvivorPickPage() {
 
           {games && games.length > 0 && options.length === 0 && (
             <p className="text-body-sm text-muted">Ningún equipo coincide con "{search}".</p>
+          )}
+
+          {saveError && (
+            <p className="text-body-sm" role="alert">
+              No se pudo guardar tu pick. Intenta de nuevo.
+            </p>
           )}
 
           <div className={styles.grid}>

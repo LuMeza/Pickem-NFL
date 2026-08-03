@@ -34,3 +34,9 @@
   color: var(--text-primary);
   background: var(--danger);
 }
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

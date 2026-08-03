@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react'
-import { useDefaultGroup } from '@/presentation/hooks/useDefaultGroup'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useRecalculateSurvivorState } from '@/presentation/hooks/useRecalculateSurvivorState'
 import { useListSurvivorLifeRequests } from '@/presentation/hooks/useListSurvivorLifeRequests'
 import { useResolveSurvivorLifeRequest } from '@/presentation/hooks/useResolveSurvivorLifeRequest'
@@ -9,14 +9,10 @@ import styles from './ModuleAccessRequestsPage.module.css'
 
 /** Panel admin, plan B (modulo-survivor design.md decision 4): el recalculo corre solo al cargarse un resultado; este boton lo dispara a mano por si eso no paso. */
 export function AdminSurvivorPage() {
-  const { data: group, run: loadGroup } = useDefaultGroup()
+  const { data: group } = useSession().group
   const { status, error, run: recalculate } = useRecalculateSurvivorState()
   const { data: lifeRequests, run: loadLifeRequests } = useListSurvivorLifeRequests()
   const { run: resolveLifeRequest } = useResolveSurvivorLifeRequest()
-
-  useEffect(() => {
-    loadGroup()
-  }, [loadGroup])
 
   const reloadLifeRequests = useCallback(() => {
     if (group) loadLifeRequests({ groupId: group.id })

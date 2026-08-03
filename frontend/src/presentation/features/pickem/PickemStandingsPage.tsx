@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { useDefaultGroup } from '@/presentation/hooks/useDefaultGroup'
-import { useListWeeks } from '@/presentation/hooks/useListWeeks'
+import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
 import { useCanViewPickemTables } from '@/presentation/hooks/useCanViewPickemTables'
 import { useListWeeklyStandings } from '@/presentation/hooks/useListWeeklyStandings'
@@ -46,17 +45,12 @@ function StandingsList({ rows }: { rows: StandingRow[] }) {
 /** Tareas 4.3/4.4/4.6/4.7 (modulo-pickem-semanal): tabla semanal, tabla acumulada de temporada, ganador(es) y resultado final al iniciar playoffs. */
 export function PickemStandingsPage() {
   const { weekId } = useParams<{ weekId: string }>()
-  const { data: group, run: loadGroup } = useDefaultGroup()
-  const { data: weeks, run: loadWeeks } = useListWeeks()
+  const { data: group } = useSession().group
+  const { data: weeks } = useSession().weeks
   const { data: canView, run: loadCanView } = useCanViewPickemTables()
   const { status: weeklyStatus, data: weeklyStandings, run: loadWeeklyStandings } = useListWeeklyStandings()
   const { data: seasonStandings, run: loadSeasonStandings } = useListSeasonStandings()
   const { data: wildCardGames, run: loadWildCardGames } = useListGamesForWeek()
-
-  useEffect(() => {
-    loadGroup()
-    loadWeeks()
-  }, [loadGroup, loadWeeks])
 
   useEffect(() => {
     if (group && weekId) {
