@@ -11,6 +11,7 @@ export interface AdminUserSummary {
   displayName: string
   email: string
   createdAt: Date
+  isAdmin: boolean
 }
 
 /**
@@ -23,6 +24,8 @@ export interface AuthRepository {
   listUsers(): Promise<AdminUserSummary[]>
   updateUser(userId: string, displayName: string, email: string): Promise<void>
   deleteUser(userId: string): Promise<void>
+  grantPlatformAdmin(userId: string): Promise<void>
+  revokePlatformAdmin(userId: string): Promise<void>
   signIn(email: string, password: string): Promise<void>
   signOut(): Promise<void>
   changePassword(newPassword: string): Promise<void>

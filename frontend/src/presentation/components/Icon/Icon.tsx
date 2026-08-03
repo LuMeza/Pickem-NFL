@@ -101,6 +101,18 @@ const PATHS = {
       <path d="M5 21h14" />
     </>
   ),
+  edit: (
+    <>
+      <path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3z" />
+      <path d="M14.5 8 16 6.5" />
+    </>
+  ),
+  trash: (
+    <>
+      <path d="M5 7h14M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13" />
+      <path d="M10 11v6M14 11v6" />
+    </>
+  ),
 } as const
 
 export type IconName = keyof typeof PATHS

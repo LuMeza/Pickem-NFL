@@ -1,13 +1,17 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useListWeeks } from '@/presentation/hooks/useListWeeks'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
 import { useListTeams } from '@/presentation/hooks/useListTeams'
 import { useGetGameResult } from '@/presentation/hooks/useGetGameResult'
 import { useSubmitGameResult } from '@/presentation/hooks/useSubmitGameResult'
+import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { Icon } from '@/presentation/components/Icon/Icon'
+import { Modal } from '@/presentation/components/Modal/Modal'
+import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import type { Game } from '@/core/entities/catalog'
-import type { GameOutcome } from '@/core/entities/gameResult'
+import type { GameOutcome, GameResult } from '@/core/entities/gameResult'
+import tableStyles from '@/presentation/styles/adminTable.module.css'
 import styles from './AdminResultsPage.module.css'
 
 const OUTCOME_OPTIONS: { id: GameOutcome; label: string }[] = [
@@ -16,7 +20,23 @@ const OUTCOME_OPTIONS: { id: GameOutcome; label: string }[] = [
   { id: 'away', label: 'Gana visita' },
 ]
 
-function GameResultForm({ game, teamName }: { game: Game; teamName: (id: string) => string }) {
+function resultLabel(result: GameResult | undefined, game: Game, teamName: (id: string) => string): string {
+  if (!result) return 'Sin cargar'
+  const score = result.homeScore !== null && result.awayScore !== null ? ` ${result.homeScore}-${result.awayScore}` : ''
+  if (result.outcome === 'tie') return `Empate${score}`
+  const winnerId = result.outcome === 'home' ? game.homeTeamId : game.awayTeamId
+  return `${teamName(winnerId)}${score}`
+}
+
+function GameResultForm({
+  game,
+  teamName,
+  onSaved,
+}: {
+  game: Game
+  teamName: (id: string) => string
+  onSaved: () => void
+}) {
   const { data: existingResult, run: loadResult } = useGetGameResult()
   const { status, error, run: submitResult } = useSubmitGameResult()
   const [outcome, setOutcome] = useState<GameOutcome>('home')
@@ -44,18 +64,19 @@ function GameResultForm({ game, teamName }: { game: Game; teamName: (id: string)
       awayScore: awayScore === '' ? null : Number(awayScore),
     })
     await loadResult({ gameId: game.id })
+    onSaved()
   }
 
   return (
-    <form onSubmit={handleSubmit} className={`${styles.card} glass-surface`}>
+    <form onSubmit={handleSubmit} className={styles.form}>
       <div className={styles.header}>
         <TeamBadge teamId={game.homeTeamId} size="sm" />
         <span className={styles.matchup}>
           {teamName(game.homeTeamId)} vs {teamName(game.awayTeamId)}
         </span>
         <TeamBadge teamId={game.awayTeamId} size="sm" />
-        <span className={`${styles.kickoff} text-mono-sm`}>{game.kickoffAt.toLocaleString()}</span>
       </div>
+      <span className={`${styles.kickoff} text-mono-sm`}>{game.kickoffAt.toLocaleString()}</span>
       {existingResult && (
         <p className="text-body-sm text-muted">
           Origen: {existingResult.resultSource === 'manual' ? 'carga manual' : 'sincronización automatica (ESPN)'}
@@ -94,7 +115,6 @@ function GameResultForm({ game, teamName }: { game: Game; teamName: (id: string)
         {existingResult ? 'Corregir resultado' : 'Guardar resultado'}
       </button>
       {error && <p role="alert">No se pudo guardar: {error.message}</p>}
-      {status === 'success' && <p>Guardado.</p>}
     </form>
   )
 }
@@ -104,8 +124,9 @@ export function AdminResultsPage() {
   const { data: weeks, run: loadWeeks } = useListWeeks()
   const { data: games, run: loadGames } = useListGamesForWeek()
   const { data: teams, run: loadTeams } = useListTeams()
+  const { data: results, run: loadResults } = useListResultsForGames()
   const [selectedWeekId, setSelectedWeekId] = useState('')
-  const [teamNames] = useState(() => new Map<string, string>())
+  const [editingGame, setEditingGame] = useState<Game | null>(null)
 
   useEffect(() => {
     loadWeeks()
@@ -116,8 +137,16 @@ export function AdminResultsPage() {
     if (selectedWeekId) loadGames({ weekId: selectedWeekId })
   }, [selectedWeekId, loadGames])
 
-  teams?.forEach((team) => teamNames.set(team.id, team.name))
-  const teamName = (id: string) => teamNames.get(id) ?? id
+  useEffect(() => {
+    if (games && games.length > 0) loadResults({ gameIds: games.map((game) => game.id) })
+  }, [games, loadResults])
+
+  const teamName = (id: string) => teams?.find((team) => team.id === id)?.name ?? id
+  const resultByGameId = useMemo(() => new Map((results ?? []).map((result) => [result.gameId, result])), [results])
+
+  function refreshResults() {
+    if (games && games.length > 0) loadResults({ gameIds: games.map((game) => game.id) })
+  }
 
   return (
     <section>
@@ -136,8 +165,67 @@ export function AdminResultsPage() {
           ))}
         </select>
       </label>
-      {selectedWeekId && games && games.length === 0 && <p>Esta semana no tiene partidos cargados.</p>}
-      {selectedWeekId && games?.map((game) => <GameResultForm key={game.id} game={game} teamName={teamName} />)}
+
+      {selectedWeekId && games && games.length === 0 && (
+        <EmptyState message="Esta semana no tiene partidos cargados." />
+      )}
+
+      {selectedWeekId && games && games.length > 0 && (
+        <div className={`${tableStyles.panel} ${tableStyles.tableScroll}`}>
+          <table className={tableStyles.table}>
+            <thead>
+              <tr>
+                <th>Partido</th>
+                <th>Kickoff</th>
+                <th>Resultado</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {games.map((game) => (
+                <tr key={game.id}>
+                  <td>
+                    <span className={styles.matchupCell}>
+                      <TeamBadge teamId={game.homeTeamId} size="sm" />
+                      {teamName(game.homeTeamId)} <span className="text-muted">vs</span> {teamName(game.awayTeamId)}
+                      <TeamBadge teamId={game.awayTeamId} size="sm" />
+                    </span>
+                  </td>
+                  <td className="text-mono-sm">{game.kickoffAt.toLocaleString()}</td>
+                  <td>{resultLabel(resultByGameId.get(game.id), game, teamName)}</td>
+                  <td>
+                    <span className={tableStyles.actionsCell}>
+                      <button
+                        type="button"
+                        className={tableStyles.iconButton}
+                        aria-label={`Editar resultado de ${teamName(game.homeTeamId)} vs ${teamName(game.awayTeamId)}`}
+                        onClick={() => setEditingGame(game)}
+                      >
+                        <Icon name="edit" size={16} />
+                      </button>
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <Modal open={editingGame !== null} onClose={() => setEditingGame(null)}>
+        {editingGame && (
+          <div className="glass-surface" style={{ padding: 20 }}>
+            <GameResultForm
+              game={editingGame}
+              teamName={teamName}
+              onSaved={() => {
+                refreshResults()
+                setEditingGame(null)
+              }}
+            />
+          </div>
+        )}
+      </Modal>
     </section>
   )
 }

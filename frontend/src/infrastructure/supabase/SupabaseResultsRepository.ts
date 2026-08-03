@@ -39,4 +39,23 @@ export class SupabaseResultsRepository implements ResultsRepository {
       resultSource: data.result_source as ResultSource,
     }
   }
+
+  async getResultsForGames(gameIds: string[]): Promise<GameResult[]> {
+    if (gameIds.length === 0) return []
+    const { data, error } = await this.client
+      .from('games')
+      .select('id, outcome, home_score, away_score, result_source')
+      .in('id', gameIds)
+    if (error) throw error
+
+    return (data ?? [])
+      .filter((row) => row.outcome !== null)
+      .map((row) => ({
+        gameId: row.id as string,
+        outcome: row.outcome as GameOutcome,
+        homeScore: row.home_score as number | null,
+        awayScore: row.away_score as number | null,
+        resultSource: row.result_source as ResultSource,
+      }))
+  }
 }

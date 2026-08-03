@@ -1,46 +1,61 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import type { AdminUserSummary } from '@/core/ports'
 import { useListUsers } from '@/presentation/hooks/useListUsers'
+import { useCreateUser } from '@/presentation/hooks/useCreateUser'
 import { useUpdateUser } from '@/presentation/hooks/useUpdateUser'
 import { useDeleteUser } from '@/presentation/hooks/useDeleteUser'
+import { useSetPlatformAdmin } from '@/presentation/hooks/useSetPlatformAdmin'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import { Modal } from '@/presentation/components/Modal/Modal'
-import styles from './GroupMembersPage.module.css'
+import { UserFormModal } from './UserFormModal'
+import tableStyles from '@/presentation/styles/adminTable.module.css'
+import styles from './AdminUsersPage.module.css'
 
-/** Panel admin: editar o eliminar usuarios existentes (alta vive en /admin/users/new). */
+type FormModalState = { mode: 'create' } | { mode: 'edit'; user: AdminUserSummary } | null
+
+/** Panel admin: alta, edición y baja de usuarios en una sola pantalla. */
 export function AdminUsersPage() {
   const { status, data: users, error, run: loadUsers } = useListUsers()
+  const { status: createStatus, error: createError, run: runCreateUser } = useCreateUser()
   const { status: updateStatus, error: updateError, run: runUpdateUser } = useUpdateUser()
   const { status: deleteStatus, error: deleteError, run: runDeleteUser } = useDeleteUser()
+  const { error: setAdminError, run: runSetPlatformAdmin } = useSetPlatformAdmin()
 
-  const [editingUserId, setEditingUserId] = useState<string | null>(null)
-  const [editDisplayName, setEditDisplayName] = useState('')
-  const [editEmail, setEditEmail] = useState('')
+  const [formModal, setFormModal] = useState<FormModalState>(null)
+  const [createdResult, setCreatedResult] = useState<{ provisionalPassword: string; emailSent: boolean } | null>(
+    null,
+  )
   const [userToDelete, setUserToDelete] = useState<AdminUserSummary | null>(null)
+  const [adminToRevoke, setAdminToRevoke] = useState<AdminUserSummary | null>(null)
+  const [actioningUserId, setActioningUserId] = useState<string | null>(null)
 
   useEffect(() => {
     loadUsers()
   }, [loadUsers])
 
-  function startEditing(user: AdminUserSummary) {
-    setEditingUserId(user.userId)
-    setEditDisplayName(user.displayName)
-    setEditEmail(user.email)
+  function openCreateModal() {
+    setCreatedResult(null)
+    setFormModal({ mode: 'create' })
   }
 
-  function cancelEditing() {
-    setEditingUserId(null)
+  function openEditModal(user: AdminUserSummary) {
+    setFormModal({ mode: 'edit', user })
   }
 
-  async function handleSaveEdit(event: FormEvent) {
-    event.preventDefault()
-    if (!editingUserId) return
-    await runUpdateUser({ userId: editingUserId, displayName: editDisplayName, email: editEmail })
-    setEditingUserId(null)
-    loadUsers()
+  async function handleFormSubmit(values: { displayName: string; email: string }) {
+    if (!formModal) return
+    if (formModal.mode === 'create') {
+      const result = await runCreateUser(values)
+      setCreatedResult({ provisionalPassword: result.provisionalPassword, emailSent: result.emailSent })
+      loadUsers()
+    } else {
+      await runUpdateUser({ userId: formModal.user.userId, displayName: values.displayName, email: values.email })
+      setFormModal(null)
+      loadUsers()
+    }
   }
 
   async function handleConfirmDelete() {
@@ -50,63 +65,123 @@ export function AdminUsersPage() {
     loadUsers()
   }
 
+  function handleToggleAdmin(user: AdminUserSummary, nextValue: boolean) {
+    if (nextValue) {
+      void grantAdmin(user)
+    } else {
+      setAdminToRevoke(user)
+    }
+  }
+
+  async function grantAdmin(user: AdminUserSummary) {
+    setActioningUserId(user.userId)
+    try {
+      await runSetPlatformAdmin({ userId: user.userId, isAdmin: true })
+      loadUsers()
+    } finally {
+      setActioningUserId(null)
+    }
+  }
+
+  async function handleConfirmRevoke() {
+    if (!adminToRevoke) return
+    setActioningUserId(adminToRevoke.userId)
+    try {
+      await runSetPlatformAdmin({ userId: adminToRevoke.userId, isAdmin: false })
+      setAdminToRevoke(null)
+      loadUsers()
+    } finally {
+      setActioningUserId(null)
+    }
+  }
+
   return (
     <section>
-      <span className="kicker">
-        <Icon name="users" size={13} /> Usuarios
-      </span>
-      <h1 className="text-display-lg">Editar o eliminar usuarios</h1>
+      <div className={styles.header}>
+        <div>
+          <span className="kicker">
+            <Icon name="users" size={13} /> Usuarios
+          </span>
+          <h1 className="text-display-lg">Usuarios</h1>
+        </div>
+        <button type="button" onClick={openCreateModal}>
+          Nuevo usuario
+        </button>
+      </div>
 
       {status === 'pending' && <LoadingSpinner variant="inline" />}
       {error && <p role="alert">No se pudieron cargar los usuarios.</p>}
+      {adminToRevoke === null && setAdminError && (
+        <p role="alert">No se pudo actualizar el admin: {setAdminError.message}</p>
+      )}
       {users && users.length === 0 && <EmptyState message={EMPTY_STATE_COPY.groupWithoutMembers} />}
 
-      <ul className={styles.list}>
-        {users?.map((user) =>
-          editingUserId === user.userId ? (
-            <li key={user.userId} className={`${styles.row} glass-surface`}>
-              <form onSubmit={handleSaveEdit} style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%' }}>
-                <label>
-                  Nombre visible
-                  <input value={editDisplayName} onChange={(event) => setEditDisplayName(event.target.value)} required />
-                </label>
-                <label>
-                  Correo
-                  <input type="email" value={editEmail} onChange={(event) => setEditEmail(event.target.value)} required />
-                </label>
-                {updateError && <p role="alert">No se pudo guardar: {updateError.message}</p>}
-                <span style={{ display: 'flex', gap: 8 }}>
-                  <button type="submit" disabled={updateStatus === 'pending'}>
-                    {updateStatus === 'pending' ? 'Guardando...' : 'Guardar'}
-                  </button>
-                  <button type="button" className="button-secondary" onClick={cancelEditing}>
-                    Cancelar
-                  </button>
-                </span>
-              </form>
-            </li>
-          ) : (
-            <li key={user.userId} className={`${styles.row} glass-surface`}>
-              <span className={styles.info}>
-                <span className={styles.name}>{user.displayName}</span>
-                <span className={styles.joined}>{user.email}</span>
-              </span>
-              <span style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-                <button type="button" className="button-secondary" onClick={() => startEditing(user)}>
-                  Editar
-                </button>
-                <button type="button" className="button-secondary" onClick={() => setUserToDelete(user)}>
-                  Eliminar
-                </button>
-              </span>
-            </li>
-          ),
-        )}
-      </ul>
+      {users && users.length > 0 && (
+        <div className={`${tableStyles.panel} ${tableStyles.tableScroll}`}>
+          <table className={tableStyles.table}>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Admin</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user.userId}>
+                  <td>{user.displayName}</td>
+                  <td>{user.email}</td>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={user.isAdmin}
+                      disabled={actioningUserId === user.userId}
+                      aria-label={`Admin: ${user.displayName}`}
+                      onChange={(event) => handleToggleAdmin(user, event.target.checked)}
+                    />
+                  </td>
+                  <td>
+                    <span className={tableStyles.actionsCell}>
+                      <button
+                        type="button"
+                        className={tableStyles.iconButton}
+                        aria-label={`Editar ${user.displayName}`}
+                        onClick={() => openEditModal(user)}
+                      >
+                        <Icon name="edit" size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className={`${tableStyles.iconButton} ${tableStyles.iconButtonDanger}`}
+                        aria-label={`Eliminar ${user.displayName}`}
+                        onClick={() => setUserToDelete(user)}
+                      >
+                        <Icon name="trash" size={16} />
+                      </button>
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <UserFormModal
+        open={formModal !== null}
+        mode={formModal?.mode ?? 'create'}
+        initialUser={formModal?.mode === 'edit' ? formModal.user : null}
+        status={formModal?.mode === 'create' ? createStatus : updateStatus}
+        error={formModal?.mode === 'create' ? createError : updateError}
+        createdResult={createdResult}
+        onSubmit={handleFormSubmit}
+        onClose={() => setFormModal(null)}
+      />
 
       <Modal open={userToDelete !== null} onClose={() => setUserToDelete(null)}>
         {userToDelete && (
-          <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="glass-surface" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
             <h2 className="text-display-sm">Eliminar usuario</h2>
             <p>
               Esto elimina la cuenta de <strong>{userToDelete.displayName}</strong> ({userToDelete.email}) de forma
@@ -118,6 +193,26 @@ export function AdminUsersPage() {
                 {deleteStatus === 'pending' ? 'Eliminando...' : 'Eliminar definitivamente'}
               </button>
               <button type="button" className="button-secondary" onClick={() => setUserToDelete(null)}>
+                Cancelar
+              </button>
+            </span>
+          </div>
+        )}
+      </Modal>
+
+      <Modal open={adminToRevoke !== null} onClose={() => setAdminToRevoke(null)}>
+        {adminToRevoke && (
+          <div className="glass-surface" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <h2 className="text-display-sm">Quitar administrador</h2>
+            <p>
+              <strong>{adminToRevoke.displayName}</strong> perderá acceso al panel de administrador de inmediato.
+            </p>
+            {setAdminError && <p role="alert">No se pudo quitar: {setAdminError.message}</p>}
+            <span style={{ display: 'flex', gap: 8 }}>
+              <button type="button" onClick={handleConfirmRevoke} disabled={actioningUserId === adminToRevoke.userId}>
+                {actioningUserId === adminToRevoke.userId ? 'Quitando...' : 'Quitar administrador'}
+              </button>
+              <button type="button" className="button-secondary" onClick={() => setAdminToRevoke(null)}>
                 Cancelar
               </button>
             </span>

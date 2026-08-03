@@ -19,8 +19,7 @@ const SECTIONS: AdminSection[] = [
   {
     title: 'Usuarios y accesos',
     actions: [
-      { to: '/admin/users/new', icon: 'userPlus', title: 'Dar de alta un usuario', description: 'Correo, nombre y contraseña provisional' },
-      { to: '/admin/users', icon: 'users', title: 'Editar o eliminar usuarios', description: 'Cambiar nombre/correo, o dar de baja una cuenta' },
+      { to: '/admin/users', icon: 'users', title: 'Usuarios', description: 'Alta, edición y baja de cuentas' },
       { to: '/admin/members', icon: 'users', title: 'Miembros', description: 'Ver y remover usuarios del grupo' },
       { to: '/admin/pickem/access-requests', icon: 'ticket', title: 'Accesos al pickem semanal', description: 'Aprobar o rechazar solicitudes por semana' },
       { to: '/admin/access-requests', icon: 'ticket', title: 'Accesos a otros módulos', description: 'Playoffs, cuando este disponible' },

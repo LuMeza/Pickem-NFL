@@ -9,4 +9,5 @@ import type { GameResult, ManualGameResult } from '@/core/entities/gameResult'
 export interface ResultsRepository {
   setResult(result: ManualGameResult): Promise<void>
   getResult(gameId: string): Promise<GameResult | null>
+  getResultsForGames(gameIds: string[]): Promise<GameResult[]>
 }

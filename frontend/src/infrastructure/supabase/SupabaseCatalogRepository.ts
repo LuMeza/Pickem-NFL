@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Game, Player, Team, Week, WeekType } from '@/core/entities/catalog'
-import type { CatalogRepository, NewGame } from '@/core/ports/CatalogRepository'
+import type { CatalogRepository, GameChanges, NewGame } from '@/core/ports/CatalogRepository'
 
 export class SupabaseCatalogRepository implements CatalogRepository {
   private readonly client: SupabaseClient
@@ -114,6 +114,28 @@ export class SupabaseCatalogRepository implements CatalogRepository {
         away_team_id: game.awayTeamId,
         kickoff_at: game.kickoffAt.toISOString(),
       })
+      .select('id, week_id, home_team_id, away_team_id, kickoff_at')
+      .single()
+    if (error) throw error
+
+    return {
+      id: data.id as string,
+      weekId: data.week_id as string,
+      homeTeamId: data.home_team_id as string,
+      awayTeamId: data.away_team_id as string,
+      kickoffAt: new Date(data.kickoff_at as string),
+    }
+  }
+
+  async updateGame(gameId: string, changes: GameChanges): Promise<Game> {
+    const { data, error } = await this.client
+      .from('games')
+      .update({
+        home_team_id: changes.homeTeamId,
+        away_team_id: changes.awayTeamId,
+        kickoff_at: changes.kickoffAt.toISOString(),
+      })
+      .eq('id', gameId)
       .select('id, week_id, home_team_id, away_team_id, kickoff_at')
       .single()
     if (error) throw error

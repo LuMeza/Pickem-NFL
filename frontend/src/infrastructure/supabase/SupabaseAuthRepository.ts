@@ -27,17 +27,24 @@ export class SupabaseAuthRepository implements AuthRepository {
   }
 
   async listUsers(): Promise<AdminUserSummary[]> {
-    const { data, error } = await this.client
-      .from('profiles')
-      .select('id, display_name, email, created_at')
-      .order('created_at', { ascending: false })
-    if (error) throw error
+    const [profilesResult, adminsResult] = await Promise.all([
+      this.client
+        .from('profiles')
+        .select('id, display_name, email, created_at')
+        .order('created_at', { ascending: false }),
+      this.client.from('platform_admins').select('user_id'),
+    ])
+    if (profilesResult.error) throw profilesResult.error
+    if (adminsResult.error) throw adminsResult.error
 
-    return (data ?? []).map((row) => ({
+    const adminIds = new Set((adminsResult.data ?? []).map((row) => row.user_id as string))
+
+    return (profilesResult.data ?? []).map((row) => ({
       userId: row.id as string,
       displayName: row.display_name as string,
       email: row.email as string,
       createdAt: new Date(row.created_at as string),
+      isAdmin: adminIds.has(row.id as string),
     }))
   }
 
@@ -52,6 +59,16 @@ export class SupabaseAuthRepository implements AuthRepository {
     const { error } = await this.client.functions.invoke('admin-delete-user', {
       body: { userId },
     })
+    if (error) throw error
+  }
+
+  async grantPlatformAdmin(userId: string): Promise<void> {
+    const { error } = await this.client.rpc('grant_platform_admin', { p_user_id: userId })
+    if (error) throw error
+  }
+
+  async revokePlatformAdmin(userId: string): Promise<void> {
+    const { error } = await this.client.rpc('revoke_platform_admin', { p_user_id: userId })
     if (error) throw error
   }
 

@@ -7,6 +7,12 @@ export interface NewGame {
   kickoffAt: Date
 }
 
+export interface GameChanges {
+  homeTeamId: string
+  awayTeamId: string
+  kickoffAt: Date
+}
+
 /**
  * Ver openspec/changes/base-plataforma specs/catalogo-nfl. Lectura pública
  * para cualquier autenticado; `createGame` exclusivo de platform_admins
@@ -21,4 +27,5 @@ export interface CatalogRepository {
   listGamesForTeam(teamId: string): Promise<Game[]>
   listPlayersForTeam(teamId: string): Promise<Player[]>
   createGame(game: NewGame): Promise<Game>
+  updateGame(gameId: string, changes: GameChanges): Promise<Game>
 }
