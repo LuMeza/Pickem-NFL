@@ -22,7 +22,11 @@ import { corsHeaders } from '../_shared/cors.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const ESPN_SCOREBOARD_URL = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard'
+// site.api.espn.com quedó bloqueado por Akamai (403 "Access Denied") para
+// cualquier origen, incluido curl directo desde fuera de Supabase — no era
+// un problema de IP/User-Agent. site.web.api.espn.com expone el mismo
+// payload (mismos campos leídos por mapping.ts) sin ese bloqueo.
+const ESPN_SCOREBOARD_URL = 'https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard'
 const SEASON_YEAR = nflSeasonYear(new Date())
 
 function jsonResponse(body: unknown, status: number): Response {
