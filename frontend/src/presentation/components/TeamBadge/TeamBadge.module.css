@@ -29,8 +29,13 @@
   border-radius: 18px;
 }
 
+/* Fondo claro fijo (no --bg-surface) para el escudo: varios equipos tienen
+   colores de marca muy oscuros (Bears, Jaguars, Cowboys...) que se perdian
+   contra un fondo casi negro. Un respaldo claro sencillo hace que cualquier
+   logo tenga contraste, sin importar que tan oscura sea su marca — mismo
+   criterio que usa ESPN en sus propios marcadores. */
 .logoBadge {
-  background: var(--bg-surface);
+  background: var(--text-primary);
   padding: 6px;
   box-shadow: none;
 }
