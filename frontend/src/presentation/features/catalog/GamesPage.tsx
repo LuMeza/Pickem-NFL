@@ -24,7 +24,11 @@ import styles from './GamesPage.module.css'
 
 const URGENT_THRESHOLD_MS = 2 * 60 * 60 * 1000
 
-const OUTCOME_LABEL: Record<string, string> = { home: 'Gano local', away: 'Gano visita', tie: 'Empate' }
+function outcomeLabel(result: GameResult, game: Game, teamName: (id: string) => string): string {
+  if (result.outcome === 'tie') return 'Empate'
+  const winnerId = result.outcome === 'home' ? game.homeTeamId : game.awayTeamId
+  return teamName(winnerId)
+}
 
 interface DayGroup {
   key: string
@@ -105,7 +109,7 @@ function GameProposal({
 
   const kickoffLabel = game.kickoffAt.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
   const statusLabel = hasResult
-    ? `Final · ${OUTCOME_LABEL[result!.outcome]}`
+    ? `Final · ${outcomeLabel(result!, game, teamName)}`
     : isLive
       ? 'En vivo'
       : kickoffPassed
