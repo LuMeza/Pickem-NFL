@@ -17,6 +17,7 @@ interface AchievementRow {
 interface ProfilePickemSummaryRow {
   total_correct: number | string
   total_picked: number | string
+  total_picks_made: number | string
 }
 
 interface ProfileWeeklyTrendRow {
@@ -62,8 +63,12 @@ export class SupabaseAchievementsRepository implements AchievementsRepository {
   async getProfilePickemSummary(userId: string): Promise<ProfilePickemSummary> {
     const { data, error } = await this.client.rpc('profile_pickem_summary', { p_user_id: userId })
     if (error) throw error
-    const row = (data?.[0] ?? { total_correct: 0, total_picked: 0 }) as ProfilePickemSummaryRow
-    return { totalCorrect: Number(row.total_correct), totalPicked: Number(row.total_picked) }
+    const row = (data?.[0] ?? { total_correct: 0, total_picked: 0, total_picks_made: 0 }) as ProfilePickemSummaryRow
+    return {
+      totalCorrect: Number(row.total_correct),
+      totalPicked: Number(row.total_picked),
+      totalPicksMade: Number(row.total_picks_made),
+    }
   }
 
   async getProfileWeeklyTrend(userId: string): Promise<ProfileWeeklyTrendPoint[]> {

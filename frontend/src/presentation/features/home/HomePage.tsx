@@ -83,6 +83,7 @@ export function HomePage() {
   const picksApproved = accessStatus === 'aprobado'
 
   const hasPicked = stats != null && stats.totalPicked > 0
+  const hasPicksPendingResult = stats != null && stats.totalPicked === 0 && stats.totalPicksMade > 0
   const accuracy = hasPicked && stats ? Math.round((stats.totalCorrect / stats.totalPicked) * 100) : null
 
   const unlockedAchievements = achievements?.filter((achievement) => achievement.unlocked).length ?? null
@@ -156,8 +157,14 @@ export function HomePage() {
             icon="check"
             kicker="Efectividad"
             loading={statsStatus === 'idle' || statsStatus === 'pending'}
-            value={hasPicked && accuracy != null ? `${accuracy}%` : 'Sin picks aún'}
-            detail={hasPicked && stats ? `${stats.totalCorrect}/${stats.totalPicked} aciertos` : 'Haz tu primer pick'}
+            value={hasPicked && accuracy != null ? `${accuracy}%` : hasPicksPendingResult ? 'Pendiente' : 'Sin picks aún'}
+            detail={
+              hasPicked && stats
+                ? `${stats.totalCorrect}/${stats.totalPicked} aciertos`
+                : hasPicksPendingResult
+                  ? 'Esperando resultados'
+                  : 'Haz tu primer pick'
+            }
           />
 
           <StatTile

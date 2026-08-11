@@ -63,6 +63,7 @@ export function ProfilePage() {
   if (error || !profile) return <p role="alert">No se pudo cargar el perfil.</p>
 
   const hasStats = statsStatus === 'success' && stats !== null && stats.totalPicked > 0
+  const hasPicksPendingResult = statsStatus === 'success' && stats !== null && stats.totalPicked === 0 && stats.totalPicksMade > 0
   const accuracy = hasStats && stats ? Math.round((stats.totalCorrect / stats.totalPicked) * 100) : null
   const hasTrend = trendStatus === 'success' && trend !== null && trend.length > 0
 
@@ -125,6 +126,10 @@ export function ProfilePage() {
               <span className={styles.statLabel}>Efectividad</span>
             </div>
           </div>
+        ) : hasPicksPendingResult ? (
+          <p className={`${styles.statsEmpty} text-body-sm text-muted`}>
+            Ya hiciste tus picks de esta semana — tu efectividad se calcula en cuanto terminen esos partidos.
+          </p>
         ) : statsStatus === 'success' ? (
           <p className={`${styles.statsEmpty} text-body-sm text-muted`}>
             Todavía no tienes picks registrados en el Pickem Semanal.

@@ -13,7 +13,10 @@ export interface ProfileAchievement extends Achievement {
 
 export interface ProfilePickemSummary {
   totalCorrect: number
+  /** Picks sobre partidos que ya tienen resultado — base para el % de efectividad. */
   totalPicked: number
+  /** Todos los picks del usuario, tengan o no resultado ya cargado — distingue "sin picks" de "picks pendientes de resultado". */
+  totalPicksMade: number
 }
 
 export interface ProfileWeeklyTrendPoint {
