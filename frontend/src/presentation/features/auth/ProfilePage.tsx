@@ -176,10 +176,10 @@ export function ProfilePage() {
           description="Actualiza tu contraseña de acceso"
         />
         <ActionCard
-          to="/pickem/acceso"
-          icon="ticket"
-          title="Acceso al Pickem Semanal"
-          description="Solicita o revisa tu acceso a la semana actual"
+          to="/weeks"
+          icon="calendar"
+          title="Pickem Semanal"
+          description="Mira los partidos de la semana y haz tus picks"
         />
       </div>
     </section>
