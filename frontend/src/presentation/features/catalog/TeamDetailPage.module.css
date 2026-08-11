@@ -7,11 +7,71 @@
   margin-bottom: 12px;
 }
 
-.header {
+/* Hero: gradiente ambiental con el color de marca "puro" del equipo de
+   fondo (--hero-glow) — a diferencia del texto (ver getReadableAccent), un
+   fondo SI puede ser oscuro sin problema de legibilidad, asi que usa el
+   primario real aunque sea navy/negro (se ve mas "del equipo"). */
+.hero {
+  position: relative;
+  padding: 20px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  background-image: radial-gradient(120% 160% at 12% -10%, color-mix(in srgb, var(--hero-glow) 35%, transparent), transparent 65%);
+}
+
+.heroTop {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.heroInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Tamaño fluido en vez de la escala fija text-display-lg (40px): nombres
+   largos (New England Patriots, Jacksonville Jaguars...) partian en 3
+   lineas en mobile. clamp() lo reduce en pantallas angostas sin tocar el
+   tamaño en desktop. */
+.heroTitle {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0;
+  font-size: clamp(19px, 6vw, 40px);
+  line-height: 1.05;
+}
+
+.heroMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.heroDivision {
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.heroRecord {
+  font-weight: 700;
+}
+
+.heroNextGame {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  font-size: 13px;
 }
 
 .tabs {
@@ -65,6 +125,19 @@
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
+  border-left: 3px solid transparent;
+}
+
+/* Barra de acento a la izquierda: escaneo instantaneo de la temporada sin
+   tener que leer cada tarjeta (ganó/perdió/empate). */
+.gameCardWin {
+  border-left-color: var(--accent-lime);
+}
+.gameCardLoss {
+  border-left-color: var(--danger);
+}
+.gameCardTie {
+  border-left-color: var(--text-muted);
 }
 
 .gameInfo {
@@ -97,6 +170,38 @@
   color: var(--text-muted);
   text-align: right;
   flex-shrink: 0;
+}
+
+.gameResult {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.gameOutcome {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.outcomeWin {
+  color: var(--accent-lime);
+}
+.outcomeLoss {
+  color: var(--danger);
+}
+.outcomeTie {
+  color: var(--text-muted);
+}
+
+.gameScore {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-primary);
 }
 
 .toolbar {

@@ -1,9 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListGamesForTeam } from '@/presentation/hooks/useListGamesForTeam'
 import { useListPlayersForTeam } from '@/presentation/hooks/useListPlayersForTeam'
+import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
+import { useNow } from '@/presentation/hooks/useNow'
+import { computeTeamStanding, findNextGame } from '@/core/rules/computeTeamStanding'
+import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
+import { getReadableAccent, getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
+import { getTeamDivision } from '@/presentation/components/TeamBadge/teamDivisions'
 import { PlayerCard } from '@/presentation/components/PlayerCard/PlayerCard'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
@@ -83,12 +89,18 @@ export function TeamDetailPage() {
   const { data: weeks } = weeksResource
   const { status: gamesStatus, data: games, error: gamesError, run: loadGames } = useListGamesForTeam()
   const { status: playersStatus, data: players, error: playersError, run: loadPlayers } = useListPlayersForTeam()
+  const { data: results, run: loadResults } = useListResultsForGames()
+  const nowMs = useNow()
 
   useEffect(() => {
     if (!teamId) return
     loadGames({ teamId })
     loadPlayers({ teamId })
   }, [teamId, loadGames, loadPlayers])
+
+  useEffect(() => {
+    if (games && games.length > 0) loadResults({ gameIds: games.map((game) => game.id) })
+  }, [games, loadResults])
 
   const teamName = useMemo(() => teams?.find((team) => team.id === teamId)?.name ?? teamId ?? '', [teams, teamId])
   const weekById = useMemo(() => new Map((weeks ?? []).map((week) => [week.id, week])), [weeks])
@@ -98,6 +110,13 @@ export function TeamDetailPage() {
   }
   const teamNameById = useMemo(() => new Map((teams ?? []).map((team) => [team.id, team.name])), [teams])
   const gameSections = useMemo(() => groupGamesByWeekType(games ?? [], weekById), [games, weekById])
+  const resultsByGame = useMemo(() => new Map((results ?? []).map((result) => [result.gameId, result])), [results])
+  const standing = useMemo(() => computeTeamStanding(teamId ?? '', games ?? [], resultsByGame), [teamId, games, resultsByGame])
+  const nextGame = useMemo(() => findNextGame(teamId ?? '', games ?? [], new Date(nowMs)), [teamId, games, nowMs])
+  const playedGames = standing.wins + standing.losses + standing.ties
+  const division = teamId ? getTeamDivision(teamId) : null
+  const accent = teamId ? getReadableAccent(teamId) : undefined
+  const heroGlow = teamId ? getTeamColors(teamId).primary : undefined
   const filteredPlayers = useMemo(() => filterPlayersByName(players ?? [], playerQuery), [players, playerQuery])
   const presentUnits = useMemo(
     () => UNIT_ORDER.filter((unit) => (players ?? []).some((player) => unitKeyOf(player.unit) === unit)),
@@ -107,6 +126,13 @@ export function TeamDetailPage() {
     () => (unitFilter === 'all' ? filteredPlayers : filteredPlayers.filter((player) => unitKeyOf(player.unit) === unitFilter)),
     [filteredPlayers, unitFilter],
   )
+  const nextGameLabel = useMemo(() => {
+    if (!nextGame || !teamId) return null
+    const isHome = nextGame.homeTeamId === teamId
+    const opponentId = isHome ? nextGame.awayTeamId : nextGame.homeTeamId
+    const opponentName = teamNameById.get(opponentId) ?? opponentId
+    return `${isHome ? 'Recibe a' : 'Visita a'} ${opponentName} · ${formatKickoff(nextGame.kickoffAt)}`
+  }, [nextGame, teamId, teamNameById])
 
   if (!teamId) return null
 
@@ -116,9 +142,32 @@ export function TeamDetailPage() {
         <Icon name="arrowLeft" size={14} /> Equipos
       </Link>
 
-      <div className={styles.header}>
-        <TeamBadge teamId={teamId} size="lg" />
-        <h1 className="text-display-lg">{teamName}</h1>
+      <div className={`${styles.hero} glass-surface`} style={{ '--hero-glow': heroGlow } as CSSProperties}>
+        <div className={styles.heroTop}>
+          <TeamBadge teamId={teamId} size="lg" />
+          <div className={styles.heroInfo}>
+            <h1 className={styles.heroTitle}>{teamName}</h1>
+            <div className={styles.heroMeta}>
+              {division && (
+                <span className={styles.heroDivision}>
+                  {division.conference} {division.division}
+                </span>
+              )}
+              {playedGames > 0 && (
+                <span className={styles.heroRecord} style={{ color: accent }}>
+                  {standing.wins}-{standing.losses}
+                  {standing.ties > 0 ? `-${standing.ties}` : ''}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        {nextGameLabel && (
+          <div className={styles.heroNextGame}>
+            <Icon name="calendar" size={13} />
+            {nextGameLabel}
+          </div>
+        )}
       </div>
 
       <div className={styles.tabs} role="tablist">
@@ -154,8 +203,13 @@ export function TeamDetailPage() {
                 {sectionGames.map((game) => {
                   const isHome = game.homeTeamId === teamId
                   const opponentId = isHome ? game.awayTeamId : game.homeTeamId
+                  const result = resultsByGame.get(game.id) ?? null
+                  const isFinal = getGameLiveStatus(game, result, new Date(nowMs)) === 'final' && result !== null
+                  const isTie = isFinal && result!.outcome === 'tie'
+                  const isWin = isFinal && ((result!.outcome === 'home' && isHome) || (result!.outcome === 'away' && !isHome))
+                  const outcomeClass = !isFinal ? '' : isTie ? styles.gameCardTie : isWin ? styles.gameCardWin : styles.gameCardLoss
                   return (
-                    <div key={game.id} className={`${styles.gameCard} glass-surface`}>
+                    <div key={game.id} className={`${styles.gameCard} glass-surface ${outcomeClass}`}>
                       <TeamBadge teamId={opponentId} size="md" />
                       <div className={styles.gameInfo}>
                         <span className={styles.gameMatchup}>
@@ -165,7 +219,18 @@ export function TeamDetailPage() {
                           {weekLabelFor(game.weekId)} · {isHome ? 'de local' : 'de visitante'}
                         </span>
                       </div>
-                      <span className={styles.gameKickoff}>{formatKickoff(game.kickoffAt)}</span>
+                      {isFinal ? (
+                        <div className={styles.gameResult}>
+                          <span className={`${styles.gameOutcome} ${isTie ? styles.outcomeTie : isWin ? styles.outcomeWin : styles.outcomeLoss}`}>
+                            {isTie ? 'Empate' : isWin ? 'Ganó' : 'Perdió'}
+                          </span>
+                          <span className={styles.gameScore}>
+                            {isHome ? `${result!.homeScore}-${result!.awayScore}` : `${result!.awayScore}-${result!.homeScore}`}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className={styles.gameKickoff}>{formatKickoff(game.kickoffAt)}</span>
+                      )}
                     </div>
                   )
                 })}

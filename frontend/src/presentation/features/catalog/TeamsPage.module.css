@@ -1,3 +1,23 @@
+.searchField {
+  position: relative;
+  max-width: 340px;
+  margin-top: 16px;
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding-left: 34px;
+}
+
 .divisionGrid {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
@@ -39,21 +59,40 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
-.teamRow {
+/* Tarjeta de equipo estilo "bento": el borde y el glow al hover toman el
+   color de marca del equipo (--team-accent, ver TeamCard) en vez de un
+   lima generico — asi cada tarjeta se siente propia del equipo. */
+.teamCard {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 6px;
+  padding: 8px;
   text-decoration: none;
   color: inherit;
-  border-radius: 10px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition:
+    transform 150ms ease-out,
+    border-color 150ms ease-out,
+    background 150ms ease-out;
 }
 
-.teamRow:hover {
-  background: rgba(255, 255, 255, 0.06);
+.teamCard:hover,
+.teamCard:focus-visible {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: color-mix(in srgb, var(--team-accent) 45%, transparent);
+  box-shadow: 0 8px 20px -12px color-mix(in srgb, var(--team-accent) 60%, transparent);
+}
+
+.teamCardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .name {
@@ -64,4 +103,37 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.teamCardMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.record {
+  color: var(--text-muted);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.recordEmpty {
+  color: var(--text-muted);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.nextGame {
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nextGame::before {
+  content: '·';
+  margin-right: 6px;
 }
