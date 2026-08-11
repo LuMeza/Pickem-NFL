@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { toPng } from 'html-to-image'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
 import { useNow } from '@/presentation/hooks/useNow'
@@ -13,7 +12,14 @@ import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStat
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
+import { ExportPage, ExportWeekBlock } from './calendarExport/ExportLayouts'
+import { downloadElementAsPng, downloadPagesAsPdf, type PdfPageSpec } from './calendarExport/exportCapture'
 import styles from './CalendarPage.module.css'
+
+/** Ancho fijo de captura: espacioso para una sola semana por pagina (Regular, HOF, y el PNG individual), mas angosto no hace falta porque cada pagina define su propio alto segun el contenido. */
+const EXPORT_WEEK_WIDTH = 900
+/** Paginas que apilan varias semanas (Pretemporada, Playoffs) piden un poco mas de aire horizontal. */
+const EXPORT_SEGMENT_WIDTH = 1000
 
 const SEGMENT_ORDER: WeekType[] = ['hof', 'pretemporada', 'regular', 'playoffs']
 
@@ -46,18 +52,6 @@ function sortByNumber(weeks: Week[]): Week[] {
 
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
-
-async function downloadNodeAsImage(node: HTMLElement, fileName: string, excludeClassName?: string) {
-  const dataUrl = await toPng(node, {
-    pixelRatio: 2,
-    backgroundColor: '#0b0f14',
-    filter: excludeClassName ? (child) => !child.classList?.contains(excludeClassName) : undefined,
-  })
-  const link = document.createElement('a')
-  link.download = fileName
-  link.href = dataUrl
-  link.click()
 }
 
 function MatchChip({
@@ -160,17 +154,22 @@ function WeekCard({
 }) {
   const sorted = [...games].sort((a, b) => a.kickoffAt.getTime() - b.kickoffAt.getTime())
   const dayGroups = groupByDay(sorted)
-  const cardRef = useRef<HTMLAnchorElement>(null)
   const [downloading, setDownloading] = useState(false)
 
   const handleDownload = async (event: React.MouseEvent) => {
     event.preventDefault()
     event.stopPropagation()
-    if (!cardRef.current || downloading) return
+    if (downloading || sorted.length === 0) return
 
     setDownloading(true)
     try {
-      await downloadNodeAsImage(cardRef.current, `calendario-${slugify(weekLabel(week))}.png`)
+      await downloadElementAsPng(
+        <ExportPage title={weekLabel(week)} subtitle={SEGMENT_LABEL[week.type]} widthPx={EXPORT_WEEK_WIDTH}>
+          <ExportWeekBlock week={week} games={sorted} results={resultsByGame} teamName={teamName} density="spacious" />
+        </ExportPage>,
+        EXPORT_WEEK_WIDTH,
+        `calendario-${slugify(weekLabel(week))}.png`,
+      )
     } catch (err) {
       console.error('No se pudo generar la imagen de la semana', err)
     } finally {
@@ -180,7 +179,7 @@ function WeekCard({
 
   return (
     <div className={styles.weekCardWrap}>
-      <Link ref={cardRef} to={`/weeks/${week.id}/games`} className={`${styles.weekCard} glass-surface`}>
+      <Link to={`/weeks/${week.id}/games`} className={`${styles.weekCard} glass-surface`}>
         <div className={styles.weekCardHeader}>
           <span className={styles.weekCardLabel}>{weekLabel(week)}</span>
           <span className={styles.weekCardCount}>
@@ -219,16 +218,18 @@ function WeekCard({
         )}
       </Link>
 
-      <button
-        type="button"
-        className={styles.weekCardDownload}
-        onClick={handleDownload}
-        disabled={downloading}
-        aria-label={`Descargar ${weekLabel(week)} como imagen`}
-        title="Descargar como imagen"
-      >
-        <Icon name="download" size={14} />
-      </button>
+      {sorted.length > 0 && (
+        <button
+          type="button"
+          className={styles.weekCardDownload}
+          onClick={handleDownload}
+          disabled={downloading}
+          aria-label={`Descargar ${weekLabel(week)} como imagen`}
+          title="Descargar como imagen"
+        >
+          <Icon name="download" size={14} />
+        </button>
+      )}
     </div>
   )
 }
@@ -258,17 +259,77 @@ export function CalendarPage() {
   }
 
   const segments = SEGMENT_ORDER.filter((type) => weeks?.some((week) => week.type === type))
-  const calendarRef = useRef<HTMLDivElement>(null)
   const [downloadingAll, setDownloadingAll] = useState(false)
 
+  /**
+   * Arma una pagina de PDF por segmento, salvo Temporada Regular: con 18
+   * semanas y ~15 partidos cada una, meterlas todas en una sola pagina no se
+   * leeria — ahi cada semana se vuelve su propia pagina (decision de
+   * producto, ver conversacion). Los segmentos sin partidos cargados
+   * (playoffs antes de que se sorteen, por ejemplo) se omiten.
+   */
   const handleDownloadAll = async () => {
-    if (!calendarRef.current || downloadingAll) return
+    if (downloadingAll) return
 
     setDownloadingAll(true)
     try {
-      await downloadNodeAsImage(calendarRef.current, 'calendario-nfl-temporada.png', styles.weekCardDownload)
+      const pages: PdfPageSpec[] = []
+
+      for (const type of segments) {
+        const segmentWeeks = sortByNumber((weeks ?? []).filter((week) => week.type === type))
+        const weeksWithGames = segmentWeeks
+          .map((week) => ({ week, games: gamesByWeek.get(week.id) ?? [] }))
+          .filter((entry) => entry.games.length > 0)
+        if (weeksWithGames.length === 0) continue
+
+        if (type === 'regular') {
+          for (const { week, games: weekGames } of weeksWithGames) {
+            pages.push({
+              widthPx: EXPORT_WEEK_WIDTH,
+              node: (
+                <ExportPage
+                  key={week.id}
+                  title={weekLabel(week)}
+                  subtitle={SEGMENT_LABEL[type]}
+                  widthPx={EXPORT_WEEK_WIDTH}
+                >
+                  <ExportWeekBlock week={week} games={weekGames} results={resultsByGame} teamName={teamName} density="spacious" />
+                </ExportPage>
+              ),
+            })
+          }
+          continue
+        }
+
+        const totalGames = weeksWithGames.reduce((sum, entry) => sum + entry.games.length, 0)
+        pages.push({
+          widthPx: EXPORT_SEGMENT_WIDTH,
+          node: (
+            <ExportPage
+              key={type}
+              title={SEGMENT_LABEL[type]}
+              subtitle={`${totalGames} ${totalGames === 1 ? 'partido' : 'partidos'}`}
+              widthPx={EXPORT_SEGMENT_WIDTH}
+            >
+              {weeksWithGames.map(({ week, games: weekGames }) => (
+                <ExportWeekBlock
+                  key={week.id}
+                  week={week}
+                  games={weekGames}
+                  results={resultsByGame}
+                  teamName={teamName}
+                  density={weeksWithGames.length > 1 ? 'compact' : 'spacious'}
+                />
+              ))}
+            </ExportPage>
+          ),
+        })
+      }
+
+      if (pages.length === 0) return
+      await downloadPagesAsPdf(pages, 'calendario-nfl-temporada.pdf')
     } catch (err) {
-      console.error('No se pudo generar la imagen del calendario', err)
+      console.error('No se pudo generar el PDF del calendario', err)
     } finally {
       setDownloadingAll(false)
     }
@@ -293,7 +354,7 @@ export function CalendarPage() {
             disabled={downloadingAll}
           >
             <Icon name="download" size={16} />
-            {downloadingAll ? 'Generando...' : 'Descargar calendario'}
+            {downloadingAll ? 'Generando PDF...' : 'Descargar PDF'}
           </button>
         )}
       </div>
@@ -315,28 +376,26 @@ export function CalendarPage() {
         </div>
       )}
 
-      <div ref={calendarRef}>
-        {segments.map((type) => (
-          <div key={type} id={segmentAnchor(type)} className={styles.segment}>
-            <h2 className={`text-display-sm ${styles.segmentTitle}`}>
-              <span className={`${styles.dot} ${SEGMENT_ACCENT[type]}`} aria-hidden="true" />
-              {SEGMENT_LABEL[type]}
-            </h2>
-            <div className={styles.weekGrid}>
-              {sortByNumber((weeks ?? []).filter((week) => week.type === type)).map((week) => (
-                <WeekCard
-                  key={week.id}
-                  week={week}
-                  games={gamesByWeek.get(week.id) ?? []}
-                  teamName={teamName}
-                  resultsByGame={resultsByGame}
-                  nowMs={nowMs}
-                />
-              ))}
-            </div>
+      {segments.map((type) => (
+        <div key={type} id={segmentAnchor(type)} className={styles.segment}>
+          <h2 className={`text-display-sm ${styles.segmentTitle}`}>
+            <span className={`${styles.dot} ${SEGMENT_ACCENT[type]}`} aria-hidden="true" />
+            {SEGMENT_LABEL[type]}
+          </h2>
+          <div className={styles.weekGrid}>
+            {sortByNumber((weeks ?? []).filter((week) => week.type === type)).map((week) => (
+              <WeekCard
+                key={week.id}
+                week={week}
+                games={gamesByWeek.get(week.id) ?? []}
+                teamName={teamName}
+                resultsByGame={resultsByGame}
+                nowMs={nowMs}
+              />
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </section>
   )
 }

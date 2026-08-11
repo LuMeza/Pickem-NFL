@@ -1,0 +1,205 @@
+/*
+ * Layout dedicado a exportacion (PNG por semana / paginas del PDF completo):
+ * a diferencia de las tarjetas en pantalla (compactas, pensadas para scroll)
+ * este componente se renderiza fuera de pantalla a un ancho fijo y se
+ * rasteriza con html-to-image — evita backdrop-filter (no se traduce bien al
+ * capturar) y usa fondos solidos + bordes en vez de vidrio.
+ */
+.page {
+  position: relative;
+  box-sizing: border-box;
+  padding: 40px 44px 28px;
+  background-color: var(--bg-base);
+  background-image:
+    radial-gradient(500px circle at 10% -10%, rgba(200, 255, 61, 0.1), transparent 60%),
+    radial-gradient(420px circle at 100% 0%, rgba(242, 183, 5, 0.09), transparent 55%);
+  background-repeat: no-repeat;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
+
+.topBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--accent-lime), var(--accent-gold));
+}
+
+.pageHeader {
+  margin-top: 22px;
+  margin-bottom: 26px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-lime);
+  margin-bottom: 14px;
+}
+
+.pageTitle {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 42px;
+  margin: 0;
+}
+
+.pageSubtitle {
+  margin: 6px 0 0;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.pageBody {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.weekBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.weekBlockTitle {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 22px;
+  color: var(--accent-gold);
+  margin: 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.weekBlockTitleCompact {
+  font-size: 16px;
+  padding-bottom: 4px;
+}
+
+.dayGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dayHeading {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 6px 4px 4px;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 60px 1fr 60px 1fr;
+  align-items: center;
+  column-gap: 12px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.rowCompact {
+  grid-template-columns: 44px 1fr 46px 1fr;
+  column-gap: 8px;
+  padding: 5px 4px;
+}
+
+.rowTime {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.rowCompact .rowTime {
+  font-size: 10px;
+}
+
+.rowTeam {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.rowCompact .rowTeam {
+  gap: 6px;
+}
+
+.rowTeamName {
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rowCompact .rowTeamName {
+  font-size: 10.5px;
+}
+
+.rowScore {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.rowScoreFinal {
+  font-size: 15px;
+  color: var(--accent-lime);
+}
+
+.rowCompact .rowScore {
+  font-size: 11px;
+}
+
+.rowCompact .rowScoreFinal {
+  font-size: 12px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--bg-surface);
+  padding: 3px;
+  overflow: hidden;
+}
+
+.badgeImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pageFooter {
+  margin-top: 30px;
+  padding-top: 14px;
+  border-top: 1px solid var(--glass-border);
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
