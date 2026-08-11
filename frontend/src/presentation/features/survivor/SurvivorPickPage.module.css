@@ -48,7 +48,7 @@
 
 .deadlineBanner {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   margin: 16px 0 0;
   padding: 12px 16px;
@@ -57,6 +57,7 @@
   background: rgba(200, 255, 61, 0.06);
   color: var(--text-primary);
   font-size: 13px;
+  line-height: 1.5;
 }
 
 .deadlineBanner strong {
@@ -64,8 +65,9 @@
   color: var(--accent-lime);
 }
 
-.deadlineBanner svg {
+.deadlineIcon {
   flex-shrink: 0;
+  margin-top: 2px;
   color: var(--accent-lime);
 }
 

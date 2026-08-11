@@ -175,8 +175,11 @@ export function SurvivorPickPage() {
         <>
           {deadlineLabel && (
             <p className={styles.deadlineBanner} role="status">
-              <Icon name="calendar" size={14} /> Todavía no elegiste equipo esta semana — te quedan{' '}
-              <strong>{deadlineLabel}</strong> antes de que empiece el primer partido de la semana.
+              <Icon name="calendar" size={14} className={styles.deadlineIcon} />
+              <span>
+                Todavía no elegiste equipo esta semana — te quedan <strong>{deadlineLabel}</strong> antes de que
+                empiece el primer partido de la semana.
+              </span>
             </p>
           )}
           {!currentPick && pickWindowClosed && (
