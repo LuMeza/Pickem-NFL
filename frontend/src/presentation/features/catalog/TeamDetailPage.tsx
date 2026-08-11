@@ -134,6 +134,19 @@ export function TeamDetailPage() {
     return `${isHome ? 'Recibe a' : 'Visita a'} ${opponentName} · ${formatKickoff(nextGame.kickoffAt)}`
   }, [nextGame, teamId, teamNameById])
 
+  /** Ventana entre el kickoff y el resultado cargado (ver getGameLiveStatus) — mientras dura, se prioriza sobre el "proximo partido" en vez de saltarselo de largo. */
+  const liveGame = useMemo(() => {
+    if (!teamId) return null
+    const now = new Date(nowMs)
+    return (games ?? []).find((game) => getGameLiveStatus(game, resultsByGame.get(game.id) ?? null, now) === 'live') ?? null
+  }, [games, resultsByGame, nowMs, teamId])
+  const liveGameLabel = useMemo(() => {
+    if (!liveGame || !teamId) return null
+    const isHome = liveGame.homeTeamId === teamId
+    const opponentId = isHome ? liveGame.awayTeamId : liveGame.homeTeamId
+    return `${isHome ? 'Recibe a' : 'Visita a'} ${teamNameById.get(opponentId) ?? opponentId}`
+  }, [liveGame, teamId, teamNameById])
+
   if (!teamId) return null
 
   return (
@@ -162,11 +175,18 @@ export function TeamDetailPage() {
             </div>
           </div>
         </div>
-        {nextGameLabel && (
-          <div className={styles.heroNextGame}>
-            <Icon name="calendar" size={13} />
-            {nextGameLabel}
+        {liveGameLabel ? (
+          <div className={`${styles.heroNextGame} ${styles.heroLive}`}>
+            <span className={styles.liveDot} aria-hidden="true" />
+            En vivo · {liveGameLabel}
           </div>
+        ) : (
+          nextGameLabel && (
+            <div className={styles.heroNextGame}>
+              <Icon name="calendar" size={13} />
+              {nextGameLabel}
+            </div>
+          )
         )}
       </div>
 
