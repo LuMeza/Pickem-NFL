@@ -153,13 +153,13 @@ function GameProposal({
           {
             id: 'home',
             label: teamName(game.homeTeamId),
-            logo: <TeamBadge teamId={game.homeTeamId} size="md" background="subtle" />,
+            logo: <TeamBadge teamId={game.homeTeamId} size="md" />,
           },
           { id: 'tie', label: 'Empate' },
           {
             id: 'away',
             label: teamName(game.awayTeamId),
-            logo: <TeamBadge teamId={game.awayTeamId} size="md" background="subtle" />,
+            logo: <TeamBadge teamId={game.awayTeamId} size="md" />,
           },
         ]}
       />
