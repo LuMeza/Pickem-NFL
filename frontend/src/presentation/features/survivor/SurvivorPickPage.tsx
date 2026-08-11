@@ -9,7 +9,7 @@ import { useGetSurvivorCurrentWeek } from '@/presentation/hooks/useGetSurvivorCu
 import { useRequestSurvivorLife } from '@/presentation/hooks/useRequestSurvivorLife'
 import { useCountdown } from '@/presentation/hooks/useCountdown'
 import type { SurvivorLife } from '@/core/entities/survivor'
-import { isPredictionLocked } from '@/core/rules/isPredictionLocked'
+import { isWeekAccessLocked } from '@/core/rules/isWeekAccessLocked'
 import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { Icon } from '@/presentation/components/Icon/Icon'
@@ -24,14 +24,13 @@ import styles from './SurvivorPickPage.module.css'
 interface TeamOption {
   teamId: string
   name: string
-  game: Game
 }
 
 function teamOptionsForWeek(games: Game[], teamName: (id: string) => string): TeamOption[] {
   const options: TeamOption[] = []
   for (const game of games) {
-    options.push({ teamId: game.homeTeamId, name: teamName(game.homeTeamId), game })
-    options.push({ teamId: game.awayTeamId, name: teamName(game.awayTeamId), game })
+    options.push({ teamId: game.homeTeamId, name: teamName(game.homeTeamId) })
+    options.push({ teamId: game.awayTeamId, name: teamName(game.awayTeamId) })
   }
   return [...options].sort((a, b) => a.name.localeCompare(b.name, 'es'))
 }
@@ -82,12 +81,14 @@ export function SurvivorPickPage() {
   const usedTeamIds = new Set((myPicks ?? []).map((pick) => pick.teamId))
   const currentPick = (myPicks ?? []).find((pick) => pick.weekId === weekId) ?? null
 
-  // Última ventana para elegir: el kickoff mas tardio de la semana (el ultimo
-  // partido en jugarse), no el primero — el usuario todavia puede elegir un
-  // equipo cuyo partido no haya iniciado aunque otros de la semana ya vayan.
+  // La seleccion de Survivor cierra para toda la semana en el kickoff mas
+  // temprano (el primer partido), no partido por partido — evita elegir un
+  // equipo de un partido tardio despues de ver resultados de partidos
+  // anteriores de la misma semana. Mismo criterio que weekly_access.
+  const pickWindowClosed = isWeekAccessLocked(games ?? [], new Date())
   const pickDeadline =
-    games && games.length > 0 ? new Date(Math.max(...games.map((game) => game.kickoffAt.getTime()))) : null
-  const showDeadlineCountdown = !currentPick && pickDeadline !== null && pickDeadline.getTime() > Date.now()
+    games && games.length > 0 ? new Date(Math.min(...games.map((game) => game.kickoffAt.getTime()))) : null
+  const showDeadlineCountdown = !currentPick && !pickWindowClosed && pickDeadline !== null
   const deadlineLabel = useCountdown(showDeadlineCountdown ? pickDeadline : null)
 
   async function handlePick(teamId: string) {
@@ -175,7 +176,12 @@ export function SurvivorPickPage() {
           {deadlineLabel && (
             <p className={styles.deadlineBanner} role="status">
               <Icon name="calendar" size={14} /> Todavía no elegiste equipo esta semana — te quedan{' '}
-              <strong>{deadlineLabel}</strong> antes de que cierre el último partido.
+              <strong>{deadlineLabel}</strong> antes de que empiece el primer partido de la semana.
+            </p>
+          )}
+          {!currentPick && pickWindowClosed && (
+            <p className="text-body-sm text-muted">
+              Ya cerró la selección de esta semana — no llegaste a elegir equipo.
             </p>
           )}
           {lifeRequestPending && (
@@ -211,11 +217,10 @@ export function SurvivorPickPage() {
           )}
 
           <div className={styles.grid}>
-            {options.map(({ teamId, name, game }) => {
+            {options.map(({ teamId, name }) => {
               const usedElsewhere = usedTeamIds.has(teamId) && currentPick?.teamId !== teamId
               const isSelected = currentPick?.teamId === teamId
-              const locked = isPredictionLocked(game, new Date())
-              const disabled = usedElsewhere || locked || saveStatus === 'pending'
+              const disabled = usedElsewhere || pickWindowClosed || saveStatus === 'pending'
 
               return (
                 <button
@@ -230,7 +235,7 @@ export function SurvivorPickPage() {
                   <TeamBadge teamId={teamId} size="md" />
                   <span className={styles.teamName}>{name}</span>
                   {usedElsewhere && <span className={styles.tag}>Ya usado</span>}
-                  {!usedElsewhere && locked && <span className={styles.tag}>Cerrado</span>}
+                  {!usedElsewhere && pickWindowClosed && <span className={styles.tag}>Cerrado</span>}
                 </button>
               )
             })}

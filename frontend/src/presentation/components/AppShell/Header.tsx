@@ -22,7 +22,7 @@ export function Header({ groupName, weekLabel, countdownTo, onSignOut }: HeaderP
     <header className={styles.header}>
       <Link to="/" className={styles.brand}>
         <Logo size={26} />
-        Pickem NFL
+        <span className={styles.brandText}>Pickem NFL</span>
       </Link>
       {(groupName || weekLabel) && (
         <div className={styles.context}>

@@ -3,9 +3,10 @@
   top: 0;
   z-index: 10;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px 12px;
   padding: 10px 16px;
   background: var(--glass-bg);
   backdrop-filter: blur(16px);
@@ -17,6 +18,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
   font-family: var(--font-display);
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -24,6 +26,14 @@
   color: var(--text-primary);
   text-decoration: none;
   white-space: nowrap;
+}
+
+/* En pantallas muy angostas el countdown con dias+milisegundos ya no entra
+   junto al wordmark completo — se esconde el texto y queda solo el isotipo. */
+@media (max-width: 420px) {
+  .brandText {
+    display: none;
+  }
 }
 
 .context {
@@ -42,6 +52,7 @@
 }
 
 .countdown {
+  flex-shrink: 0;
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   font-size: 15px;
@@ -52,6 +63,13 @@
   border-radius: 6px;
   padding: 3px 8px;
   white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .countdown {
+    font-size: 13px;
+    padding: 3px 6px;
+  }
 }
 
 @media (min-width: 768px) {

@@ -1,16 +1,30 @@
 import { useEffect, useState } from 'react'
 
-function formatCountdown(msRemaining: number): string {
-  if (msRemaining <= 0) return '00:00:00'
-  const totalSeconds = Math.floor(msRemaining / 1000)
-  const hours = Math.floor(totalSeconds / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  const seconds = totalSeconds % 60
-  const pad = (n: number) => n.toString().padStart(2, '0')
-  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+const MS_PER_DAY = 86_400_000
+const MS_PER_HOUR = 3_600_000
+const MS_PER_MINUTE = 60_000
+const MS_PER_SECOND = 1000
+
+// 30ms (~33 actualizaciones/seg) alcanza para que los milisegundos se vean
+// "vivos" sin recalcular/renderizar en cada frame (16ms).
+const TICK_MS = 30
+
+function pad(value: number, size = 2): string {
+  return value.toString().padStart(size, '0')
 }
 
-/** Cuenta regresiva HH:MM:SS del header (tarea 2.3). */
+function formatCountdown(msRemaining: number): string {
+  const clamped = Math.max(msRemaining, 0)
+  const days = Math.floor(clamped / MS_PER_DAY)
+  const hours = Math.floor((clamped % MS_PER_DAY) / MS_PER_HOUR)
+  const minutes = Math.floor((clamped % MS_PER_HOUR) / MS_PER_MINUTE)
+  const seconds = Math.floor((clamped % MS_PER_MINUTE) / MS_PER_SECOND)
+  const milliseconds = Math.floor(clamped % MS_PER_SECOND)
+  const time = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(milliseconds, 3)}`
+  return days > 0 ? `${days}d ${time}` : time
+}
+
+/** Cuenta regresiva d HH:MM:SS.mmm, compartida por el header y Survivor (tarea 2.3). */
 export function useCountdown(target: Date | null): string | null {
   const [label, setLabel] = useState<string | null>(target ? formatCountdown(target.getTime() - Date.now()) : null)
 
@@ -22,7 +36,7 @@ export function useCountdown(target: Date | null): string | null {
     setLabel(formatCountdown(target.getTime() - Date.now()))
     const intervalId = setInterval(() => {
       setLabel(formatCountdown(target.getTime() - Date.now()))
-    }, 1000)
+    }, TICK_MS)
     return () => clearInterval(intervalId)
   }, [target])
 
