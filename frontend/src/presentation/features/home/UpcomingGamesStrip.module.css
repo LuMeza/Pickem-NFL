@@ -15,6 +15,9 @@
   display: flex;
   gap: 12px;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 2px;
   padding: 2px 2px 10px;
   scrollbar-width: none;
 }
@@ -33,6 +36,8 @@
   text-decoration: none;
   color: inherit;
   overflow: hidden;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 /* Barra superior con los colores de marca de cada equipo — reemplaza el
