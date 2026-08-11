@@ -31,6 +31,7 @@ export function AdminUsersPage() {
   const [userToDelete, setUserToDelete] = useState<AdminUserSummary | null>(null)
   const [adminToRevoke, setAdminToRevoke] = useState<AdminUserSummary | null>(null)
   const [actioningUserId, setActioningUserId] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     loadUsers()
@@ -95,6 +96,19 @@ export function AdminUsersPage() {
     }
   }
 
+  const sortedUsers = users
+    ? [...users].sort((a, b) => a.displayName.localeCompare(b.displayName, 'es', { sensitivity: 'base' }))
+    : null
+
+  const normalizedSearch = search.trim().toLowerCase()
+  const visibleUsers = sortedUsers
+    ? sortedUsers.filter(
+        (user) =>
+          user.displayName.toLowerCase().includes(normalizedSearch) ||
+          user.email.toLowerCase().includes(normalizedSearch),
+      )
+    : null
+
   return (
     <section>
       <div className={styles.header}>
@@ -117,6 +131,22 @@ export function AdminUsersPage() {
       {users && users.length === 0 && <EmptyState message={EMPTY_STATE_COPY.groupWithoutMembers} />}
 
       {users && users.length > 0 && (
+        <label className={styles.searchBox}>
+          <Icon name="search" size={16} />
+          <input
+            type="search"
+            placeholder="Buscar por nombre o correo..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </label>
+      )}
+
+      {visibleUsers && visibleUsers.length === 0 && users && users.length > 0 && (
+        <p className="text-body-sm text-muted">Ningún usuario coincide con "{search}".</p>
+      )}
+
+      {visibleUsers && visibleUsers.length > 0 && (
         <div className={`${tableStyles.panel} ${tableStyles.tableScroll}`}>
           <table className={tableStyles.table}>
             <thead>
@@ -128,7 +158,7 @@ export function AdminUsersPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
+              {visibleUsers.map((user) => (
                 <tr key={user.userId}>
                   <td>{user.displayName}</td>
                   <td>{user.email}</td>
