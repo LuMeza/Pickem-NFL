@@ -150,9 +150,17 @@ function GameProposal({
         pickedAccent={pickedAccent}
         onSelect={(optionId) => onPick(game.id, optionId as WeeklyPickValue)}
         options={[
-          { id: 'home', label: teamName(game.homeTeamId), logo: <TeamBadge teamId={game.homeTeamId} size="sm" /> },
+          {
+            id: 'home',
+            label: teamName(game.homeTeamId),
+            logo: <TeamBadge teamId={game.homeTeamId} size="md" background="subtle" />,
+          },
           { id: 'tie', label: 'Empate' },
-          { id: 'away', label: teamName(game.awayTeamId), logo: <TeamBadge teamId={game.awayTeamId} size="sm" /> },
+          {
+            id: 'away',
+            label: teamName(game.awayTeamId),
+            logo: <TeamBadge teamId={game.awayTeamId} size="md" background="subtle" />,
+          },
         ]}
       />
       {saveFailed && (
