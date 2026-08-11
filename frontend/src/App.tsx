@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AppLayout } from '@/presentation/components/AppLayout'
+import { ScrollToTop } from '@/presentation/components/ScrollToTop'
 import { RequireAuth } from '@/presentation/components/RequireAuth'
 import { RequireActiveSession } from '@/presentation/components/RequireActiveSession'
 import { RequireAdmin } from '@/presentation/components/RequireAdmin'
@@ -40,6 +41,7 @@ import { AdminUserPicksPage } from '@/presentation/features/admin/AdminUserPicks
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useGetWeeklyAccessStatus } from '@/presentation/hooks/useGetWeeklyAccessStatus'
 import { useRequestWeeklyAccess } from '@/presentation/hooks/useRequestWeeklyAccess'
@@ -82,6 +82,13 @@ export function RequestWeeklyAccessPage() {
                 <button type="button" onClick={handleRequest} disabled={requestStatus === 'pending'}>
                   {requestStatus === 'pending' ? 'Enviando...' : 'Volver a solicitar'}
                 </button>
+              </span>
+            ) : accessStatus === 'aprobado' ? (
+              <span className={styles.actions}>
+                <span className={`${styles.badge} ${BADGE_CLASS[accessStatus]}`}>{BADGE_LABEL[accessStatus]}</span>
+                <Link to={`/weeks/${weekId}/games`} className={styles.pickCta}>
+                  Ver partidos y picks
+                </Link>
               </span>
             ) : accessStatus ? (
               <span className={`${styles.badge} ${BADGE_CLASS[accessStatus]}`}>{BADGE_LABEL[accessStatus]}</span>
