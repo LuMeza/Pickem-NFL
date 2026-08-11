@@ -7,6 +7,10 @@ import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import styles from './TeamsPage.module.css'
 
+function teamMascot(name: string): string {
+  return name.split(' ').pop() ?? name
+}
+
 function groupByDivision(teams: Team[]) {
   return DIVISION_ORDER.map(({ conference, division }) => ({
     conference,
@@ -36,16 +40,16 @@ export function TeamsPage() {
       {error && <p role="alert">No se pudieron cargar los equipos.</p>}
       <div className={styles.divisionGrid}>
         {groups.map((group) => (
-          <div key={`${group.conference}-${group.division}`} className={styles.divisionCard}>
+          <div key={`${group.conference}-${group.division}`} className={`${styles.divisionCard} glass-surface`}>
             <h2 className={styles.divisionTitle}>
               {group.conference} {group.division}
             </h2>
             <ul className={styles.divisionList}>
               {group.teams.map((team) => (
                 <li key={team.id}>
-                  <Link to={`/teams/${team.id}`} className={styles.teamRow}>
-                    <TeamBadge teamId={team.id} size="sm" />
-                    <span className={styles.name}>{team.name}</span>
+                  <Link to={`/teams/${team.id}`} className={styles.teamRow} title={team.name}>
+                    <TeamBadge teamId={team.id} size="md" />
+                    <span className={styles.name}>{teamMascot(team.name)}</span>
                   </Link>
                 </li>
               ))}
