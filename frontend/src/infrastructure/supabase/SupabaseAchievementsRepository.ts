@@ -1,6 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { AchievementsRepository } from '@/core/ports/AchievementsRepository'
-import type { Achievement, AchievementScope, ProfilePickemSummary } from '@/core/entities/achievement'
+import type {
+  Achievement,
+  AchievementScope,
+  ProfilePickemSummary,
+  ProfileWeeklyTrendPoint,
+} from '@/core/entities/achievement'
 
 interface AchievementRow {
   id: string
@@ -10,6 +15,14 @@ interface AchievementRow {
 }
 
 interface ProfilePickemSummaryRow {
+  total_correct: number | string
+  total_picked: number | string
+}
+
+interface ProfileWeeklyTrendRow {
+  week_sort_order: number
+  week_type: 'pretemporada' | 'regular' | 'playoffs'
+  week_number: number
   total_correct: number | string
   total_picked: number | string
 }
@@ -51,5 +64,19 @@ export class SupabaseAchievementsRepository implements AchievementsRepository {
     if (error) throw error
     const row = (data?.[0] ?? { total_correct: 0, total_picked: 0 }) as ProfilePickemSummaryRow
     return { totalCorrect: Number(row.total_correct), totalPicked: Number(row.total_picked) }
+  }
+
+  async getProfileWeeklyTrend(userId: string): Promise<ProfileWeeklyTrendPoint[]> {
+    const { data, error } = await this.client.rpc('profile_pickem_weekly_trend', { p_user_id: userId })
+    if (error) throw error
+    return ((data ?? []) as ProfileWeeklyTrendRow[])
+      .map((row) => ({
+        weekSortOrder: row.week_sort_order,
+        weekType: row.week_type,
+        weekNumber: row.week_number,
+        totalCorrect: Number(row.total_correct),
+        totalPicked: Number(row.total_picked),
+      }))
+      .sort((a, b) => a.weekSortOrder - b.weekSortOrder)
   }
 }

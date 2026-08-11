@@ -113,6 +113,12 @@ const PATHS = {
       <path d="M10 11v6M14 11v6" />
     </>
   ),
+  trendUp: (
+    <>
+      <path d="M3 17l6-6 4 4 8-8" />
+      <path d="M15 6h6v6" />
+    </>
+  ),
 } as const
 
 export type IconName = keyof typeof PATHS

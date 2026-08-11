@@ -2,11 +2,13 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useUpdateDisplayName } from '@/presentation/hooks/useUpdateDisplayName'
 import { useGetProfileStats } from '@/presentation/hooks/useGetProfileStats'
+import { useGetProfileWeeklyTrend } from '@/presentation/hooks/useGetProfileWeeklyTrend'
 import { useListUserAchievements } from '@/presentation/hooks/useListUserAchievements'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { ActionCard } from '@/presentation/components/ActionCard/ActionCard'
 import { AchievementBadge } from '@/presentation/components/AchievementBadge/AchievementBadge'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
+import { WeeklyTrendChart } from './WeeklyTrendChart'
 import styles from './ProfilePage.module.css'
 
 function getInitials(name: string): string {
@@ -22,18 +24,31 @@ export function ProfilePage() {
   const { status, data: profile, error, reload: reloadProfile } = useSession().profile
   const { status: saveStatus, run: saveDisplayName } = useUpdateDisplayName()
   const { status: statsStatus, data: stats, run: loadStats } = useGetProfileStats()
+  const { status: trendStatus, data: trend, run: loadTrend } = useGetProfileWeeklyTrend()
   const { status: achievementsStatus, data: achievements, run: loadAchievements } = useListUserAchievements()
   const [displayName, setDisplayName] = useState('')
+  const [editingName, setEditingName] = useState(false)
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     loadStats()
+    loadTrend()
     loadAchievements()
-  }, [loadStats, loadAchievements])
+  }, [loadStats, loadTrend, loadAchievements])
 
   useEffect(() => {
     if (profile) setDisplayName(profile.displayName)
   }, [profile])
+
+  function startEditingName() {
+    setSaved(false)
+    setEditingName(true)
+  }
+
+  function cancelEditingName() {
+    if (profile) setDisplayName(profile.displayName)
+    setEditingName(false)
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -41,6 +56,7 @@ export function ProfilePage() {
     await saveDisplayName({ displayName })
     reloadProfile()
     setSaved(true)
+    setEditingName(false)
   }
 
   if (status === 'idle' || status === 'pending') return <LoadingSpinner label="Cargando perfil" />
@@ -48,6 +64,7 @@ export function ProfilePage() {
 
   const hasStats = statsStatus === 'success' && stats !== null && stats.totalPicked > 0
   const accuracy = hasStats && stats ? Math.round((stats.totalCorrect / stats.totalPicked) * 100) : null
+  const hasTrend = trendStatus === 'success' && trend !== null && trend.length > 0
 
   return (
     <section>
@@ -57,10 +74,44 @@ export function ProfilePage() {
       <h1 className="text-display-md">Mi perfil</h1>
 
       <div className={`${styles.hero} glass-surface`}>
-        <span className={styles.avatar}>{getInitials(profile.displayName || profile.email)}</span>
+        <span className={styles.avatarRing}>
+          <span className={styles.avatar}>{getInitials(profile.displayName || profile.email)}</span>
+        </span>
         <div className={styles.heroBody}>
-          <p className={styles.heroName}>{profile.displayName}</p>
+          {editingName ? (
+            <form className={styles.nameForm} onSubmit={handleSubmit}>
+              <input
+                className={styles.nameInput}
+                value={displayName}
+                onChange={(event) => setDisplayName(event.target.value)}
+                aria-label="Nombre visible"
+                autoFocus
+                required
+              />
+              <button type="submit" className={styles.nameSaveButton} disabled={saveStatus === 'pending'}>
+                {saveStatus === 'pending' ? 'Guardando...' : 'Guardar'}
+              </button>
+              <button type="button" className="button-secondary" onClick={cancelEditingName}>
+                Cancelar
+              </button>
+            </form>
+          ) : (
+            <p className={styles.heroName}>
+              {profile.displayName}
+              <button
+                type="button"
+                className={styles.editNameButton}
+                aria-label="Editar nombre visible"
+                onClick={startEditingName}
+              >
+                <Icon name="edit" size={14} />
+              </button>
+            </p>
+          )}
           <p className={`${styles.heroEmail} text-body-sm text-muted`}>{profile.email}</p>
+          {saved && saveStatus === 'success' && !editingName && (
+            <p className={`${styles.savedHint} text-body-sm`}>Nombre actualizado.</p>
+          )}
         </div>
 
         {hasStats && stats ? (
@@ -81,18 +132,20 @@ export function ProfilePage() {
         ) : null}
       </div>
 
-      <div className="glass-surface" style={{ padding: 24, marginTop: 16, maxWidth: 420 }}>
-        <form onSubmit={handleSubmit}>
-          <label>
-            Nombre visible
-            <input value={displayName} onChange={(event) => setDisplayName(event.target.value)} required />
-          </label>
-          <button type="submit" disabled={saveStatus === 'pending'}>
-            {saveStatus === 'pending' ? 'Guardando...' : 'Guardar'}
-          </button>
-        </form>
-        {saved && saveStatus === 'success' && <p>Nombre actualizado.</p>}
-      </div>
+      <h2 className={`text-display-sm ${styles.sectionTitle}`}>
+        <Icon name="trendUp" size={20} className={styles.sectionIcon} /> Tendencia reciente
+      </h2>
+      {trendStatus === 'idle' || trendStatus === 'pending' ? (
+        <LoadingSpinner variant="inline" label="Cargando tendencia" />
+      ) : trendStatus === 'error' ? (
+        <p role="alert">No pudimos cargar tu tendencia reciente.</p>
+      ) : hasTrend && trend ? (
+        <div className={`${styles.trendCard} glass-surface`}>
+          <WeeklyTrendChart points={trend} />
+        </div>
+      ) : (
+        <p className="text-body-sm text-muted">Todavía no hay semanas con resultados para mostrar tu tendencia.</p>
+      )}
 
       <h2 className={`text-display-sm ${styles.sectionTitle}`}>
         <Icon name="trophy" size={20} className={styles.sectionIcon} /> Logros

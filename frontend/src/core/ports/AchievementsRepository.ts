@@ -1,4 +1,4 @@
-import type { Achievement, ProfilePickemSummary } from '@/core/entities/achievement'
+import type { Achievement, ProfilePickemSummary, ProfileWeeklyTrendPoint } from '@/core/entities/achievement'
 
 /**
  * Catálogo de logros y su desbloqueo por usuario — ver
@@ -16,4 +16,6 @@ export interface AchievementsRepository {
   syncMyAchievements(): Promise<void>
   /** Aciertos totales/partidos con resultado, transversal a todos los grupos del usuario. Solo propio o admin. */
   getProfilePickemSummary(userId: string): Promise<ProfilePickemSummary>
+  /** Aciertos por semana (ultimas semanas con datos), para el grafico de tendencia del perfil. Solo propio o admin. */
+  getProfileWeeklyTrend(userId: string): Promise<ProfileWeeklyTrendPoint[]>
 }

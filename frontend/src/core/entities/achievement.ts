@@ -15,3 +15,11 @@ export interface ProfilePickemSummary {
   totalCorrect: number
   totalPicked: number
 }
+
+export interface ProfileWeeklyTrendPoint {
+  weekSortOrder: number
+  weekType: 'pretemporada' | 'regular' | 'playoffs'
+  weekNumber: number
+  totalCorrect: number
+  totalPicked: number
+}

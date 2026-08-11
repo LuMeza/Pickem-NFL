@@ -8,18 +8,26 @@
   max-width: 640px;
 }
 
-.avatar {
+.avatarRing {
   flex-shrink: 0;
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
+  padding: 2px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-lime), var(--accent-gold));
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
   font-size: 22px;
-  color: var(--bg-base);
-  background: var(--accent-lime);
+  color: var(--text-primary);
+  background: var(--bg-surface);
 }
 
 .heroBody {
@@ -27,11 +35,57 @@
 }
 
 .heroName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--font-display);
   font-size: 20px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.editNameButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  min-height: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.editNameButton:hover {
+  color: var(--accent-lime);
+  border-color: var(--accent-lime);
+}
+
+.nameForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.nameInput {
+  min-width: 160px;
+  min-height: 36px;
+  padding: 4px 10px;
+}
+
+.nameSaveButton {
+  min-height: 36px;
+  padding: 4px 14px;
+}
+
+.savedHint {
+  margin-top: 2px;
+  color: var(--accent-lime);
 }
 
 .heroEmail {
@@ -71,6 +125,12 @@
 .statsEmpty {
   margin-left: auto;
   max-width: 220px;
+}
+
+.trendCard {
+  max-width: 640px;
+  padding: 20px 24px 16px;
+  margin-top: 16px;
 }
 
 .sectionTitle {
