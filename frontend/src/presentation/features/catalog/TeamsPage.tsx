@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import type { Team } from '@/core/entities/catalog'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
+import { getReadableAccent } from '@/presentation/components/TeamBadge/teamColors'
 import { DIVISION_ORDER, getTeamDivision } from '@/presentation/components/TeamBadge/teamDivisions'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
@@ -31,6 +32,16 @@ function normalize(value: string): string {
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
+}
+
+function TeamTile({ team }: { team: Team }) {
+  const accent = getReadableAccent(team.id)
+  return (
+    <Link to={`/teams/${team.id}`} className={styles.teamTile} style={{ '--team-accent': accent } as CSSProperties} title={team.name}>
+      <TeamBadge teamId={team.id} size="lg" />
+      <span className={styles.name}>{teamMascot(team.name)}</span>
+    </Link>
+  )
 }
 
 /** Tarea 6.1 (base-plataforma): listado de equipos NFL agrupados por division. */
@@ -71,20 +82,15 @@ export function TeamsPage() {
 
       <div className={styles.divisionGrid}>
         {groups.map((group) => (
-          <div key={`${group.conference}-${group.division}`} className={`${styles.divisionCard} glass-surface`}>
+          <div key={`${group.conference}-${group.division}`} className={styles.divisionSection}>
             <h2 className={styles.divisionTitle}>
               {group.conference} {group.division}
             </h2>
-            <ul className={styles.divisionList}>
+            <div className={styles.teamGrid}>
               {group.teams.map((team) => (
-                <li key={team.id}>
-                  <Link to={`/teams/${team.id}`} className={styles.teamRow} title={team.name}>
-                    <TeamBadge teamId={team.id} size="md" />
-                    <span className={styles.name}>{teamMascot(team.name)}</span>
-                  </Link>
-                </li>
+                <TeamTile key={team.id} team={team} />
               ))}
-            </ul>
+            </div>
           </div>
         ))}
       </div>
