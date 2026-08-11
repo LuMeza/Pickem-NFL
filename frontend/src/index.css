@@ -166,6 +166,16 @@ textarea {
   color: inherit;
 }
 
+/* iOS Safari hace zoom automatico (y no lo revierte) al enfocar un campo con
+   font-size menor a 16px — como los inputs viven casi siempre dentro de un
+   <label> (14px, ver mas abajo), heredaban ese tamaño y disparaban el zoom.
+   Se fija un piso de 16px sin importar el contexto donde esten anidados. */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
 /* Controles base: objetivo tactil mínimo 44x44px (spec accesibilidad). */
 button {
   min-height: var(--touch-target-min);
