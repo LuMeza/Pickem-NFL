@@ -70,6 +70,8 @@ interface ExistingGameRow {
   away_team_id: string
   espn_event_id: string | null
   result_source: string | null
+  home_score: number | null
+  away_score: number | null
 }
 
 Deno.serve(async (req: Request) => {
@@ -121,7 +123,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: existingGames, error: existingError } = await adminClient
       .from('games')
-      .select('id, home_team_id, away_team_id, espn_event_id, result_source')
+      .select('id, home_team_id, away_team_id, espn_event_id, result_source, home_score, away_score')
       .eq('week_id', week.id)
     if (existingError) {
       summary.errors.push(`Semana ${week.type} ${week.number}: no se pudieron leer partidos existentes (${existingError.message})`)
@@ -193,7 +195,14 @@ Deno.serve(async (req: Request) => {
       }
 
       const isManual = existing.result_source === 'manual'
-      if (!isManual && parsed.completed && parsed.homeScore !== null && parsed.awayScore !== null) {
+      const missingScore = existing.home_score === null || existing.away_score === null
+      // Si el resultado ya es manual pero le falta el marcador (el admin solo
+      // cargó el ganador), igual se intenta el update: el trigger
+      // games_manual_precedence conserva outcome/home_score/away_score que ya
+      // existan y solo rellena lo que esté en null, sin perder la carga
+      // manual. Si es manual y ya tiene marcador completo, no hay nada que
+      // rellenar y se omite para no generar un write innecesario.
+      if ((!isManual || missingScore) && parsed.completed && parsed.homeScore !== null && parsed.awayScore !== null) {
         resultUpdates.push({
           id: existing.id,
           outcome: classifyOutcome(parsed.homeScore, parsed.awayScore),
@@ -218,8 +227,10 @@ Deno.serve(async (req: Request) => {
 
     for (const update of resultUpdates) {
       // La precedencia de la carga manual la impone el trigger
-      // games_manual_precedence (base-plataforma) — este UPDATE es un
-      // no-op silencioso si el resultado ya fue cargado a mano.
+      // games_manual_precedence (base-plataforma): si el partido ya es
+      // manual, este UPDATE solo rellena los campos que estén en null
+      // (típicamente el marcador cuando el admin solo cargó el ganador) y
+      // conserva el resto tal cual quedó cargado a mano.
       const { error: updateError } = await adminClient
         .from('games')
         .update({

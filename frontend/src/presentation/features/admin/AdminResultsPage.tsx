@@ -112,8 +112,9 @@ function GameResultForm({
       </div>
       {(homeScore === '' || awayScore === '') && (
         <p className="text-body-sm text-muted">
-          Sin marcador, el resultado ya cuenta para la tabla de posiciones pero los jugadores seguirán viendo el
-          partido como "en vivo" o "cerrado" en vez de "Final".
+          Sin marcador, el resultado ya cuenta para la tabla de posiciones, pero los jugadores seguirán viendo el
+          partido como "en vivo" o "cerrado" en vez de "Final" hasta que la sincronización automática con ESPN
+          complete el marcador (corre cada 15 minutos).
         </p>
       )}
 
