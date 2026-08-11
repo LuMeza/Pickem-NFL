@@ -15,7 +15,7 @@ import type { WeeklyPickValue } from '@/core/ports/WeeklyPickRepository'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
-import { getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
+import { getReadableAccent } from '@/presentation/components/TeamBadge/teamColors'
 import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
 import { PredictionCard, type PredictionCardStatus } from '@/presentation/components/PredictionCard/PredictionCard'
 import { Icon } from '@/presentation/components/Icon/Icon'
@@ -102,9 +102,9 @@ function GameProposal({
   const urgent = status === 'picked' && game.kickoffAt.getTime() - nowMs < URGENT_THRESHOLD_MS
   const pickedAccent =
     pickedValue === 'home'
-      ? getTeamColors(game.homeTeamId).primary
+      ? getReadableAccent(game.homeTeamId)
       : pickedValue === 'away'
-        ? getTeamColors(game.awayTeamId).primary
+        ? getReadableAccent(game.awayTeamId)
         : undefined
 
   const kickoffLabel = game.kickoffAt.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })

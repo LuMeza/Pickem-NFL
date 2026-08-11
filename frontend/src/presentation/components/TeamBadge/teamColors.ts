@@ -47,3 +47,45 @@ const FALLBACK_COLORS: TeamColors = { primary: '#141B23', secondary: '#8A97A6' }
 export function getTeamColors(teamId: string): TeamColors {
   return TEAM_COLORS[teamId] ?? FALLBACK_COLORS
 }
+
+function hexToRgb(hex: string): [number, number, number] {
+  const value = hex.replace('#', '')
+  return [parseInt(value.slice(0, 2), 16), parseInt(value.slice(2, 4), 16), parseInt(value.slice(4, 6), 16)]
+}
+
+function relativeLuminance([r, g, b]: [number, number, number]): number {
+  const channel = (c: number) => {
+    const s = c / 255
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+  }
+  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
+}
+
+export function contrastTextColor(bgHex: string): string {
+  return relativeLuminance(hexToRgb(bgHex)) > 0.35 ? '#0B0F14' : '#F4F6F8'
+}
+
+function lighten(hex: string, amount: number): string {
+  const [r, g, b] = hexToRgb(hex)
+  const mix = (c: number) => Math.round(c + (255 - c) * amount)
+  return `#${[mix(r), mix(g), mix(b)].map((v) => v.toString(16).padStart(2, '0')).join('')}`
+}
+
+const MIN_TEXT_LUMINANCE = 0.18
+
+/**
+ * Color de marca ajustado para usarse como TEXTO sobre el fondo oscuro de
+ * la app (pick elegido, ver Cancha Nocturna) — a diferencia de
+ * `getTeamColors(...).primary`, que es el color de marca "puro" y sirve
+ * bien para logos/gradientes pero varios equipos (Patriots, Bears, Cowboys,
+ * Raiders...) lo tienen casi negro, ilegible como texto sobre una UI ya de
+ * por si oscura. Si el primario no alcanza una luminancia minima legible,
+ * prueba el secundario; si tampoco alcanza, aclara el primario mezclandolo
+ * con blanco (conserva el tono de marca en vez de caer a un lima generico).
+ */
+export function getReadableAccent(teamId: string): string {
+  const { primary, secondary } = getTeamColors(teamId)
+  if (relativeLuminance(hexToRgb(primary)) >= MIN_TEXT_LUMINANCE) return primary
+  if (relativeLuminance(hexToRgb(secondary)) >= MIN_TEXT_LUMINANCE) return secondary
+  return lighten(primary, 0.55)
+}
