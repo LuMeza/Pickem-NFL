@@ -13,6 +13,12 @@
   --accent-lime: #c8ff3d;
   --accent-gold: #f2b705;
   --danger: #ff5468;
+  /* Disponibilidad de jugador (plantilla) — separados de --accent-lime y
+     --accent-gold (muy saturados, pensados para acentos puntuales) porque
+     estos se repiten como texto/badge en cada card. */
+  --status-active: #34d399;
+  --status-questionable: #fbbf24;
+  --status-injured: var(--danger);
   --text-primary: #f4f6f8;
   /* Verificado (tarea 5.2): --text-muted sobre --bg-surface da ~5.83:1,
      por encima del mínimo AA (4.5:1) para texto normal. Sobre glass-bg el

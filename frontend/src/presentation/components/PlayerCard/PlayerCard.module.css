@@ -7,6 +7,11 @@
   cursor: pointer;
 }
 
+.playerPhotoWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .playerCard {
     animation: playerCardIn 220ms ease-out backwards;
@@ -38,30 +43,35 @@
   color: var(--text-muted);
 }
 
-.availabilityDot {
-  width: 7px;
-  height: 7px;
+/* Punto sobre la foto (estilo "status dot" de Slack/Discord) — solo se
+   renderiza para Cuestionable/Lesionado (ver availabilityFor en el .tsx):
+   mostrar "Activo" en cada card de la grilla sería ruido, el punto solo
+   debe llamar la atención sobre las excepciones que importan para armar
+   picks. El anillo (`border`) lo "recorta" del recorte circular de la
+   foto en vez de quedar pegado sin separación. */
+.availabilityBadge {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 12px;
+  height: 12px;
   border-radius: 999px;
-  flex-shrink: 0;
+  border: 2px solid var(--bg-surface);
   background: currentColor;
 }
 
-/* Solo `color` — las clases de tono se usan tanto en el punto (que toma el
-   color como `background: currentColor`) como en el texto de "Disponibilidad"
-   en el preview/modal. Verde/ámbar propios en vez de --accent-lime/
-   --accent-gold: esos tokens son un lima y un dorado muy saturados, pensados
-   para acentos puntuales (glow de icono, gradiente de héroe), no para texto
-   repetido en cada card. */
+/* `color` para el punto (via currentColor) y para el texto de
+   "Disponibilidad" en el preview/modal. */
 .toneActive {
-  color: #34d399;
+  color: var(--status-active);
 }
 
 .toneQuestionable {
-  color: #fbbf24;
+  color: var(--status-questionable);
 }
 
 .toneInjured {
-  color: var(--danger);
+  color: var(--status-injured);
 }
 
 /* Preview de hover: se monta via portal a document.body (ver PlayerCard.tsx)

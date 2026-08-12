@@ -124,18 +124,17 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
           setModalOpen(true)
         }}
       >
-        <PlayerPhoto playerId={player.id} jerseyNumber={player.jerseyNumber} />
+        <span className={styles.playerPhotoWrap}>
+          <PlayerPhoto playerId={player.id} jerseyNumber={player.jerseyNumber} />
+          {availability && availability.tone !== 'active' && (
+            <span className={`${styles.availabilityBadge} ${styles[TONE_CLASS[availability.tone]]}`} title={availability.label} />
+          )}
+        </span>
         <span className={styles.playerName}>{player.fullName}</span>
         <span className={styles.playerMeta}>
           {player.jerseyNumber ? `#${player.jerseyNumber}` : ''}{' '}
           <span title={positionLabel ?? undefined}>{player.position ?? ''}</span>
         </span>
-        {availability && (
-          <span
-            className={`${styles.availabilityDot} ${styles[TONE_CLASS[availability.tone]]}`}
-            title={availability.label}
-          />
-        )}
       </div>
 
       {previewPos &&

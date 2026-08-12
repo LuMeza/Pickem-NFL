@@ -338,6 +338,48 @@
   border-color: var(--accent-lime);
 }
 
+/* Chips de disponibilidad: color por tono via --chip-tone (inline style,
+   ver TeamDetailPage.tsx) en vez de una clase por cada tono — mismo valor
+   que ya usa el badge de PlayerCard (--status-questionable/--status-injured).
+   Inactivo: solo el punto lleva color, para no competir visualmente con los
+   chips de unidad. Activo: fondo/borde tintados, igual criterio que
+   unitChipActive pero con el color del tono en vez de --accent-lime fijo. */
+.availabilityChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: auto;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  transition:
+    color 150ms ease-out,
+    border-color 150ms ease-out,
+    background 150ms ease-out;
+}
+
+.availabilityChip:hover {
+  color: var(--text-primary);
+}
+
+.availabilityChipDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--chip-tone);
+  flex-shrink: 0;
+}
+
+.availabilityChipActive {
+  color: var(--chip-tone);
+  background: color-mix(in srgb, var(--chip-tone) 16%, transparent);
+  border-color: color-mix(in srgb, var(--chip-tone) 45%, transparent);
+}
+
 .playerGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

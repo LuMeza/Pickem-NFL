@@ -11,7 +11,7 @@ const LONG_TERM_INJURED_STATUSES = new Set(['Injured Reserve', 'PUP', 'Suspended
 /** Designaciones semanales (`injuryStatus`, valores reales confirmados contra site.web.api.espn.com/.../injuries) que se muestran como "Lesionado". */
 const WEEKLY_INJURED_STATUSES = new Set(['Out', 'IR', 'Suspension'])
 
-/** Designaciones semanales que se muestran como "En veremos". */
+/** Designaciones semanales que se muestran como "Cuestionable". */
 const WEEKLY_QUESTIONABLE_STATUSES = new Set(['Questionable', 'Doubtful'])
 
 /**
@@ -32,7 +32,7 @@ export function getAvailability(player: { status: string | null; injuryStatus: s
     return { tone: 'injured', label: 'Lesionado' }
   }
   if (player.injuryStatus && WEEKLY_QUESTIONABLE_STATUSES.has(player.injuryStatus)) {
-    return { tone: 'questionable', label: 'En veremos' }
+    return { tone: 'questionable', label: 'Cuestionable' }
   }
   return { tone: 'active', label: 'Activo' }
 }

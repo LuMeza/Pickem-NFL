@@ -11,6 +11,7 @@ import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { getReadableAccent, getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
 import { getTeamDivision } from '@/presentation/components/TeamBadge/teamDivisions'
 import { PlayerCard } from '@/presentation/components/PlayerCard/PlayerCard'
+import { getAvailability, type AvailabilityTone } from '@/presentation/features/catalog/playerAvailability'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
 import { Icon } from '@/presentation/components/Icon/Icon'
@@ -61,6 +62,20 @@ function unitKeyOf(unit: string | null): UnitKey {
   return unit === 'offense' || unit === 'defense' || unit === 'specialTeam' ? unit : 'unclassified'
 }
 
+// Solo las excepciones son filtrables por disponibilidad — "Activo" es la
+// mayoría de cualquier plantilla, filtrar por eso no ayuda a nada; lo útil
+// es poder aislar rápido a quién le falta confirmar si juega o no.
+type AvailabilityFilter = Exclude<AvailabilityTone, 'active'>
+const AVAILABILITY_FILTER_ORDER: AvailabilityFilter[] = ['questionable', 'injured']
+const AVAILABILITY_FILTER_LABEL: Record<AvailabilityFilter, string> = {
+  questionable: 'Cuestionable',
+  injured: 'Lesionado',
+}
+const AVAILABILITY_FILTER_CSS_VAR: Record<AvailabilityFilter, string> = {
+  questionable: 'var(--status-questionable)',
+  injured: 'var(--status-injured)',
+}
+
 // Rango Unicode U+0300-U+036F (marcas diacriticas combinantes) que separa
 // `normalize('NFD')` de una vocal con acento — se quitan para que la
 // busqueda encuentre "Jose" al escribir "jose" sin tilde.
@@ -84,6 +99,7 @@ export function TeamDetailPage() {
   const [tab, setTab] = useState<Tab>('calendario')
   const [playerQuery, setPlayerQuery] = useState('')
   const [unitFilter, setUnitFilter] = useState<UnitKey | 'all'>('all')
+  const [availabilityFilter, setAvailabilityFilter] = useState<AvailabilityFilter | 'all'>('all')
   const { teams: teamsResource, weeks: weeksResource } = useSession()
   const { data: teams } = teamsResource
   const { data: weeks } = weeksResource
@@ -122,10 +138,18 @@ export function TeamDetailPage() {
     () => UNIT_ORDER.filter((unit) => (players ?? []).some((player) => unitKeyOf(player.unit) === unit)),
     [players],
   )
-  const visiblePlayers = useMemo(
-    () => (unitFilter === 'all' ? filteredPlayers : filteredPlayers.filter((player) => unitKeyOf(player.unit) === unitFilter)),
-    [filteredPlayers, unitFilter],
+  const presentAvailabilityFilters = useMemo(
+    () =>
+      AVAILABILITY_FILTER_ORDER.filter((tone) => (players ?? []).some((player) => getAvailability(player).tone === tone)),
+    [players],
   )
+  const visiblePlayers = useMemo(() => {
+    let result = unitFilter === 'all' ? filteredPlayers : filteredPlayers.filter((player) => unitKeyOf(player.unit) === unitFilter)
+    if (availabilityFilter !== 'all') {
+      result = result.filter((player) => getAvailability(player).tone === availabilityFilter)
+    }
+    return result
+  }, [filteredPlayers, unitFilter, availabilityFilter])
   const nextGameLabel = useMemo(() => {
     if (!nextGame || !teamId) return null
     const isHome = nextGame.homeTeamId === teamId
@@ -317,6 +341,25 @@ export function TeamDetailPage() {
                   </button>
                 ))}
               </div>
+
+              {presentAvailabilityFilters.length > 0 && (
+                <div className={styles.unitChips} role="tablist" aria-label="Filtrar por disponibilidad">
+                  {presentAvailabilityFilters.map((tone) => (
+                    <button
+                      key={tone}
+                      type="button"
+                      role="tab"
+                      aria-selected={availabilityFilter === tone}
+                      className={`${styles.availabilityChip} ${availabilityFilter === tone ? styles.availabilityChipActive : ''}`}
+                      style={{ '--chip-tone': AVAILABILITY_FILTER_CSS_VAR[tone] } as CSSProperties}
+                      onClick={() => setAvailabilityFilter(availabilityFilter === tone ? 'all' : tone)}
+                    >
+                      <span className={styles.availabilityChipDot} />
+                      {AVAILABILITY_FILTER_LABEL[tone]}
+                    </button>
+                  ))}
+                </div>
+              )}
             </>
           )}
           {players && players.length > 0 && visiblePlayers.length === 0 && (
