@@ -60,6 +60,16 @@
   line-height: 1.5;
 }
 
+.deadlineText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.deadlineText p {
+  margin: 0;
+}
+
 .deadlineBanner strong {
   font-family: var(--font-mono);
   color: var(--accent-lime);

@@ -174,13 +174,15 @@ export function SurvivorPickPage() {
       {isRegularWeek && !isWeekLocked && !isEliminated && !needsLifeRequest && (
         <>
           {deadlineLabel && (
-            <p className={styles.deadlineBanner} role="status">
+            <div className={styles.deadlineBanner} role="status">
               <Icon name="calendar" size={14} className={styles.deadlineIcon} />
-              <span>
-                Todavía no elegiste equipo esta semana — te quedan <strong>{deadlineLabel}</strong> antes de que
-                empiece el primer partido de la semana.
-              </span>
-            </p>
+              <div className={styles.deadlineText}>
+                <p>Todavía no elegiste equipo esta semana.</p>
+                <p>
+                  Te quedan <strong>{deadlineLabel}</strong> antes de que empiece el primer partido.
+                </p>
+              </div>
+            </div>
           )}
           {!currentPick && pickWindowClosed && (
             <p className="text-body-sm text-muted">
