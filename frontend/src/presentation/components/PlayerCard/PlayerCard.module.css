@@ -43,24 +43,24 @@
   height: 7px;
   border-radius: 999px;
   flex-shrink: 0;
+  background: currentColor;
 }
 
-/* Verde/ámbar propios en vez de --accent-lime/--accent-gold: esos tokens
-   son un lima y un dorado muy saturados, pensados para acentos puntuales
-   (glow de icono, gradiente de héroe) — como color de texto repetido en
-   cada card ("Activo") se veían mal / poco legibles. */
+/* Solo `color` — las clases de tono se usan tanto en el punto (que toma el
+   color como `background: currentColor`) como en el texto de "Disponibilidad"
+   en el preview/modal. Verde/ámbar propios en vez de --accent-lime/
+   --accent-gold: esos tokens son un lima y un dorado muy saturados, pensados
+   para acentos puntuales (glow de icono, gradiente de héroe), no para texto
+   repetido en cada card. */
 .toneActive {
-  background: #34d399;
   color: #34d399;
 }
 
 .toneQuestionable {
-  background: #fbbf24;
   color: #fbbf24;
 }
 
 .toneInjured {
-  background: var(--danger);
   color: var(--danger);
 }
 
