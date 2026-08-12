@@ -38,3 +38,16 @@
 ## 5. Guardrails de producto
 
 - [x] 5.1 Revisión de copys: sin menciones a pago, cobro de cuota o premio en efectivo en pantallas de acceso, predicción o tabla
+
+## 6. Cambios posteriores (2026-08-12)
+
+> Las secciones 1-5 documentan lo construido originalmente (2026-07-19).
+> Estas tareas se agregaron después, sobre el módulo ya en producción — ver
+> `proposal.md`, `design.md` y las specs para el detalle de cada cambio.
+
+- [x] 6.1 Eliminar por completo la capability `acceso-semanal-pickem`: dropear tabla `weekly_access`, quitar el requisito de aprobación de `can_pick_game`, y su UI de solicitud/aprobación (`20260812000000_remove_weekly_access_approval.sql`)
+- [x] 6.2 Migrar `can_view_pickem_tables` y demás funciones que leían `weekly_access` para que usen `weekly_picks` como fuente de "quién participa" (`20260812000001_fix_pickem_functions_after_weekly_access_removal.sql`)
+- [x] 6.3 (Revertido por 6.4) Cambiar el bloqueo de predicción de "por partido" a "toda la semana junta en el kickoff más temprano" (`20260812000002_fix_weekly_pick_locks_at_week_kickoff.sql`)
+- [x] 6.4 Cambiar de nuevo el bloqueo a dos bloques de días por semana (entre semana / fin de semana, huso `America/New_York`) — `weekly_pick_group_deadline` + `can_pick_game` (`20260812000003_weekly_pick_locks_by_day_block.sql`), espejado en `frontend/src/core/rules/weeklyPickGroupDeadline.ts`, `GamesPage.tsx`, `HomePage.tsx`
+- [x] 6.5 Header (`AppLayout.tsx`): mostrar la cuenta regresiva al próximo cierre de bloque que corresponda, no solo al primer kickoff de la semana
+- [x] 6.6 Guía de usuario en PDF (`doc/guia-pickem-semanal.pdf`) con capturas reales del flujo de picks, actualizada en cada cambio de regla

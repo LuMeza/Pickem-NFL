@@ -45,10 +45,27 @@ implementación, no de spec).
 (que ya soporta empate según `base-plataforma`). Un acierto = `pick` coincide
 exactamente con el resultado oficial.
 
-**4. Bloqueo de edición basado en `games.kickoff_at`**
-Una predicción es editable mientras `now() < games.kickoff_at`. Se aplica tanto en
-el cliente (UX) como en una policy/constraint de base de datos (fuente de verdad),
-para que no dependa solo de la UI.
+**4. Bloqueo de edición por bloque de días de la semana (actualizado 2026-08-12)**
+Decisión original (2026-07-19): una predicción era editable mientras
+`now() < games.kickoff_at` de ese partido puntual. Se reemplazó dos veces:
+
+- Primero (`20260812000002_fix_weekly_pick_locks_at_week_kickoff.sql`) por un
+  cierre de toda la semana junta en el kickoff del partido más temprano de la
+  semana — igual criterio que ya usaba Survivor
+  (`public.week_kickoff_started`).
+- Luego, por cambio de criterio de producto
+  (`20260812000003_weekly_pick_locks_by_day_block.sql`), por el esquema
+  vigente: cada semana se divide en dos bloques de días — "entre semana"
+  (cualquier día que no sea sábado/domingo/lunes) y "fin de semana"
+  (sábado/domingo/lunes) — y cada bloque cierra por separado, en el kickoff
+  de su propio partido más temprano. El día se calcula en `America/New_York`
+  (huso de la NFL), no en UTC ni en el huso del usuario, para que un Monday
+  Night que cruza medianoche UTC no se clasifique como martes.
+
+Fuente de verdad: función `public.weekly_pick_group_deadline(week_id,
+kickoff_at)` + `public.can_pick_game`, aplicada tanto en la policy/constraint
+de base de datos como en el cliente (`frontend/src/core/rules/weeklyPickGroupDeadline.ts`)
+para dar feedback inmediato sin depender solo de la UI.
 
 **5. Cierre automático = dejar de aceptar predicciones para semanas de tipo
 `playoffs`**
@@ -65,24 +82,23 @@ Se calcula ordenando la tabla acumulada; si hay empate en el primer puesto, la
 capability expone esa lista de usuarios empatados tal cual, sin lógica de
 desempate (coincide con el requerimiento).
 
-**7. Acceso semanal con tabla propia `weekly_access`, no `module_access`**
-`base-plataforma` define `module_access` con grano `(group_id, user_id, module)`
-— un estado por temporada. Para la Pickem Semanal ese grano no alcanza: el
-producto requiere decidir semana a semana quién entra. Se introduce una tabla
+**7. Acceso semanal con tabla propia `weekly_access` — ELIMINADA el 2026-08-12**
+Decisión original (2026-07-19): `base-plataforma` define `module_access` con
+grano `(group_id, user_id, module)` — un estado por temporada. Para la Pickem
+Semanal ese grano no alcanzaba, así que se introdujo una tabla propia
 `weekly_access` (`group_id`, `user_id`, `week_id`, `status`
-`solicitado | aprobado | rechazado`, timestamps), mismo patrón de estados que
-`module_access` pero con `week_id` en vez de `module`. Este módulo no genera
-filas en `module_access` (a diferencia de lo previsto originalmente en
-`base-plataforma`, que lo mencionaba como ejemplo de uso genérico); Survivor y
-Playoffs sí pueden seguir usando `module_access` sin cambios.
+`solicitado | aprobado | rechazado`) para que el administrador aprobara el
+acceso semana a semana, normalmente después de confirmar el pago del pozo
+fuera de la plataforma.
 
-- Corte de solicitud/aprobación: una solicitud solo puede crearse o resolverse
-  mientras `now() < kickoff` del primer partido (por `kickoff_at`) de esa
-  semana — mismo criterio que ya bloquea la edición de predicciones (decisión 4).
-- El acceso de una semana no se hereda de la anterior: cada semana parte sin
-  fila en `weekly_access` hasta que el usuario solicita.
-- Las predicciones (`weekly_picks`) de una semana requieren `weekly_access`
-  en estado `aprobado` para esa misma semana (no un estado global del módulo).
+En la práctica esa aprobación no aportaba control real (el cobro ya se
+verificaba fuera de la plataforma) y era pura fricción operativa para el
+administrador. Se eliminó por completo
+(`supabase/migrations/20260812000000_remove_weekly_access_approval.sql`): la
+tabla `weekly_access` se dropeó, y cualquier miembro del grupo puede
+registrar picks libremente. Ver capability `acceso-semanal-pickem`
+(`## REMOVED Requirements`) y decisión 4 (bloqueo por bloque de días) para el
+único criterio de corte que sigue vigente.
 
 **8. Tablas de posiciones vía funciones SQL `SECURITY DEFINER`, con
 visibilidad guardada en `pickem_settings`**
@@ -92,15 +108,22 @@ todos los usuarios del grupo. En vez de relajar esa policy, se agregan
 funciones `SECURITY DEFINER` (`pickem_weekly_standings`,
 `pickem_season_standings`) que reimplementan el control de acceso
 internamente (`can_view_pickem_tables`): visible para `platform_admins`,
-para cualquier usuario con `weekly_access` aprobado alguna vez en el grupo, o
-para todos si el administrador lo habilita explícitamente. Ese flag se guarda
-en una tabla nueva, `pickem_settings` (`group_id` primary key,
+para cualquier usuario que registró al menos un pick alguna vez en el grupo,
+o para todos si el administrador lo habilita explícitamente. Ese flag se
+guarda en una tabla, `pickem_settings` (`group_id` primary key,
 `tables_visible_to_all boolean default false`) — un registro de configuración
-por grupo, análogo a como `module_access`/`weekly_access` registran estado por
-usuario. Si la función determina que el llamante no puede ver las tablas,
+por grupo. Si la función determina que el llamante no puede ver las tablas,
 devuelve cero filas (no un error); el cliente distingue "no visible" de "sin
-resultados todavía" con una función auxiliar (`can_view_pickem_tables_for_group`)
-invocable directo por RPC.
+resultados todavía" con una función auxiliar
+(`can_view_pickem_tables_for_group`) invocable directo por RPC.
+
+> Actualizado 2026-08-12
+> (`supabase/migrations/20260812000001_fix_pickem_functions_after_weekly_access_removal.sql`):
+> el criterio original de `can_view_pickem_tables` era "tuvo `weekly_access`
+> aprobado alguna vez"; al eliminarse esa tabla (decisión 7), la nueva fuente
+> de verdad de "participa en el grupo" es directamente `weekly_picks` — "hizo
+> al menos un pick alguna vez" — sin cambiar el resto del contrato de la
+> función.
 
 ## Risks / Trade-offs
 
@@ -112,9 +135,10 @@ invocable directo por RPC.
   `kickoff_at` manualmente si un partido se reprograma antes de que inicie.
 - [Aprobar acceso semana a semana implica trabajo manual recurrente del
   administrador durante toda la temporada, a diferencia de una aprobación única
-  por módulo] → Aceptado explícitamente como decisión de producto; el admin ya
-  administra la aprobación por módulo genérica, así que la pantalla se reutiliza
-  con el mismo patrón, solo repetida por semana.
+  por módulo] → Este riesgo se concretó: en la práctica era pura fricción sin
+  control real (el pago ya se verificaba fuera de la plataforma). Resuelto
+  eliminando el requisito de aprobación por completo el 2026-08-12 (ver
+  decisión 7), en vez de optimizar el flujo de aprobación.
 
 ## Migration Plan
 
