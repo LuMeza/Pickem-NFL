@@ -12,7 +12,7 @@ import { useGetProfileStats } from '@/presentation/hooks/useGetProfileStats'
 import { useListUserAchievements } from '@/presentation/hooks/useListUserAchievements'
 import { pickDefaultWeek } from '@/core/rules/pickDefaultWeek'
 import { resolveTiedRanking } from '@/core/rules/resolveTiedRanking'
-import { isWeekAccessLocked } from '@/core/rules/isWeekAccessLocked'
+import { isWeeklyPickLocked } from '@/core/rules/weeklyPickGroupDeadline'
 import { weekLabel } from '@/presentation/features/pickem/weekLabel'
 import { UpcomingGamesStrip } from './UpcomingGamesStrip'
 import styles from './HomePage.module.css'
@@ -72,8 +72,8 @@ export function HomePage() {
 
   const pendingPicksCount = useMemo(() => {
     if (!activeWeek || activeWeek.type === 'playoffs' || !weekGames || !weeklyPicks) return null
-    if (isWeekAccessLocked(weekGames, new Date())) return 0
-    return weekGames.filter((game) => !(game.id in weeklyPicks)).length
+    const now = new Date()
+    return weekGames.filter((game) => !isWeeklyPickLocked(weekGames, game, now) && !(game.id in weeklyPicks)).length
   }, [activeWeek, weekGames, weeklyPicks])
 
   const showPicksTile = activeWeek != null && activeWeek.type !== 'playoffs'
