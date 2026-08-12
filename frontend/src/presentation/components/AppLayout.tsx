@@ -5,7 +5,7 @@ import { useCheckPlatformAdmin } from '@/presentation/hooks/useCheckPlatformAdmi
 import { SessionProvider } from '@/presentation/hooks/SessionProvider'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { pickDefaultWeek } from '@/core/rules/pickDefaultWeek'
-import { isWeekAccessLocked } from '@/core/rules/isWeekAccessLocked'
+import { weeklyPickGroupDeadline } from '@/core/rules/weeklyPickGroupDeadline'
 import { weekLabel as formatWeekLabel } from '@/presentation/features/pickem/weekLabel'
 import { AppShell } from '@/presentation/components/AppShell/AppShell'
 import type { NavItem } from '@/presentation/components/AppShell/NavBar'
@@ -45,11 +45,22 @@ function AuthenticatedShell() {
     return pickDefaultWeek(weeks.data, games.data ?? [], new Date())
   }, [weeks.data, games.data])
 
+  // La Pickem Semanal cierra en dos bloques por semana (entre semana y fin de
+  // semana, ver core/rules/weeklyPickGroupDeadline) — el header muestra la
+  // cuenta regresiva al proximo cierre que todavia no paso, no solo al
+  // primer kickoff de la semana. Survivor tiene su propio countdown en su
+  // pagina (SurvivorPickPage), asi que este reloj compartido puede seguir el
+  // criterio de la Pickem Semanal sin desinformar a los jugadores de Survivor.
   const countdownTo = useMemo(() => {
     if (!activeWeek || !games.data) return null
     const gamesInWeek = games.data.filter((game) => game.weekId === activeWeek.id)
-    if (gamesInWeek.length === 0 || isWeekAccessLocked(gamesInWeek, new Date())) return null
-    return new Date(Math.min(...gamesInWeek.map((game) => game.kickoffAt.getTime())))
+    if (gamesInWeek.length === 0) return null
+    const now = Date.now()
+    const upcomingDeadlines = gamesInWeek
+      .map((game) => weeklyPickGroupDeadline(gamesInWeek, game.kickoffAt))
+      .filter((deadline): deadline is Date => deadline !== null && deadline.getTime() > now)
+    if (upcomingDeadlines.length === 0) return null
+    return new Date(Math.min(...upcomingDeadlines.map((deadline) => deadline.getTime())))
   }, [activeWeek, games.data])
 
   return (
