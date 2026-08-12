@@ -6,7 +6,7 @@ import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGa
 import { useListWeeklyPicksForWeek } from '@/presentation/hooks/useListWeeklyPicksForWeek'
 import { useSaveWeeklyPick } from '@/presentation/hooks/useSaveWeeklyPick'
 import { useNow } from '@/presentation/hooks/useNow'
-import { isPredictionLocked } from '@/core/rules/isPredictionLocked'
+import { isWeekAccessLocked } from '@/core/rules/isWeekAccessLocked'
 import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
 import type { Game } from '@/core/entities/catalog'
 import type { GameResult } from '@/core/entities/gameResult'
@@ -62,6 +62,8 @@ function GameProposal({
   teamName,
   nowMs,
   canPredict,
+  weekLocked,
+  weekDeadlineMs,
   pickedValue,
   result,
   saveFailed,
@@ -71,6 +73,8 @@ function GameProposal({
   teamName: (id: string) => string
   nowMs: number
   canPredict: boolean
+  weekLocked: boolean
+  weekDeadlineMs: number | null
   pickedValue: WeeklyPickValue | null
   result: GameResult | null
   saveFailed: boolean
@@ -79,8 +83,7 @@ function GameProposal({
   const liveStatus = getGameLiveStatus(game, result, new Date(nowMs))
   const hasResult = liveStatus === 'final'
   const isLive = liveStatus === 'live'
-  const kickoffPassed = isPredictionLocked(game, new Date(nowMs))
-  const locked = kickoffPassed || !canPredict
+  const locked = weekLocked || !canPredict
 
   let status: PredictionCardStatus
   let correct: boolean | undefined
@@ -98,7 +101,7 @@ function GameProposal({
   } else {
     status = 'unpicked'
   }
-  const urgent = status === 'picked' && game.kickoffAt.getTime() - nowMs < URGENT_THRESHOLD_MS
+  const urgent = status === 'picked' && weekDeadlineMs !== null && weekDeadlineMs - nowMs < URGENT_THRESHOLD_MS
   const pickedAccent =
     pickedValue === 'home'
       ? getReadableAccent(game.homeTeamId)
@@ -111,7 +114,7 @@ function GameProposal({
     ? `Final · ${outcomeLabel(result!, game, teamName)}`
     : isLive
       ? 'En vivo'
-      : kickoffPassed
+      : weekLocked
         ? 'Cerrado'
         : 'Abierto'
   const pillClass = hasResult ? styles.resultDone : isLive ? styles.resultLive : styles.resultPending
@@ -176,6 +179,8 @@ function DayGroupSection({
   teamName,
   nowMs,
   canPredict,
+  weekLocked,
+  weekDeadlineMs,
   picks,
   resultsByGame,
   failedGameId,
@@ -185,6 +190,8 @@ function DayGroupSection({
   teamName: (id: string) => string
   nowMs: number
   canPredict: boolean
+  weekLocked: boolean
+  weekDeadlineMs: number | null
   picks: Record<string, WeeklyPickValue>
   resultsByGame: Map<string, GameResult>
   failedGameId: string | null
@@ -210,6 +217,8 @@ function DayGroupSection({
             teamName={teamName}
             nowMs={nowMs}
             canPredict={canPredict}
+            weekLocked={weekLocked}
+            weekDeadlineMs={weekDeadlineMs}
             pickedValue={picks[game.id] ?? null}
             result={resultsByGame.get(game.id) ?? null}
             saveFailed={failedGameId === game.id}
@@ -264,6 +273,11 @@ export function GamesPage() {
   const activeWeek = weeks?.find((week) => week.id === weekId)
   const isPlayoffsWeek = activeWeek?.type === 'playoffs'
   const canPredict = !isPlayoffsWeek
+  // El cierre de picks aplica a toda la semana en el kickoff del primer partido,
+  // no partido por partido (ver public.week_kickoff_started / isWeekAccessLocked).
+  const weekLocked = isWeekAccessLocked(games ?? [], new Date(nowMs))
+  const weekDeadlineMs =
+    games && games.length > 0 ? Math.min(...games.map((game) => game.kickoffAt.getTime())) : null
 
   async function handlePick(gameId: string, pick: WeeklyPickValue) {
     if (!group || !profile || !canPredict) return
@@ -305,6 +319,8 @@ export function GamesPage() {
             teamName={teamName}
             nowMs={nowMs}
             canPredict={canPredict}
+            weekLocked={weekLocked}
+            weekDeadlineMs={weekDeadlineMs}
             picks={picks}
             resultsByGame={resultsByGame}
             failedGameId={failedGameId}
