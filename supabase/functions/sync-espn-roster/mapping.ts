@@ -73,8 +73,16 @@ export function parseEspnRoster(response: EspnRosterResponse): ParsedPlayer[] {
   return players
 }
 
+export interface EspnInjuryAthleteLink {
+  href?: string
+}
+
+// El objeto `athlete` del reporte de lesiones no trae un id plano — hay que
+// sacarlo de la URL de la player card, ej.
+// "https://www.espn.com/nfl/player/_/id/4870808/jeremiyah-love" (confirmado
+// contra la respuesta real de site.web.api.espn.com/.../injuries).
 export interface EspnInjuryAthleteRef {
-  id?: string
+  links?: EspnInjuryAthleteLink[]
 }
 
 export interface EspnInjuryDetail {
@@ -102,16 +110,27 @@ export interface ParsedInjury {
   injuryDetail: string | null
 }
 
-/** Aplana el reporte de lesiones (agrupado por equipo) en una lista por atleta, descartando entradas sin id o sin status (defensivo ante respuestas parciales de ESPN). */
+const ATHLETE_ID_FROM_LINK = /\/id\/(\d+)\//
+
+function athleteIdFrom(athlete: EspnInjuryAthleteRef | undefined): string | null {
+  for (const link of athlete?.links ?? []) {
+    const match = link.href?.match(ATHLETE_ID_FROM_LINK)
+    if (match) return match[1]
+  }
+  return null
+}
+
+/** Aplana el reporte de lesiones (agrupado por equipo) en una lista por atleta, descartando entradas sin id (extraído de los links de la player card) o sin status (defensivo ante respuestas parciales de ESPN). */
 export function parseEspnInjuryReport(response: EspnInjuryReportResponse): ParsedInjury[] {
   const injuries: ParsedInjury[] = []
 
   for (const team of response.injuries ?? []) {
     for (const entry of team.injuries ?? []) {
-      if (!entry.athlete?.id || !entry.status) continue
+      const espnAthleteId = athleteIdFrom(entry.athlete)
+      if (!espnAthleteId || !entry.status) continue
 
       injuries.push({
-        espnAthleteId: entry.athlete.id,
+        espnAthleteId,
         injuryStatus: entry.status,
         injuryDetail: entry.details?.type ?? entry.details?.detail ?? null,
       })

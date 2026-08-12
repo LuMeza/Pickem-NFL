@@ -99,18 +99,23 @@ describe('parseEspnRoster', () => {
   })
 })
 
+/** El athlete del injury report no trae id plano — solo la URL de su player card, ej. "https://www.espn.com/nfl/player/_/id/4870808/jeremiyah-love" (shape real confirmado contra site.web.api.espn.com/.../injuries). */
+function athleteLink(id: string) {
+  return { links: [{ href: `https://www.espn.com/nfl/player/_/id/${id}/some-player` }] }
+}
+
 describe('parseEspnInjuryReport', () => {
-  it('aplana el reporte agrupado por equipo en una lista por atleta', () => {
+  it('aplana el reporte agrupado por equipo en una lista por atleta, extrayendo el id del link de la player card', () => {
     const response: EspnInjuryReportResponse = {
       injuries: [
         {
           injuries: [
-            { athlete: { id: '1' }, status: 'Questionable', details: { type: 'Ankle' } },
-            { athlete: { id: '2' }, status: 'Out', details: { type: 'Knee' } },
+            { athlete: athleteLink('1'), status: 'Questionable', details: { type: 'Ankle' } },
+            { athlete: athleteLink('2'), status: 'Out', details: { type: 'Knee' } },
           ],
         },
         {
-          injuries: [{ athlete: { id: '3' }, status: 'Doubtful' }],
+          injuries: [{ athlete: athleteLink('3'), status: 'Doubtful' }],
         },
       ],
     }
@@ -122,15 +127,16 @@ describe('parseEspnInjuryReport', () => {
     ])
   })
 
-  it('descarta entradas sin athlete.id o sin status', () => {
+  it('descarta entradas sin un link con id o sin status', () => {
     const response: EspnInjuryReportResponse = {
       injuries: [
         {
           injuries: [
-            { athlete: { id: '1' }, status: 'Questionable' },
+            { athlete: athleteLink('1'), status: 'Questionable' },
             { status: 'Out' },
-            { athlete: { id: '2' } },
+            { athlete: athleteLink('2') },
             { athlete: {}, status: 'Doubtful' },
+            { athlete: { links: [{ href: 'https://www.espn.com/nfl/player/_/jeremiyah-love' }] }, status: 'Out' },
           ],
         },
       ],
