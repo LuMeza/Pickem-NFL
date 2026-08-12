@@ -20,24 +20,16 @@ import { corsHeaders } from '../_shared/cors.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const ESPN_TEAM_URL = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams'
-const ESPN_INJURY_URL = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries'
-
-// Headers de un navegador real (en vez del 'Mozilla/5.0' genérico que se
-// usaba antes) — Akamai (la protección anti-bot que usa ESPN) suele filtrar
-// por ese tipo de heurística además del rango de IP de origen.
-const ESPN_FETCH_HEADERS = {
-  'User-Agent':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-  Accept: 'application/json, text/plain, */*',
-  'Accept-Language': 'en-US,en;q=0.9',
-  Referer: 'https://www.espn.com/',
-}
+// site.api.espn.com quedó bloqueado por Akamai (403 "Access Denied") para
+// cualquier origen (ver sync-espn-results, mismo problema el 2026-08-11).
+// site.web.api.espn.com expone el mismo payload sin ese bloqueo.
+const ESPN_TEAM_URL = 'https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/teams'
+const ESPN_INJURY_URL = 'https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/injuries'
 
 /** Trae el reporte de lesiones semanal (Questionable/Doubtful/Out) de toda la liga en una sola llamada. No bloqueante: si ESPN cambia el shape o el endpoint falla, el sync de roster sigue igual, solo que sin designación semanal (mismo comportamiento que hoy). */
 async function fetchInjuryReport(): Promise<{ injuries: ParsedInjury[]; error: string | null }> {
   try {
-    const response = await fetch(ESPN_INJURY_URL, { headers: ESPN_FETCH_HEADERS })
+    const response = await fetch(ESPN_INJURY_URL, { headers: { 'User-Agent': 'Mozilla/5.0' } })
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     const body = (await response.json()) as EspnInjuryReportResponse
     return { injuries: parseEspnInjuryReport(body), error: null }
@@ -129,7 +121,7 @@ Deno.serve(async (req: Request) => {
     const url = `${ESPN_TEAM_URL}/${abbreviation}/roster`
 
     try {
-      const response = await fetch(url, { headers: ESPN_FETCH_HEADERS })
+      const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       const body = (await response.json()) as EspnRosterResponse
       const players = applyInjuryReport(parseEspnRoster(body), injuries)
