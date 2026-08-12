@@ -45,14 +45,18 @@
   flex-shrink: 0;
 }
 
+/* Verde/ámbar propios en vez de --accent-lime/--accent-gold: esos tokens
+   son un lima y un dorado muy saturados, pensados para acentos puntuales
+   (glow de icono, gradiente de héroe) — como color de texto repetido en
+   cada card ("Activo") se veían mal / poco legibles. */
 .toneActive {
-  background: var(--accent-lime);
-  color: var(--accent-lime);
+  background: #34d399;
+  color: #34d399;
 }
 
 .toneQuestionable {
-  background: var(--accent-gold);
-  color: var(--accent-gold);
+  background: #fbbf24;
+  color: #fbbf24;
 }
 
 .toneInjured {
