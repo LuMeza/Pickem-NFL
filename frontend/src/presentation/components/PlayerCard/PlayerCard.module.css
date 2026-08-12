@@ -38,6 +38,28 @@
   color: var(--text-muted);
 }
 
+.availabilityDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.toneActive {
+  background: var(--accent-lime);
+  color: var(--accent-lime);
+}
+
+.toneQuestionable {
+  background: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.toneInjured {
+  background: var(--danger);
+  color: var(--danger);
+}
+
 /* Preview de hover: se monta via portal a document.body (ver PlayerCard.tsx)
    y solo cuando `matchMedia('(hover: hover) and (pointer: fine)')` matchea —
    en touch nunca se monta, para evitar que quede "pegado" tras un tap.

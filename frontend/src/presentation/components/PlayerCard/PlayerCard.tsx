@@ -4,6 +4,7 @@ import { PlayerPhoto } from '@/presentation/components/PlayerPhoto/PlayerPhoto'
 import { Modal } from '@/presentation/components/Modal/Modal'
 import { getPositionLabel } from '@/presentation/features/catalog/nflPositions'
 import { formatBirthDate, formatHeight, formatWeight } from '@/presentation/features/catalog/playerBio'
+import { getAvailability, type Availability, type AvailabilityTone } from '@/presentation/features/catalog/playerAvailability'
 import type { Player } from '@/core/entities/catalog'
 import styles from './PlayerCard.module.css'
 
@@ -21,6 +22,13 @@ interface PreviewPosition {
 interface BioField {
   label: string
   value: string
+  tone?: AvailabilityTone
+}
+
+const TONE_CLASS: Record<AvailabilityTone, string> = {
+  active: 'toneActive',
+  questionable: 'toneQuestionable',
+  injured: 'toneInjured',
 }
 
 const PREVIEW_WIDTH = 220
@@ -36,8 +44,21 @@ function previewPositionFor(card: HTMLElement): PreviewPosition {
   return { top: rect.bottom + 6, left: Math.max(8, left) }
 }
 
+/**
+ * `null` si ESPN no mandó ningún dato de estatus — sin eso, `getAvailability`
+ * caería en "Activo" por defecto, y mostrarlo igual sería sugerir un dato
+ * que en realidad no tenemos.
+ */
+function availabilityFor(player: Player): Availability | null {
+  if (!player.status && !player.injuryStatus) return null
+  return getAvailability(player)
+}
+
 function bioFields(player: Player): BioField[] {
   const fields: BioField[] = []
+  const availability = availabilityFor(player)
+  if (availability) fields.push({ label: 'Disponibilidad', value: availability.label, tone: availability.tone })
+  if (player.injuryDetail) fields.push({ label: 'Detalle', value: player.injuryDetail })
   const height = formatHeight(player.heightIn)
   const weight = formatWeight(player.weightLbs)
   if (height && weight) fields.push({ label: 'Estatura / Peso', value: `${height}, ${weight}` })
@@ -83,6 +104,7 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
   const handleMouseLeave = useCallback(() => setPreviewPos(null), [])
 
   const positionLabel = getPositionLabel(player.position)
+  const availability = availabilityFor(player)
   const fields = bioFields(player)
 
   return (
@@ -108,6 +130,12 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
           {player.jerseyNumber ? `#${player.jerseyNumber}` : ''}{' '}
           <span title={positionLabel ?? undefined}>{player.position ?? ''}</span>
         </span>
+        {availability && (
+          <span
+            className={`${styles.availabilityDot} ${styles[TONE_CLASS[availability.tone]]}`}
+            title={availability.label}
+          />
+        )}
       </div>
 
       {previewPos &&
@@ -123,7 +151,7 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
                 {fields.map((field) => (
                   <div key={field.label} className={styles.statItem}>
                     <dt>{field.label}</dt>
-                    <dd>{field.value}</dd>
+                    <dd className={field.tone ? styles[TONE_CLASS[field.tone]] : undefined}>{field.value}</dd>
                   </div>
                 ))}
               </dl>
@@ -156,7 +184,7 @@ export function PlayerCard({ player, index }: PlayerCardProps) {
               {fields.map((field) => (
                 <div key={field.label} className={styles.statItem}>
                   <dt>{field.label}</dt>
-                  <dd>{field.value}</dd>
+                  <dd className={field.tone ? styles[TONE_CLASS[field.tone]] : undefined}>{field.value}</dd>
                 </div>
               ))}
             </dl>

@@ -90,6 +90,10 @@ export function AdminSyncPage() {
               <span className={styles.statValue}>{rosterData.playersSynced}</span>
               <span className={styles.statLabel}>Jugadores guardados</span>
             </div>
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{rosterData.injuriesMatched}</span>
+              <span className={styles.statLabel}>Con designación de lesión</span>
+            </div>
           </div>
           {rosterData.errors.length > 0 && (
             <div className={styles.errorList}>

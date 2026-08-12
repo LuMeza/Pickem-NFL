@@ -81,7 +81,7 @@ export class SupabaseCatalogRepository implements CatalogRepository {
     const { data, error } = await this.client
       .from('players')
       .select(
-        'id, team_id, full_name, position, jersey_number, unit, height_in, weight_lbs, birth_date, age, college, experience_years, status',
+        'id, team_id, full_name, position, jersey_number, unit, height_in, weight_lbs, birth_date, age, college, experience_years, status, injury_status, injury_detail',
       )
       .eq('team_id', teamId)
       .order('unit')
@@ -102,6 +102,8 @@ export class SupabaseCatalogRepository implements CatalogRepository {
       college: row.college as string | null,
       experienceYears: row.experience_years as number | null,
       status: row.status as string | null,
+      injuryStatus: row.injury_status as string | null,
+      injuryDetail: row.injury_detail as string | null,
     }))
   }
 

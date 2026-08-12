@@ -34,4 +34,7 @@ export interface Player {
   college: string | null
   experienceYears: number | null
   status: string | null
+  /** Designación semanal de lesión (Questionable/Doubtful/Out), sincronizada del injury report de ESPN — distinta de `status`, que es el estado de roster de largo plazo. */
+  injuryStatus: string | null
+  injuryDetail: string | null
 }

@@ -8,6 +8,7 @@ export interface SyncSummary {
 export interface RosterSyncSummary {
   teamsProcessed: number
   playersSynced: number
+  injuriesMatched: number
   errors: string[]
 }
 
