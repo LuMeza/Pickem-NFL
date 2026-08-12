@@ -62,16 +62,15 @@ function unitKeyOf(unit: string | null): UnitKey {
   return unit === 'offense' || unit === 'defense' || unit === 'specialTeam' ? unit : 'unclassified'
 }
 
-// Solo las excepciones son filtrables por disponibilidad — "Activo" es la
-// mayoría de cualquier plantilla, filtrar por eso no ayuda a nada; lo útil
-// es poder aislar rápido a quién le falta confirmar si juega o no.
-type AvailabilityFilter = Exclude<AvailabilityTone, 'active'>
-const AVAILABILITY_FILTER_ORDER: AvailabilityFilter[] = ['questionable', 'injured']
+type AvailabilityFilter = AvailabilityTone
+const AVAILABILITY_FILTER_ORDER: AvailabilityFilter[] = ['questionable', 'injured', 'active']
 const AVAILABILITY_FILTER_LABEL: Record<AvailabilityFilter, string> = {
+  active: 'Activo',
   questionable: 'Cuestionable',
   injured: 'Lesionado',
 }
 const AVAILABILITY_FILTER_CSS_VAR: Record<AvailabilityFilter, string> = {
+  active: 'var(--status-active)',
   questionable: 'var(--status-questionable)',
   injured: 'var(--status-injured)',
 }
@@ -344,6 +343,15 @@ export function TeamDetailPage() {
 
               {presentAvailabilityFilters.length > 0 && (
                 <div className={styles.unitChips} role="tablist" aria-label="Filtrar por disponibilidad">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={availabilityFilter === 'all'}
+                    className={`${styles.unitChip} ${availabilityFilter === 'all' ? styles.unitChipActive : ''}`}
+                    onClick={() => setAvailabilityFilter('all')}
+                  >
+                    Todos
+                  </button>
                   {presentAvailabilityFilters.map((tone) => (
                     <button
                       key={tone}
@@ -352,7 +360,7 @@ export function TeamDetailPage() {
                       aria-selected={availabilityFilter === tone}
                       className={`${styles.availabilityChip} ${availabilityFilter === tone ? styles.availabilityChipActive : ''}`}
                       style={{ '--chip-tone': AVAILABILITY_FILTER_CSS_VAR[tone] } as CSSProperties}
-                      onClick={() => setAvailabilityFilter(availabilityFilter === tone ? 'all' : tone)}
+                      onClick={() => setAvailabilityFilter(tone)}
                     >
                       <span className={styles.availabilityChipDot} />
                       {AVAILABILITY_FILTER_LABEL[tone]}
