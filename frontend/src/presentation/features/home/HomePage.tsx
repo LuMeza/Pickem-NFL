@@ -8,7 +8,6 @@ import { useListSeasonStandings } from '@/presentation/hooks/useListSeasonStandi
 import { useListSurvivorGroupState } from '@/presentation/hooks/useListSurvivorGroupState'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
 import { useListWeeklyPicksForWeek } from '@/presentation/hooks/useListWeeklyPicksForWeek'
-import { useGetWeeklyAccessStatus } from '@/presentation/hooks/useGetWeeklyAccessStatus'
 import { useGetProfileStats } from '@/presentation/hooks/useGetProfileStats'
 import { useListUserAchievements } from '@/presentation/hooks/useListUserAchievements'
 import { pickDefaultWeek } from '@/core/rules/pickDefaultWeek'
@@ -30,7 +29,6 @@ export function HomePage() {
   const { data: survivorRoster, run: loadSurvivorRoster } = useListSurvivorGroupState()
   const { data: weekGames, run: loadWeekGames } = useListGamesForWeek()
   const { data: weeklyPicks, run: loadWeeklyPicks } = useListWeeklyPicksForWeek()
-  const { status: accessStatusLoad, data: accessStatus, run: loadAccessStatus } = useGetWeeklyAccessStatus()
   const { status: statsStatus, data: stats, run: loadStats } = useGetProfileStats()
   const { status: achievementsStatus, data: achievements, run: loadAchievements } = useListUserAchievements()
 
@@ -57,9 +55,8 @@ export function HomePage() {
 
   useEffect(() => {
     if (!group || !profile || !activeWeek) return
-    loadAccessStatus({ groupId: group.id, userId: profile.userId, weekId: activeWeek.id })
     loadWeeklyPicks({ userId: profile.userId, weekId: activeWeek.id })
-  }, [group, profile, activeWeek, loadAccessStatus, loadWeeklyPicks])
+  }, [group, profile, activeWeek, loadWeeklyPicks])
 
   const standingPosition = useMemo(() => {
     if (!profile || !seasonStandings || seasonStandings.length === 0) return null
@@ -80,7 +77,6 @@ export function HomePage() {
   }, [activeWeek, weekGames, weeklyPicks])
 
   const showPicksTile = activeWeek != null && activeWeek.type !== 'playoffs'
-  const picksApproved = accessStatus === 'aprobado'
 
   const hasPicked = stats != null && stats.totalPicked > 0
   const hasPicksPendingResult = stats != null && stats.totalPicked === 0 && stats.totalPicksMade > 0
@@ -132,23 +128,12 @@ export function HomePage() {
 
           {showPicksTile && activeWeek && (
             <StatTile
-              to={picksApproved ? `/weeks/${activeWeek.id}/games` : `/pickem/acceso/${activeWeek.id}`}
+              to={`/weeks/${activeWeek.id}/games`}
               icon="ticket"
               kicker={weekLabel(activeWeek)}
-              loading={
-                accessStatusLoad === 'idle' ||
-                accessStatusLoad === 'pending' ||
-                (picksApproved && pendingPicksCount == null)
-              }
-              value={
-                !picksApproved
-                  ? 'Sin acceso a esta semana'
-                  : pendingPicksCount === 0
-                    ? '¡Al día!'
-                    : `${pendingPicksCount} sin pick`
-              }
-              detail={picksApproved ? undefined : 'Solicita tu acceso'}
-              urgent={!picksApproved || (pendingPicksCount != null && pendingPicksCount > 0)}
+              loading={pendingPicksCount == null}
+              value={pendingPicksCount === 0 ? '¡Al día!' : `${pendingPicksCount} sin pick`}
+              urgent={pendingPicksCount != null && pendingPicksCount > 0}
             />
           )}
 
@@ -189,12 +174,6 @@ export function HomePage() {
             title="Ver semanas y partidos"
             description="Entra a la semana activa y revisa las propuestas de cada partido"
             featured
-          />
-          <ActionCard
-            to="/pickem/acceso"
-            icon="ticket"
-            title="Acceso al pickem semanal"
-            description="Solicita entrar al pickem de cada semana antes de que arranque"
           />
           <ActionCard
             to="/survivor"

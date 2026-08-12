@@ -3,7 +3,6 @@ import type { AdminPicksRepository } from './AdminPicksRepository'
 import type { AuthRepository } from './AuthRepository'
 import type { GroupRepository } from './GroupRepository'
 import type { ModuleAccessRepository } from './ModuleAccessRepository'
-import type { WeeklyAccessRepository } from './WeeklyAccessRepository'
 import type { WeeklyPickRepository } from './WeeklyPickRepository'
 import type { PickemStandingsRepository } from './PickemStandingsRepository'
 import type { SurvivorRepository } from './SurvivorRepository'
@@ -16,7 +15,6 @@ export interface Repositories {
   authRepository: AuthRepository
   groupRepository: GroupRepository
   moduleAccessRepository: ModuleAccessRepository
-  weeklyAccessRepository: WeeklyAccessRepository
   weeklyPickRepository: WeeklyPickRepository
   pickemStandingsRepository: PickemStandingsRepository
   survivorRepository: SurvivorRepository

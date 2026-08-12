@@ -7,11 +7,6 @@ export type {
   ModuleAccessRequest,
 } from './ModuleAccessRepository'
 export type {
-  WeeklyAccessRepository,
-  WeeklyAccessStatus,
-  WeeklyAccessRequest,
-} from './WeeklyAccessRepository'
-export type {
   WeeklyPickRepository,
   WeeklyPickValue,
   SaveWeeklyPickParams,

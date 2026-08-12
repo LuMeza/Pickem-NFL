@@ -13,8 +13,6 @@ import { ProfilePage } from '@/presentation/features/auth/ProfilePage'
 import { HomePage } from '@/presentation/features/home/HomePage'
 import { RequestModuleAccessPage } from '@/presentation/features/groups/RequestModuleAccessPage'
 import { PickemHubPage } from '@/presentation/features/pickem/PickemHubPage'
-import { PickemAccessRedirect } from '@/presentation/features/pickem/PickemAccessRedirect'
-import { RequestWeeklyAccessPage } from '@/presentation/features/pickem/RequestWeeklyAccessPage'
 import { PickemStandingsRedirect } from '@/presentation/features/pickem/PickemStandingsRedirect'
 import { PickemStandingsPage } from '@/presentation/features/pickem/PickemStandingsPage'
 import { SurvivorRedirect } from '@/presentation/features/survivor/SurvivorRedirect'
@@ -29,7 +27,6 @@ import { AdminHomePage } from '@/presentation/features/admin/AdminHomePage'
 import { AdminUsersPage } from '@/presentation/features/admin/AdminUsersPage'
 import { GroupMembersPage } from '@/presentation/features/admin/GroupMembersPage'
 import { ModuleAccessRequestsPage } from '@/presentation/features/admin/ModuleAccessRequestsPage'
-import { WeeklyAccessRequestsPage } from '@/presentation/features/admin/WeeklyAccessRequestsPage'
 import { AdminPickemSettingsPage } from '@/presentation/features/admin/AdminPickemSettingsPage'
 import { AdminResultsPage } from '@/presentation/features/admin/AdminResultsPage'
 import { AdminCreateGamePage } from '@/presentation/features/admin/AdminCreateGamePage'
@@ -57,8 +54,6 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/request-access" element={<RequestModuleAccessPage />} />
             <Route path="/pickem" element={<PickemHubPage />} />
-            <Route path="/pickem/acceso" element={<PickemAccessRedirect />} />
-            <Route path="/pickem/acceso/:weekId" element={<RequestWeeklyAccessPage />} />
             <Route path="/pickem/tabla" element={<PickemStandingsRedirect />} />
             <Route path="/pickem/tabla/:weekId" element={<PickemStandingsPage />} />
             <Route path="/survivor" element={<SurvivorRedirect />} />
@@ -75,7 +70,6 @@ function App() {
               <Route path="/admin/users" element={<AdminUsersPage />} />
               <Route path="/admin/members" element={<GroupMembersPage />} />
               <Route path="/admin/access-requests" element={<ModuleAccessRequestsPage />} />
-              <Route path="/admin/pickem/access-requests" element={<WeeklyAccessRequestsPage />} />
               <Route path="/admin/pickem/settings" element={<AdminPickemSettingsPage />} />
               <Route path="/admin/games/new" element={<AdminCreateGamePage />} />
               <Route path="/admin/sync" element={<AdminSyncPage />} />

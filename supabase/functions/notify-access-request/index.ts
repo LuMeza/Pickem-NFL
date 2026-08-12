@@ -1,6 +1,6 @@
 // Avisa por correo a todos los platform_admins cuando alguien solicita acceso
-// a Pickem Semanal, Survivor o Playoffs. Invocada exclusivamente por el
-// trigger de Postgres en module_access/weekly_access via pg_net (ver
+// a Survivor o Playoffs (module_access). Invocada exclusivamente por el
+// trigger de Postgres en module_access via pg_net (ver
 // supabase/migrations/20260802000003_access_request_notify_trigger.sql),
 // nunca desde el navegador — por eso solo acepta la service role key como
 // Authorization, igual que el camino "cron" de sync-espn-results.
@@ -14,25 +14,8 @@ const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://pickem-nfl.vercel.app'
 
 const MODULE_LABELS: Record<string, string> = {
-  quiniela_semanal: 'Pickem Semanal',
   survivor: 'Survivor',
   playoffs: 'Playoffs',
-}
-
-// Replica frontend/src/presentation/features/pickem/weekLabel.ts — no hay
-// forma de compartir código entre el frontend (Vite) y las Edge Functions (Deno).
-const PLAYOFFS_ROUND_LABEL: Record<number, string> = {
-  1: 'Wild Card',
-  2: 'Divisional',
-  3: 'Conference',
-  4: 'Super Bowl',
-}
-
-function weekLabel(week: { type: string; number: number }): string {
-  if (week.type === 'playoffs') return PLAYOFFS_ROUND_LABEL[week.number] ?? `Ronda ${week.number}`
-  if (week.type === 'hof') return 'Hall of Fame'
-  if (week.type === 'pretemporada') return `Pre ${week.number}`
-  return `Semana ${week.number}`
 }
 
 function jsonResponse(body: unknown, status: number): Response {
@@ -43,11 +26,10 @@ function jsonResponse(body: unknown, status: number): Response {
 }
 
 interface NotifyBody {
-  source?: 'module_access' | 'weekly_access'
-  module?: 'quiniela_semanal' | 'survivor' | 'playoffs'
+  source?: 'module_access'
+  module?: 'survivor' | 'playoffs'
   groupId?: string
   userId?: string
-  weekId?: string
 }
 
 Deno.serve(async (req: Request) => {
@@ -85,16 +67,7 @@ Deno.serve(async (req: Request) => {
     .eq('id', body.userId)
     .maybeSingle()
 
-  let moduleLabel = MODULE_LABELS[body.module] ?? body.module
-
-  if (body.weekId) {
-    const { data: week } = await adminClient
-      .from('weeks')
-      .select('type, number')
-      .eq('id', body.weekId)
-      .maybeSingle()
-    if (week) moduleLabel = `${moduleLabel} — ${weekLabel(week)}`
-  }
+  const moduleLabel = MODULE_LABELS[body.module] ?? body.module
 
   // platform_admins.user_id referencia auth.users, no profiles: no hay FK
   // directa que PostgREST pueda usar para un embed, así que van dos consultas.
@@ -108,8 +81,7 @@ Deno.serve(async (req: Request) => {
 
   const adminEmails = (adminProfiles ?? []).map((row) => row.email).filter((email): email is string => !!email)
 
-  const reviewPath = body.source === 'weekly_access' ? '/admin/pickem/access-requests' : '/admin/access-requests'
-  const reviewUrl = `${SITE_URL}${reviewPath}`
+  const reviewUrl = `${SITE_URL}/admin/access-requests`
 
   const results = await Promise.all(
     adminEmails.map((email) =>

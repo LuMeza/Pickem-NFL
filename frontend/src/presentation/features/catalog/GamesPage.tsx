@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
-import { useGetWeeklyAccessStatus } from '@/presentation/hooks/useGetWeeklyAccessStatus'
 import { useListWeeklyPicksForWeek } from '@/presentation/hooks/useListWeeklyPicksForWeek'
 import { useSaveWeeklyPick } from '@/presentation/hooks/useSaveWeeklyPick'
 import { useNow } from '@/presentation/hooks/useNow'
@@ -222,7 +221,7 @@ function DayGroupSection({
   )
 }
 
-/** Tareas 6.3/7.4 (base-plataforma) y 3.1-3.5 (modulo-pickem-semanal): partidos de una semana, agrupados por día, con guardado real de predicciones condicionado a acceso semanal aprobado. */
+/** Tareas 6.3/7.4 (base-plataforma) y 3.1-3.5 (modulo-pickem-semanal): partidos de una semana, agrupados por día, con guardado real de predicciones. */
 export function GamesPage() {
   const { weekId } = useParams<{ weekId: string }>()
   const { status, data: games, error, run: loadGames } = useListGamesForWeek()
@@ -231,7 +230,6 @@ export function GamesPage() {
   const { data: weeks } = weeksResource
   const { data: group } = groupResource
   const { data: profile } = profileResource
-  const { data: accessStatus, run: loadAccessStatus } = useGetWeeklyAccessStatus()
   const { data: loadedPicks, run: loadPicks } = useListWeeklyPicksForWeek()
   const { data: results, run: loadResults } = useListResultsForGames()
   const { run: savePick } = useSaveWeeklyPick()
@@ -246,10 +244,9 @@ export function GamesPage() {
 
   useEffect(() => {
     if (group && profile && weekId) {
-      loadAccessStatus({ groupId: group.id, userId: profile.userId, weekId })
       loadPicks({ userId: profile.userId, weekId })
     }
-  }, [group, profile, weekId, loadAccessStatus, loadPicks])
+  }, [group, profile, weekId, loadPicks])
 
   useEffect(() => {
     if (games && games.length > 0) loadResults({ gameIds: games.map((game) => game.id) })
@@ -266,7 +263,7 @@ export function GamesPage() {
 
   const activeWeek = weeks?.find((week) => week.id === weekId)
   const isPlayoffsWeek = activeWeek?.type === 'playoffs'
-  const canPredict = accessStatus === 'aprobado' && !isPlayoffsWeek
+  const canPredict = !isPlayoffsWeek
 
   async function handlePick(gameId: string, pick: WeeklyPickValue) {
     if (!group || !profile || !canPredict) return
@@ -295,12 +292,6 @@ export function GamesPage() {
 
       {isPlayoffsWeek && (
         <p className="text-body-sm text-muted">El pickem semanal no aplica a semanas de playoffs.</p>
-      )}
-      {!isPlayoffsWeek && accessStatus !== 'aprobado' && (
-        <p className="text-body-sm text-muted">
-          No tienes acceso aprobado al pickem de esta semana.{' '}
-          <Link to={`/pickem/acceso/${weekId}`}>Solicitar acceso</Link>
-        </p>
       )}
 
       {status === 'pending' && <LoadingSpinner variant="inline" label="Cargando partidos" />}

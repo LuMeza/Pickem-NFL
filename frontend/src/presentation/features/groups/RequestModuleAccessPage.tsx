@@ -7,9 +7,9 @@ import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import type { GameModule, ModuleAccessStatus } from '@/core/ports/ModuleAccessRepository'
 import styles from './RequestModuleAccessPage.module.css'
 
-// Pickem Semanal ya NO usa este modelo genérico de module_access — tiene su
-// propia pantalla de acceso semanal (ver /pickem/acceso y
-// openspec/changes/modulo-pickem-semanal specs/acceso-semanal-pickem).
+// Pickem Semanal ya NO usa este modelo genérico de module_access — el acceso
+// es libre para cualquier miembro del grupo, sin solicitud ni aprobación
+// (ver openspec/changes/modulo-pickem-semanal specs/acceso-semanal-pickem).
 // Survivor terminó siendo de acceso implícito por ser miembro del grupo único
 // (sin solicitud, ver openspec/changes/modulo-survivor). Playoffs, cuando se
 // implemente, decide por su cuenta si requiere aprobación explícita (listado
