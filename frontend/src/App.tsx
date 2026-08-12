@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AppLayout } from '@/presentation/components/AppLayout'
 import { ScrollToTop } from '@/presentation/components/ScrollToTop'
+import { AppVersionWatcher } from '@/presentation/components/AppVersionWatcher'
 import { RequireAuth } from '@/presentation/components/RequireAuth'
 import { RequireActiveSession } from '@/presentation/components/RequireActiveSession'
 import { RequireAdmin } from '@/presentation/components/RequireAdmin'
@@ -39,6 +40,7 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <AppVersionWatcher />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />

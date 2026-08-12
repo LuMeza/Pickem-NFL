@@ -8,3 +8,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+/** Id de build embebido por vite.config.ts (define) — ver useAppVersionCheck. */
+declare const __APP_BUILD_ID__: string
