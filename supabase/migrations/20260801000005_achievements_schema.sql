@@ -24,6 +24,5 @@ insert into public.achievements (id, scope, title, description) values
   ('survivor_temporada_regular', 'survivor', 'Sobreviviente Regular', 'Llega vivo al final de la temporada regular en Survivor.'),
   ('survivor_podio', 'survivor', 'Podio Survivor', 'Termina en el podio (1, 2 o 3 lugar) de Survivor.'),
   ('survivor_vida_intacta', 'survivor', 'Vida Intacta', 'Sobrevive sin usar ninguna vida extra en Survivor.'),
-  ('veterano', 'general', 'Veterano', 'Cumple mas de un ano formando parte de la plataforma.'),
   ('doble_jugador', 'general', 'Doble Jugador', 'Participa activamente en Pickem Semanal y Survivor dentro del mismo grupo.')
 on conflict (id) do nothing;

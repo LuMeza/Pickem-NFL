@@ -55,11 +55,6 @@ export class SupabaseAchievementsRepository implements AchievementsRepository {
     return (data ?? []).map((row: { achievement_id: string }) => row.achievement_id)
   }
 
-  async syncMyAchievements(): Promise<void> {
-    const { error } = await this.client.rpc('sync_my_achievements')
-    if (error) throw error
-  }
-
   async getProfilePickemSummary(userId: string): Promise<ProfilePickemSummary> {
     const { data, error } = await this.client.rpc('profile_pickem_summary', { p_user_id: userId })
     if (error) throw error
