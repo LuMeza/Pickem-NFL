@@ -5,6 +5,7 @@ import { useCreateUser } from '@/presentation/hooks/useCreateUser'
 import { useUpdateUser } from '@/presentation/hooks/useUpdateUser'
 import { useDeleteUser } from '@/presentation/hooks/useDeleteUser'
 import { useSetPlatformAdmin } from '@/presentation/hooks/useSetPlatformAdmin'
+import { useResendWelcomeEmail } from '@/presentation/hooks/useResendWelcomeEmail'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
 import { Icon } from '@/presentation/components/Icon/Icon'
@@ -23,6 +24,11 @@ export function AdminUsersPage() {
   const { status: updateStatus, error: updateError, run: runUpdateUser } = useUpdateUser()
   const { status: deleteStatus, error: deleteError, run: runDeleteUser } = useDeleteUser()
   const { error: setAdminError, run: runSetPlatformAdmin } = useSetPlatformAdmin()
+  const {
+    status: resendStatus,
+    error: resendError,
+    run: runResendWelcomeEmail,
+  } = useResendWelcomeEmail()
 
   const [formModal, setFormModal] = useState<FormModalState>(null)
   const [createdResult, setCreatedResult] = useState<{ provisionalPassword: string; emailSent: boolean } | null>(
@@ -30,6 +36,8 @@ export function AdminUsersPage() {
   )
   const [userToDelete, setUserToDelete] = useState<AdminUserSummary | null>(null)
   const [adminToRevoke, setAdminToRevoke] = useState<AdminUserSummary | null>(null)
+  const [userToResend, setUserToResend] = useState<AdminUserSummary | null>(null)
+  const [resendResult, setResendResult] = useState<{ provisionalPassword: string; emailSent: boolean } | null>(null)
   const [actioningUserId, setActioningUserId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
 
@@ -82,6 +90,17 @@ export function AdminUsersPage() {
     } finally {
       setActioningUserId(null)
     }
+  }
+
+  function closeResendModal() {
+    setUserToResend(null)
+    setResendResult(null)
+  }
+
+  async function handleConfirmResend() {
+    if (!userToResend) return
+    const result = await runResendWelcomeEmail({ userId: userToResend.userId })
+    setResendResult({ provisionalPassword: result.provisionalPassword, emailSent: result.emailSent })
   }
 
   async function handleConfirmRevoke() {
@@ -183,6 +202,14 @@ export function AdminUsersPage() {
                       </button>
                       <button
                         type="button"
+                        className={tableStyles.iconButton}
+                        aria-label={`Reenviar bienvenida a ${user.displayName}`}
+                        onClick={() => setUserToResend(user)}
+                      >
+                        <Icon name="mail" size={16} />
+                      </button>
+                      <button
+                        type="button"
                         className={`${tableStyles.iconButton} ${tableStyles.iconButtonDanger}`}
                         aria-label={`Eliminar ${user.displayName}`}
                         onClick={() => setUserToDelete(user)}
@@ -246,6 +273,46 @@ export function AdminUsersPage() {
                 Cancelar
               </button>
             </span>
+          </div>
+        )}
+      </Modal>
+
+      <Modal open={userToResend !== null} onClose={closeResendModal}>
+        {userToResend && (
+          <div className="glass-surface" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <h2 className="text-display-sm">Reenviar bienvenida</h2>
+            {resendResult ? (
+              <>
+                <p>
+                  {resendResult.emailSent
+                    ? `Le enviamos una nueva contraseña provisional a ${userToResend.email}. Guárdala también por las dudas (no se muestra de nuevo):`
+                    : 'No se pudo enviar el correo. Entrega esta contraseña provisional fuera de la plataforma (no se muestra de nuevo):'}
+                </p>
+                <p className="text-mono-md" style={{ color: 'var(--accent-lime)' }}>
+                  {resendResult.provisionalPassword}
+                </p>
+                <button type="button" onClick={closeResendModal}>
+                  Cerrar
+                </button>
+              </>
+            ) : (
+              <>
+                <p>
+                  Esto genera una nueva contraseña provisional para <strong>{userToResend.displayName}</strong> (
+                  {userToResend.email}) y le reenvía el correo de bienvenida. La contraseña actual deja de
+                  funcionar.
+                </p>
+                {resendError && <p role="alert">No se pudo reenviar: {resendError.message}</p>}
+                <span style={{ display: 'flex', gap: 8 }}>
+                  <button type="button" onClick={handleConfirmResend} disabled={resendStatus === 'pending'}>
+                    {resendStatus === 'pending' ? 'Enviando...' : 'Reenviar bienvenida'}
+                  </button>
+                  <button type="button" className="button-secondary" onClick={closeResendModal}>
+                    Cancelar
+                  </button>
+                </span>
+              </>
+            )}
           </div>
         )}
       </Modal>

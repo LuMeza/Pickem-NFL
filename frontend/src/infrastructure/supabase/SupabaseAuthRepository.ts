@@ -26,6 +26,18 @@ export class SupabaseAuthRepository implements AuthRepository {
     return data
   }
 
+  async resendWelcomeEmail(userId: string): Promise<ProvisionalUserAccount> {
+    const { data, error } = await this.client.functions.invoke<ProvisionalUserAccount>('admin-resend-welcome', {
+      body: { userId },
+    })
+
+    if (error || !data) {
+      throw new Error(`No se pudo reenviar el correo de bienvenida: ${error?.message ?? 'respuesta vacia'}`)
+    }
+
+    return data
+  }
+
   async listUsers(): Promise<AdminUserSummary[]> {
     const [profilesResult, adminsResult] = await Promise.all([
       this.client

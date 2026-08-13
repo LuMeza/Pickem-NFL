@@ -21,6 +21,7 @@ export interface AdminUserSummary {
  */
 export interface AuthRepository {
   createUser(email: string, displayName: string): Promise<ProvisionalUserAccount>
+  resendWelcomeEmail(userId: string): Promise<ProvisionalUserAccount>
   listUsers(): Promise<AdminUserSummary[]>
   updateUser(userId: string, displayName: string, email: string): Promise<void>
   deleteUser(userId: string): Promise<void>
