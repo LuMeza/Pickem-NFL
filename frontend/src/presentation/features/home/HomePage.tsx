@@ -5,6 +5,7 @@ import { StatTile } from '@/presentation/components/StatTile/StatTile'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import { useSession } from '@/presentation/hooks/SessionContext'
+import { useCheckPlatformAdmin } from '@/presentation/hooks/useCheckPlatformAdmin'
 import { useCanViewPickemTables } from '@/presentation/hooks/useCanViewPickemTables'
 import { useListSeasonStandings } from '@/presentation/hooks/useListSeasonStandings'
 import { useListSurvivorGroupState } from '@/presentation/hooks/useListSurvivorGroupState'
@@ -27,6 +28,7 @@ export function HomePage() {
   const { data: weeks } = weeksResource
   const { data: games } = gamesResource
   const { data: canViewTables, run: loadCanViewTables } = useCanViewPickemTables()
+  const { data: isPlatformAdmin, run: checkPlatformAdmin } = useCheckPlatformAdmin()
   const { data: seasonStandings, run: loadSeasonStandings } = useListSeasonStandings()
   const { data: survivorRoster, run: loadSurvivorRoster } = useListSurvivorGroupState()
   const { data: weekGames, run: loadWeekGames } = useListGamesForWeek()
@@ -37,7 +39,8 @@ export function HomePage() {
   useEffect(() => {
     loadStats()
     loadAchievements()
-  }, [loadStats, loadAchievements])
+    checkPlatformAdmin()
+  }, [loadStats, loadAchievements, checkPlatformAdmin])
 
   useEffect(() => {
     if (!group) return
@@ -116,10 +119,18 @@ export function HomePage() {
               </span>
               <div className={styles.standingsHeroMeta}>
                 <span className={styles.standingsHeroTotal}>
-                  {standingPosition ? `de ${standingPosition.totalPlayers} jugadores` : 'Sin datos aún'}
+                  {standingPosition
+                    ? `de ${standingPosition.totalPlayers} jugadores`
+                    : isPlatformAdmin
+                      ? 'No participás'
+                      : 'Sin datos aún'}
                 </span>
                 <span className={styles.standingsHeroDetail}>
-                  {standingPosition ? `${standingPosition.total} aciertos` : 'Juega tu primera semana'}
+                  {standingPosition
+                    ? `${standingPosition.total} aciertos`
+                    : isPlatformAdmin
+                      ? 'Los admins no aparecen en el ranking'
+                      : 'Juega tu primera semana'}
                 </span>
               </div>
               {myStreak >= 3 && <span className={styles.standingsHeroFire}>🔥 {myStreak}</span>}
