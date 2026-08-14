@@ -9,6 +9,8 @@ function game(overrides: Partial<Game>): Game {
     homeTeamId: 'KC',
     awayTeamId: 'BUF',
     kickoffAt: new Date('2026-09-10T20:00:00Z'),
+    livePeriod: null,
+    liveClock: null,
     ...overrides,
   }
 }
