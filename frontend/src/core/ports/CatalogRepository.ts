@@ -28,4 +28,12 @@ export interface CatalogRepository {
   listPlayersForTeam(teamId: string): Promise<Player[]>
   createGame(game: NewGame): Promise<Game>
   updateGame(gameId: string, changes: GameChanges): Promise<Game>
+  /**
+   * Avisa cuando el resultado (`outcome`) de algún partido cambia en el
+   * servidor — sin esto, una pestaña ya abierta se queda mostrando datos
+   * viejos hasta que alguien refresca a mano (sync-espn-results corre cada
+   * 15 min en el backend, pero React no se entera solo). Devuelve una
+   * función para cancelar la suscripción.
+   */
+  subscribeToResultChanges(onChange: () => void): () => void
 }

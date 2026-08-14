@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AppLayout } from '@/presentation/components/AppLayout'
 import { ScrollToTop } from '@/presentation/components/ScrollToTop'
 import { UpdateAvailableBanner } from '@/presentation/components/UpdateAvailableBanner/UpdateAvailableBanner'
+import { ResultsUpdatedBanner } from '@/presentation/components/ResultsUpdatedBanner/ResultsUpdatedBanner'
 import { RequireAuth } from '@/presentation/components/RequireAuth'
 import { RequireActiveSession } from '@/presentation/components/RequireActiveSession'
 import { RequireAdmin } from '@/presentation/components/RequireAdmin'
@@ -41,6 +42,7 @@ function App() {
     <BrowserRouter>
       <ScrollToTop />
       <UpdateAvailableBanner />
+      <ResultsUpdatedBanner />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />

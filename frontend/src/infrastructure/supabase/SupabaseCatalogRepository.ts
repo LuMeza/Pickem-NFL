@@ -1,6 +1,10 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { RealtimePostgresUpdatePayload, SupabaseClient } from '@supabase/supabase-js'
 import type { Game, Player, Team, Week, WeekType } from '@/core/entities/catalog'
 import type { CatalogRepository, GameChanges, NewGame } from '@/core/ports/CatalogRepository'
+
+interface GameOutcomeRow {
+  outcome: string | null
+}
 
 export class SupabaseCatalogRepository implements CatalogRepository {
   private readonly client: SupabaseClient
@@ -158,6 +162,23 @@ export class SupabaseCatalogRepository implements CatalogRepository {
       kickoffAt: new Date(data.kickoff_at as string),
       livePeriod: data.live_period as number | null,
       liveClock: data.live_clock as string | null,
+    }
+  }
+
+  subscribeToResultChanges(onChange: () => void): () => void {
+    const channel = this.client
+      .channel('games-results')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'games' },
+        (payload: RealtimePostgresUpdatePayload<GameOutcomeRow>) => {
+          if (payload.new.outcome !== payload.old.outcome) onChange()
+        },
+      )
+      .subscribe()
+
+    return () => {
+      void this.client.removeChannel(channel)
     }
   }
 }
