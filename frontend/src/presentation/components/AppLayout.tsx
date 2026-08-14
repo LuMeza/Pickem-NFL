@@ -45,10 +45,10 @@ function AuthenticatedShell() {
     return pickDefaultWeek(weeks.data, games.data ?? [], new Date())
   }, [weeks.data, games.data])
 
-  // La Pickem Semanal cierra en dos bloques por semana (entre semana y fin de
-  // semana, ver core/rules/weeklyPickGroupDeadline) — el header muestra la
-  // cuenta regresiva al proximo cierre que todavia no paso, no solo al
-  // primer kickoff de la semana. Survivor tiene su propio countdown en su
+  // La Pickem Semanal cierra dia por dia, no toda junta (ver
+  // core/rules/weeklyPickGroupDeadline) — el header muestra la cuenta
+  // regresiva al proximo cierre que todavia no paso, no solo al primer
+  // kickoff de la semana. Survivor tiene su propio countdown en su
   // pagina (SurvivorPickPage), asi que este reloj compartido puede seguir el
   // criterio de la Pickem Semanal sin desinformar a los jugadores de Survivor.
   const countdownTo = useMemo(() => {
