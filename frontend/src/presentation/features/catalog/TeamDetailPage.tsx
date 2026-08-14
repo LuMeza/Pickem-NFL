@@ -202,7 +202,7 @@ export function TeamDetailPage() {
         {liveGameLabel ? (
           <div className={`${styles.heroNextGame} ${styles.heroLive}`}>
             <span className={styles.liveDot} aria-hidden="true" />
-            {formatLivePeriod(liveGame?.livePeriod ?? null, liveGame?.liveClock ?? null) ?? 'En vivo'} ·{' '}
+            {formatLivePeriod(liveGame?.livePeriod ?? null) ?? 'En vivo'} ·{' '}
             {liveGameLabel}
           </div>
         ) : (

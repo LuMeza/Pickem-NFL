@@ -3,22 +3,18 @@ import { formatLivePeriod } from './formatLivePeriod'
 
 describe('formatLivePeriod', () => {
   it('devuelve null cuando no hay periodo (no esta en vivo)', () => {
-    expect(formatLivePeriod(null, null)).toBeNull()
+    expect(formatLivePeriod(null)).toBeNull()
   })
 
   it('traduce cada cuarto regular al español', () => {
-    expect(formatLivePeriod(1, null)).toBe('1er cuarto')
-    expect(formatLivePeriod(2, null)).toBe('2do cuarto')
-    expect(formatLivePeriod(3, null)).toBe('3er cuarto')
-    expect(formatLivePeriod(4, null)).toBe('4to cuarto')
-  })
-
-  it('agrega el reloj cuando esta disponible', () => {
-    expect(formatLivePeriod(3, '5:13')).toBe('3er cuarto · 5:13')
+    expect(formatLivePeriod(1)).toBe('1er cuarto')
+    expect(formatLivePeriod(2)).toBe('2do cuarto')
+    expect(formatLivePeriod(3)).toBe('3er cuarto')
+    expect(formatLivePeriod(4)).toBe('4to cuarto')
   })
 
   it('marca tiempo extra a partir del periodo 5', () => {
-    expect(formatLivePeriod(5, null)).toBe('Tiempo extra')
-    expect(formatLivePeriod(6, null)).toBe('Tiempo extra 2')
+    expect(formatLivePeriod(5)).toBe('Tiempo extra')
+    expect(formatLivePeriod(6)).toBe('Tiempo extra 2')
   })
 })

@@ -143,7 +143,7 @@ function GameProposal({
         <div className={styles.scoreboard}>
           <span className={styles.liveDot} aria-hidden="true" />
           <span className={`${styles.scoreboardValue} ${styles.scoreboardLive}`}>
-            {formatLivePeriod(game.livePeriod, game.liveClock) ?? 'En vivo'}
+            {formatLivePeriod(game.livePeriod) ?? 'En vivo'}
           </span>
         </div>
       )}

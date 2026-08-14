@@ -88,7 +88,7 @@ function MatchChip({
       {status === 'live' && (
         <span className={styles.matchChipStatus}>
           <span className={styles.liveDot} aria-hidden="true" />
-          {formatLivePeriod(game.livePeriod, game.liveClock) ?? 'En vivo'}
+          {formatLivePeriod(game.livePeriod) ?? 'En vivo'}
         </span>
       )}
     </li>

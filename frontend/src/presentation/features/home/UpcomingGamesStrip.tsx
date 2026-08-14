@@ -116,7 +116,7 @@ function FeaturedGameCard({
     >
       <span className={`${styles.statusPill} ${isLive ? styles.statusLive : styles.statusUpcoming}`}>
         {isLive && <span className={styles.liveDot} aria-hidden="true" />}
-        {isLive ? (formatLivePeriod(game.livePeriod, game.liveClock) ?? 'En vivo') : formatKickoffLabel(game.kickoffAt, now)}
+        {isLive ? (formatLivePeriod(game.livePeriod) ?? 'En vivo') : formatKickoffLabel(game.kickoffAt, now)}
       </span>
       <span className={styles.matchup}>
         <TeamRow teamId={game.homeTeamId} name={teamName(game.homeTeamId)} />
