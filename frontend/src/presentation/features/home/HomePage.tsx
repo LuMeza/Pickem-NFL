@@ -1,7 +1,9 @@
 import { useEffect, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { ActionCard } from '@/presentation/components/ActionCard/ActionCard'
 import { StatTile } from '@/presentation/components/StatTile/StatTile'
 import { Icon } from '@/presentation/components/Icon/Icon'
+import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useCanViewPickemTables } from '@/presentation/hooks/useCanViewPickemTables'
 import { useListSeasonStandings } from '@/presentation/hooks/useListSeasonStandings'
@@ -65,6 +67,11 @@ export function HomePage() {
     return myGroup ? { position: myGroup.position, total: myGroup.total, totalPlayers: seasonStandings.length } : null
   }, [profile, seasonStandings])
 
+  const myStreak = useMemo(() => {
+    if (!profile || !seasonStandings) return 0
+    return seasonStandings.find((row) => row.userId === profile.userId)?.currentStreak ?? 0
+  }, [profile, seasonStandings])
+
   const survivorParticipant = useMemo(() => {
     if (!profile || !survivorRoster) return null
     return survivorRoster.find((participant) => participant.userId === profile.userId) ?? null
@@ -92,20 +99,38 @@ export function HomePage() {
       <h1 className="text-display-lg">{profile ? `Hola, ${profile.displayName}` : 'Pickem NFL'}</h1>
       <p className="text-body-sm text-muted">Tu semana arranca aquí.</p>
 
+      {canViewTables !== false && (
+        <Link
+          to={activeWeek ? `/pickem/tabla/${activeWeek.id}` : '/pickem/tabla'}
+          className={`${styles.standingsHero} glass-surface glass-interactive`}
+        >
+          <span className={styles.standingsHeroKicker}>
+            <Icon name="trophy" size={13} /> Tabla de posiciones
+          </span>
+          {!group || seasonStandings == null ? (
+            <LoadingSpinner variant="inline" />
+          ) : (
+            <div className={styles.standingsHeroBody}>
+              <span className={styles.standingsHeroPosition}>
+                {standingPosition ? `${standingPosition.position}°` : '—'}
+              </span>
+              <div className={styles.standingsHeroMeta}>
+                <span className={styles.standingsHeroTotal}>
+                  {standingPosition ? `de ${standingPosition.totalPlayers} jugadores` : 'Sin datos aún'}
+                </span>
+                <span className={styles.standingsHeroDetail}>
+                  {standingPosition ? `${standingPosition.total} aciertos` : 'Juega tu primera semana'}
+                </span>
+              </div>
+              {myStreak >= 3 && <span className={styles.standingsHeroFire}>🔥 {myStreak}</span>}
+            </div>
+          )}
+        </Link>
+      )}
+
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Tu resumen</h2>
         <div className="card-grid">
-          {canViewTables !== false && (
-            <StatTile
-              to={activeWeek ? `/pickem/tabla/${activeWeek.id}` : '/pickem/tabla'}
-              icon="trophy"
-              kicker="Tabla de posiciones"
-              loading={!group || seasonStandings == null}
-              value={standingPosition ? `${standingPosition.position}° de ${standingPosition.totalPlayers}` : 'Sin datos aún'}
-              detail={standingPosition ? `${standingPosition.total} aciertos` : 'Juega tu primera semana'}
-            />
-          )}
-
           <StatTile
             to={survivorParticipant ? '/survivor/tabla' : '/survivor'}
             icon="football"

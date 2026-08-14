@@ -31,3 +31,78 @@
     transform: translateY(0);
   }
 }
+
+/* Banner destacado de posición — antes era una tarjeta más entre cinco en el
+   grid de "Tu resumen" y se perdía; ahora es lo primero que se ve al entrar. */
+.standingsHero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 18px 20px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.standingsHero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent-lime));
+}
+
+.standingsHeroKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+  color: var(--accent-gold);
+}
+
+.standingsHeroBody {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.standingsHeroPosition {
+  font-family: var(--font-display);
+  font-size: 44px;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.standingsHeroMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.standingsHeroTotal {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.standingsHeroDetail {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.standingsHeroFire {
+  flex-shrink: 0;
+  align-self: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--accent-gold);
+}

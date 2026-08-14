@@ -25,10 +25,12 @@ function StandingsList({ rows }: { rows: StandingRow[] }) {
     return <p className="text-body-sm text-muted">Todavía no hay resultados para mostrar.</p>
   }
 
+  const maxCount = Math.max(...rows.map((row) => row.correctCount), 1)
+
   let position = 0
   let previousCount: number | null = null
   return (
-    <ul className={styles.list}>
+    <ul className={`${styles.list} glass-surface`}>
       {rows.map((row, index) => {
         if (row.correctCount !== previousCount) {
           position = index + 1
@@ -36,15 +38,19 @@ function StandingsList({ rows }: { rows: StandingRow[] }) {
         }
         const podiumClass = PODIUM_CLASS[position - 1] ?? ''
         const onFire = row.currentStreak >= FIRE_STREAK_THRESHOLD
+        const barWidth = row.correctCount > 0 ? Math.max((row.correctCount / maxCount) * 100, 8) : 0
         return (
-          <li key={row.userId} className={`${styles.row} glass-surface ${podiumClass}`}>
-            <span className={styles.position}>{position}</span>
-            <span className={styles.name}>{row.displayName}</span>
-            {onFire && (
-              <span className={styles.streak} title={`${row.currentStreak} aciertos seguidos`}>
-                🔥 {row.currentStreak}
-              </span>
-            )}
+          <li key={row.userId} className={`${styles.row} ${podiumClass}`}>
+            <span className={styles.bar} style={{ width: `${barWidth}%` }} aria-hidden="true" />
+            <span className={styles.position}>{position}°</span>
+            <span className={styles.name}>
+              <span className={styles.nameText}>{row.displayName}</span>
+              {onFire && (
+                <span className={styles.fire} title={`${row.currentStreak} aciertos seguidos`}>
+                  🔥{row.currentStreak}
+                </span>
+              )}
+            </span>
             <span className={styles.count}>{row.correctCount}</span>
           </li>
         )
