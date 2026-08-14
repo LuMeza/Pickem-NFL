@@ -53,7 +53,7 @@ export function AdminSurvivorPage() {
       <div className={styles.section}>
         <h2 className={`text-display-sm ${styles.sectionTitle}`}>Solicitudes de vida</h2>
         <p className="text-body-sm text-muted">
-          Cada vida extra (design.md decision 7) se otorga solo si la aprobás acá — mientras esté pendiente, quien la
+          Cada vida extra (design.md decision 7) se otorga solo si la apruebas acá — mientras esté pendiente, quien la
           pidió puede seguir pickeando de forma provisoria.
         </p>
 
