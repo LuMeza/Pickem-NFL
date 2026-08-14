@@ -140,6 +140,17 @@ export function AdminUserPicksPage() {
     weeklyByUser.set(row.userId, entry)
   })
 
+  /** El PDF es para mandarselo a los jugadores reales, asi que a diferencia de la vista en pantalla no incluye admins ni cuentas de prueba. */
+  const weeklyByUserForExport = new Map<string, WeeklyPicksMatrixUser>()
+  weeklyWeekRows?.forEach((row) => {
+    if (row.isAdmin || row.isTestAccount) return
+    const entry = weeklyByUserForExport.get(row.userId) ?? { displayName: row.displayName, rowsByGame: new Map() }
+    entry.rowsByGame.set(row.gameId, row)
+    weeklyByUserForExport.set(row.userId, entry)
+  })
+
+  const survivorWeekRowsForExport = (survivorWeekRows ?? []).filter((row) => !row.isAdmin && !row.isTestAccount)
+
   const userWeeklyByWeek = new Map<string, AdminUserWeeklyPick[]>()
   userWeeklyPicks?.forEach((pick) => {
     const list = userWeeklyByWeek.get(pick.weekId) ?? []
@@ -154,11 +165,11 @@ export function AdminUserPicksPage() {
   const selectedWeek = weeks?.find((week) => week.id === selectedWeekId)
 
   async function handleDownloadWeeklyPdf() {
-    if (downloadingPdf || !selectedWeek || weeklyByUser.size === 0) return
+    if (downloadingPdf || !selectedWeek || weeklyByUserForExport.size === 0) return
     setDownloadingPdf(true)
     try {
       await downloadWeeklyPicksMatrixPdf({
-        rows: weeklyByUser,
+        rows: weeklyByUserForExport,
         games: gamesForSelectedWeek,
         title: weekLabel(selectedWeek),
         subtitle: 'Pickem semanal — picks de usuarios',
@@ -172,11 +183,11 @@ export function AdminUserPicksPage() {
   }
 
   async function handleDownloadSurvivorPdf() {
-    if (downloadingPdf || !selectedWeek || !survivorWeekRows || survivorWeekRows.length === 0) return
+    if (downloadingPdf || !selectedWeek || survivorWeekRowsForExport.length === 0) return
     setDownloadingPdf(true)
     try {
       await downloadSurvivorPicksPdf({
-        rows: survivorWeekRows.map((row) => ({
+        rows: survivorWeekRowsForExport.map((row) => ({
           displayName: row.displayName,
           teamId: row.teamId,
           lifeNumber: row.lifeNumber,
@@ -262,7 +273,8 @@ export function AdminUserPicksPage() {
                     type="button"
                     className={`button-secondary ${styles.downloadButton}`}
                     onClick={handleDownloadWeeklyPdf}
-                    disabled={downloadingPdf}
+                    disabled={downloadingPdf || weeklyByUserForExport.size === 0}
+                    title={weeklyByUserForExport.size === 0 ? 'No hay jugadores para exportar esta semana' : undefined}
                   >
                     <Icon name="download" size={14} />
                     {downloadingPdf ? 'Generando PDF...' : 'Descargar PDF'}
@@ -286,7 +298,8 @@ export function AdminUserPicksPage() {
                     type="button"
                     className={`button-secondary ${styles.downloadButton}`}
                     onClick={handleDownloadSurvivorPdf}
-                    disabled={downloadingPdf}
+                    disabled={downloadingPdf || survivorWeekRowsForExport.length === 0}
+                    title={survivorWeekRowsForExport.length === 0 ? 'No hay jugadores para exportar esta semana' : undefined}
                   >
                     <Icon name="download" size={14} />
                     {downloadingPdf ? 'Generando PDF...' : 'Descargar PDF'}

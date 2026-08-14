@@ -13,6 +13,8 @@ interface WeeklyForWeekRow {
   game_id: string
   pick: string | null
   outcome: string | null
+  is_admin: boolean
+  is_test_account: boolean
 }
 
 interface SurvivorForWeekRow {
@@ -21,6 +23,8 @@ interface SurvivorForWeekRow {
   team_id: string | null
   life_number: number | null
   status: string
+  is_admin: boolean
+  is_test_account: boolean
 }
 
 interface WeeklyForUserRow {
@@ -56,6 +60,8 @@ export class SupabaseAdminPicksRepository implements AdminPicksRepository {
       gameId: row.game_id,
       pick: row.pick as AdminWeeklyPickRow['pick'],
       outcome: row.outcome as AdminWeeklyPickRow['outcome'],
+      isAdmin: row.is_admin,
+      isTestAccount: row.is_test_account,
     }))
   }
 
@@ -72,6 +78,8 @@ export class SupabaseAdminPicksRepository implements AdminPicksRepository {
       teamId: row.team_id,
       lifeNumber: row.life_number as AdminSurvivorPickRow['lifeNumber'],
       status: row.status as AdminSurvivorPickRow['status'],
+      isAdmin: row.is_admin,
+      isTestAccount: row.is_test_account,
     }))
   }
 

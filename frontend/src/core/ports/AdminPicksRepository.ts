@@ -8,6 +8,9 @@ export interface AdminWeeklyPickRow {
   gameId: string
   pick: WeeklyPickValue | null
   outcome: GameOutcome | null
+  /** Para filtrar estas filas al armar el PDF (pensado para jugadores reales) sin tocar la vista en pantalla, que sigue mostrando todo. */
+  isAdmin: boolean
+  isTestAccount: boolean
 }
 
 export interface AdminSurvivorPickRow {
@@ -16,6 +19,9 @@ export interface AdminSurvivorPickRow {
   teamId: string | null
   lifeNumber: SurvivorLife | null
   status: SurvivorStatus
+  /** Para filtrar estas filas al armar el PDF (pensado para jugadores reales) sin tocar la vista en pantalla, que sigue mostrando todo. */
+  isAdmin: boolean
+  isTestAccount: boolean
 }
 
 export interface AdminUserWeeklyPick {
