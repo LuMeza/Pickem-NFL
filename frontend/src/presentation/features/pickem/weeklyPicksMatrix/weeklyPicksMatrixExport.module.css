@@ -1,6 +1,11 @@
-/* Mismas reglas de fondo solido que ExportLayouts.module.css (sin backdrop-filter, no se traduce bien al rasterizar). */
+/*
+ * Mismas reglas de fondo solido que ExportLayouts.module.css (sin
+ * backdrop-filter, no se traduce bien al rasterizar). Sin `width: 100%`
+ * adrede: el ancho de pagina se calcula midiendo el ancho natural de esta
+ * misma tabla (ver measureNaturalWidth en weeklyPicksMatrixExport.tsx) —
+ * forzar 100% acá crearía una dependencia circular con esa medicion.
+ */
 .table {
-  width: 100%;
   border-collapse: separate;
   border-spacing: 0;
 }

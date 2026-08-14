@@ -1,3 +1,5 @@
+import type { ReactElement } from 'react'
+import { createRoot } from 'react-dom/client'
 import { ExportPage } from '@/presentation/features/catalog/calendarExport/ExportLayouts'
 import { downloadPagesAsPdf } from '@/presentation/features/catalog/calendarExport/exportCapture'
 import { getTeamLogoUrl } from '@/presentation/components/TeamBadge/teamLogos'
@@ -5,12 +7,22 @@ import type { Game } from '@/core/entities/catalog'
 import { pickStatus, pickedTeamId, type WeeklyPicksMatrixUser } from './WeeklyPicksMatrix'
 import styles from './weeklyPicksMatrixExport.module.css'
 
-/** Columna usuario fija + una columna angosta por partido — sin `loading="lazy"` (el nodo se captura fuera de viewport, ver ExportLayouts.tsx ExportBadge). */
-const USER_COL_WIDTH = 170
-const GAME_COL_WIDTH = 60
-const PAGE_PADDING = 90
+/**
+ * `ExportPage` fuerza un ancho de pagina fijo (`widthPx`) y `exportCapture`
+ * rasteriza exactamente esos px — si la tabla real necesita mas ancho que el
+ * que le dimos (mas partidos o nombres mas largos de lo previsto), el
+ * contenido que sobra queda directamente fuera de la captura, cortado, en
+ * vez de recortado con scroll visible. Pasó con una semana de pretemporada
+ * con muchos partidos y nombres largos, con un ancho estimado por formula.
+ * En vez de afinar constantes por columna a mano, se mide el ancho natural
+ * real de esta misma tabla (mismo truco que exportCapture.ts usa para medir
+ * el alto) y se arma la pagina a partir de esa medicion — no hace falta
+ * volver a tocar esto si cambia la cantidad de partidos o el largo de los
+ * nombres.
+ */
+const PAGE_CHROME_PADDING = 100
 const MIN_WIDTH = 640
-const MAX_WIDTH = 2400
+const MAX_WIDTH = 4000
 
 function ExportBadge({ teamId, size }: { teamId: string; size: number }) {
   return (
@@ -18,8 +30,30 @@ function ExportBadge({ teamId, size }: { teamId: string; size: number }) {
   )
 }
 
-function widthForGames(gameCount: number): number {
-  const raw = USER_COL_WIDTH + gameCount * GAME_COL_WIDTH + PAGE_PADDING
+/** Monta `node` fuera de pantalla en un contenedor que se ajusta a su contenido (sin ancho forzado) y mide su ancho real. */
+async function measureNaturalWidth(node: ReactElement): Promise<number> {
+  const wrapper = document.createElement('div')
+  wrapper.style.position = 'fixed'
+  wrapper.style.top = '0'
+  wrapper.style.left = '-10000px'
+  wrapper.style.display = 'inline-block'
+  wrapper.style.pointerEvents = 'none'
+  document.body.appendChild(wrapper)
+
+  const root = createRoot(wrapper)
+  root.render(node)
+  await new Promise((resolve) => setTimeout(resolve, 80))
+
+  try {
+    return Math.ceil(wrapper.getBoundingClientRect().width)
+  } finally {
+    root.unmount()
+    wrapper.remove()
+  }
+}
+
+function pageWidthFor(naturalTableWidth: number): number {
+  const raw = naturalTableWidth + PAGE_CHROME_PADDING
   return Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, raw))
 }
 
@@ -111,7 +145,8 @@ export async function downloadWeeklyPicksMatrixPdf(params: {
   fileName: string
 }): Promise<void> {
   const { rows, games, title, subtitle, fileName } = params
-  const widthPx = widthForGames(games.length)
+  const naturalWidth = await measureNaturalWidth(<ExportMatrixTable rows={rows} games={games} />)
+  const widthPx = pageWidthFor(naturalWidth)
   await downloadPagesAsPdf(
     [
       {
@@ -135,7 +170,8 @@ export async function downloadSurvivorPicksPdf(params: {
   fileName: string
 }): Promise<void> {
   const { rows, teamName, title, subtitle, fileName } = params
-  const widthPx = 640
+  const naturalWidth = await measureNaturalWidth(<ExportSurvivorTable rows={rows} teamName={teamName} />)
+  const widthPx = pageWidthFor(naturalWidth)
   await downloadPagesAsPdf(
     [
       {
