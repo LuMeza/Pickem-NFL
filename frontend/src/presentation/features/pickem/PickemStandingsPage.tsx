@@ -16,46 +16,138 @@ import type { StandingRow } from '@/core/entities/standings'
 import { weekLabel } from './weekLabel'
 import styles from './PickemStandingsPage.module.css'
 
-const PODIUM_CLASS = [styles.podium1, styles.podium2, styles.podium3]
 /** A partir de esta racha de aciertos consecutivos se prende el fuego al lado del nombre. */
 const FIRE_STREAK_THRESHOLD = 3
+/** En el pedestal, mostrar como mucho estos avatares superpuestos antes de resumir en "+N". */
+const MAX_PODIUM_AVATARS = 3
+/**
+ * Si el top 3 por nivel de puntaje junta mas gente que esto (comun en
+ * semanas con pocos partidos, donde empatan muchos), el podio deja de tener
+ * sentido — nadie destaca. Se salta el podio y se muestra la lista simple
+ * para todos; en cuanto los puntajes se separen mas adelante en la
+ * temporada, el podio "aparece" solo.
+ */
+const MAX_PODIUM_MEMBERS = 6
+
+interface Tier {
+  position: number
+  rows: StandingRow[]
+}
+
+/** Iniciales para el avatar — primera letra del nombre y del apellido (o las dos primeras si no hay apellido). */
+function initials(displayName: string): string {
+  const parts = displayName.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '?'
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase()
+  return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase()
+}
+
+function firstName(displayName: string): string {
+  return displayName.trim().split(/\s+/)[0] ?? displayName
+}
+
+/** Agrupa filas ya ordenadas por correctCount en "niveles": empatados en el mismo puntaje comparten posición (ranking de competencia — 1,1,1,4,5, no 1,1,1,2,3). */
+function groupIntoTiers(rows: StandingRow[]): Tier[] {
+  const tiers: Tier[] = []
+  rows.forEach((row, index) => {
+    const lastTier = tiers[tiers.length - 1]
+    if (lastTier && lastTier.rows[0]!.correctCount === row.correctCount) {
+      lastTier.rows.push(row)
+    } else {
+      tiers.push({ position: index + 1, rows: [row] })
+    }
+  })
+  return tiers
+}
+
+function PodiumSlot({ tier, rank }: { tier?: Tier; rank: 1 | 2 | 3 }) {
+  if (!tier) return <div className={styles.podiumEmpty} aria-hidden="true" />
+
+  const rankClass = rank === 1 ? styles.podiumFirst : rank === 2 ? styles.podiumSecond : styles.podiumThird
+  const shown = tier.rows.slice(0, MAX_PODIUM_AVATARS)
+  const extra = tier.rows.length - shown.length
+  const label =
+    tier.rows.length === 1
+      ? tier.rows[0]!.displayName
+      : tier.rows.length === 2
+        ? tier.rows.map((row) => firstName(row.displayName)).join(' y ')
+        : `${tier.rows.length} empatados`
+
+  return (
+    <div className={`${styles.podiumSlot} ${rankClass}`}>
+      <div className={styles.podiumAvatars}>
+        {shown.map((row) => (
+          <span key={row.userId} className={styles.podiumAvatar} title={row.displayName}>
+            {initials(row.displayName)}
+          </span>
+        ))}
+        {extra > 0 && <span className={styles.podiumAvatarExtra}>+{extra}</span>}
+      </div>
+      <span className={styles.podiumNames} title={tier.rows.map((row) => row.displayName).join(', ')}>
+        {label}
+      </span>
+      <div className={styles.podiumBlock}>
+        {rank === 1 && <Icon name="trophy" size={16} />}
+        <span className={styles.podiumScore}>{tier.rows[0]!.correctCount}</span>
+      </div>
+    </div>
+  )
+}
+
+/** Podio real (1° al centro y mas alto, 2°/3° a los lados) para el top 3 por nivel de puntaje — no por fila, asi que un empate no "corre" al resto de posiciones. */
+function Podium({ tiers }: { tiers: Tier[] }) {
+  if (tiers.length === 0) return null
+  const [first, second, third] = tiers
+  return (
+    <div className={`${styles.podiumPanel} glass-surface`}>
+      <div className={styles.podium}>
+        <PodiumSlot tier={second} rank={2} />
+        <PodiumSlot tier={first} rank={1} />
+        <PodiumSlot tier={third} rank={3} />
+      </div>
+    </div>
+  )
+}
 
 function StandingsList({ rows }: { rows: StandingRow[] }) {
   if (rows.length === 0) {
     return <p className="text-body-sm text-muted">Todavía no hay resultados para mostrar.</p>
   }
 
-  const maxCount = Math.max(...rows.map((row) => row.correctCount), 1)
+  const tiers = groupIntoTiers(rows)
+  const podiumTiers = tiers.slice(0, 3)
+  const podiumMemberCount = podiumTiers.reduce((sum, tier) => sum + tier.rows.length, 0)
+  const showPodium = podiumMemberCount > 0 && podiumMemberCount <= MAX_PODIUM_MEMBERS
+  const listTiers = showPodium ? tiers.slice(3) : tiers
 
-  let position = 0
-  let previousCount: number | null = null
   return (
-    <ul className={`${styles.list} glass-surface`}>
-      {rows.map((row, index) => {
-        if (row.correctCount !== previousCount) {
-          position = index + 1
-          previousCount = row.correctCount
-        }
-        const podiumClass = PODIUM_CLASS[position - 1] ?? ''
-        const onFire = row.currentStreak >= FIRE_STREAK_THRESHOLD
-        const barWidth = row.correctCount > 0 ? Math.max((row.correctCount / maxCount) * 100, 8) : 0
-        return (
-          <li key={row.userId} className={`${styles.row} ${podiumClass}`}>
-            <span className={styles.bar} style={{ width: `${barWidth}%` }} aria-hidden="true" />
-            <span className={styles.position}>{position}°</span>
-            <span className={styles.name}>
-              <span className={styles.nameText}>{row.displayName}</span>
-              {onFire && (
-                <span className={styles.fire} title={`${row.currentStreak} aciertos seguidos`}>
-                  🔥{row.currentStreak}
-                </span>
-              )}
-            </span>
-            <span className={styles.count}>{row.correctCount}</span>
-          </li>
-        )
-      })}
-    </ul>
+    <>
+      {showPodium && <Podium tiers={podiumTiers} />}
+      {listTiers.length > 0 && (
+        <ul className={`${styles.list} glass-surface`}>
+          {listTiers.flatMap((tier) =>
+            tier.rows.map((row) => {
+              const onFire = row.currentStreak >= FIRE_STREAK_THRESHOLD
+              return (
+                <li key={row.userId} className={styles.row}>
+                  <span className={styles.position}>{tier.position}°</span>
+                  <span className={styles.avatarWrap}>
+                    <span className={styles.avatar}>{initials(row.displayName)}</span>
+                    {onFire && (
+                      <span className={styles.fireBadge} title={`${row.currentStreak} aciertos seguidos`}>
+                        🔥{row.currentStreak}
+                      </span>
+                    )}
+                  </span>
+                  <span className={styles.nameText}>{row.displayName}</span>
+                  <span className={styles.count}>{row.correctCount}</span>
+                </li>
+              )
+            }),
+          )}
+        </ul>
+      )}
+    </>
   )
 }
 
