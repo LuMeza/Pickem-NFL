@@ -7,6 +7,7 @@ import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGa
 import { useNow } from '@/presentation/hooks/useNow'
 import { computeTeamStanding, findNextGame } from '@/core/rules/computeTeamStanding'
 import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
+import { formatLivePeriod } from '@/core/rules/formatLivePeriod'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { getReadableAccent, getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
 import { getTeamDivision } from '@/presentation/components/TeamBadge/teamDivisions'
@@ -201,7 +202,8 @@ export function TeamDetailPage() {
         {liveGameLabel ? (
           <div className={`${styles.heroNextGame} ${styles.heroLive}`}>
             <span className={styles.liveDot} aria-hidden="true" />
-            En vivo · {liveGameLabel}
+            {formatLivePeriod(liveGame?.livePeriod ?? null, liveGame?.liveClock ?? null) ?? 'En vivo'} ·{' '}
+            {liveGameLabel}
           </div>
         ) : (
           nextGameLabel && (

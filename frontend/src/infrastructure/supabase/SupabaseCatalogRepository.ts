@@ -30,7 +30,7 @@ export class SupabaseCatalogRepository implements CatalogRepository {
   async listGamesForWeek(weekId: string): Promise<Game[]> {
     const { data, error } = await this.client
       .from('games')
-      .select('id, week_id, home_team_id, away_team_id, kickoff_at')
+      .select('id, week_id, home_team_id, away_team_id, kickoff_at, live_period, live_clock')
       .eq('week_id', weekId)
       .order('kickoff_at')
     if (error) throw error
@@ -41,13 +41,15 @@ export class SupabaseCatalogRepository implements CatalogRepository {
       homeTeamId: row.home_team_id as string,
       awayTeamId: row.away_team_id as string,
       kickoffAt: new Date(row.kickoff_at as string),
+      livePeriod: row.live_period as number | null,
+      liveClock: row.live_clock as string | null,
     }))
   }
 
   async listAllGames(): Promise<Game[]> {
     const { data, error } = await this.client
       .from('games')
-      .select('id, week_id, home_team_id, away_team_id, kickoff_at')
+      .select('id, week_id, home_team_id, away_team_id, kickoff_at, live_period, live_clock')
       .order('kickoff_at')
     if (error) throw error
 
@@ -57,13 +59,15 @@ export class SupabaseCatalogRepository implements CatalogRepository {
       homeTeamId: row.home_team_id as string,
       awayTeamId: row.away_team_id as string,
       kickoffAt: new Date(row.kickoff_at as string),
+      livePeriod: row.live_period as number | null,
+      liveClock: row.live_clock as string | null,
     }))
   }
 
   async listGamesForTeam(teamId: string): Promise<Game[]> {
     const { data, error } = await this.client
       .from('games')
-      .select('id, week_id, home_team_id, away_team_id, kickoff_at')
+      .select('id, week_id, home_team_id, away_team_id, kickoff_at, live_period, live_clock')
       .or(`home_team_id.eq.${teamId},away_team_id.eq.${teamId}`)
       .order('kickoff_at')
     if (error) throw error
@@ -74,6 +78,8 @@ export class SupabaseCatalogRepository implements CatalogRepository {
       homeTeamId: row.home_team_id as string,
       awayTeamId: row.away_team_id as string,
       kickoffAt: new Date(row.kickoff_at as string),
+      livePeriod: row.live_period as number | null,
+      liveClock: row.live_clock as string | null,
     }))
   }
 
@@ -116,7 +122,7 @@ export class SupabaseCatalogRepository implements CatalogRepository {
         away_team_id: game.awayTeamId,
         kickoff_at: game.kickoffAt.toISOString(),
       })
-      .select('id, week_id, home_team_id, away_team_id, kickoff_at')
+      .select('id, week_id, home_team_id, away_team_id, kickoff_at, live_period, live_clock')
       .single()
     if (error) throw error
 
@@ -126,6 +132,8 @@ export class SupabaseCatalogRepository implements CatalogRepository {
       homeTeamId: data.home_team_id as string,
       awayTeamId: data.away_team_id as string,
       kickoffAt: new Date(data.kickoff_at as string),
+      livePeriod: data.live_period as number | null,
+      liveClock: data.live_clock as string | null,
     }
   }
 
@@ -138,7 +146,7 @@ export class SupabaseCatalogRepository implements CatalogRepository {
         kickoff_at: changes.kickoffAt.toISOString(),
       })
       .eq('id', gameId)
-      .select('id, week_id, home_team_id, away_team_id, kickoff_at')
+      .select('id, week_id, home_team_id, away_team_id, kickoff_at, live_period, live_clock')
       .single()
     if (error) throw error
 
@@ -148,6 +156,8 @@ export class SupabaseCatalogRepository implements CatalogRepository {
       homeTeamId: data.home_team_id as string,
       awayTeamId: data.away_team_id as string,
       kickoffAt: new Date(data.kickoff_at as string),
+      livePeriod: data.live_period as number | null,
+      liveClock: data.live_clock as string | null,
     }
   }
 }

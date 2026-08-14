@@ -5,6 +5,7 @@ import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
 import { useNow } from '@/presentation/hooks/useNow'
 import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
+import { formatLivePeriod } from '@/core/rules/formatLivePeriod'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
@@ -115,7 +116,7 @@ function FeaturedGameCard({
     >
       <span className={`${styles.statusPill} ${isLive ? styles.statusLive : styles.statusUpcoming}`}>
         {isLive && <span className={styles.liveDot} aria-hidden="true" />}
-        {isLive ? 'En vivo' : formatKickoffLabel(game.kickoffAt, now)}
+        {isLive ? (formatLivePeriod(game.livePeriod, game.liveClock) ?? 'En vivo') : formatKickoffLabel(game.kickoffAt, now)}
       </span>
       <span className={styles.matchup}>
         <TeamRow teamId={game.homeTeamId} name={teamName(game.homeTeamId)} />

@@ -17,6 +17,9 @@ export interface Game {
   homeTeamId: string
   awayTeamId: string
   kickoffAt: Date
+  /** Cuarto en curso (1-4, 5+ tiempo extra) y reloj mostrado por ESPN — solo mientras el partido esta en vivo. */
+  livePeriod: number | null
+  liveClock: string | null
 }
 
 export interface Player {

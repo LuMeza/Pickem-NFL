@@ -40,6 +40,7 @@ interface SyncSummary {
   weeksProcessed: number
   gamesCreated: number
   resultsUpdated: number
+  liveStatusUpdated: number
   errors: string[]
 }
 
@@ -76,6 +77,8 @@ interface ExistingGameRow {
   result_source: string | null
   home_score: number | null
   away_score: number | null
+  live_period: number | null
+  live_clock: string | null
 }
 
 Deno.serve(async (req: Request) => {
@@ -89,7 +92,7 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: 'Solo un administrador de plataforma (o el Cron Job) puede sincronizar' }, 403)
   }
 
-  const summary: SyncSummary = { weeksProcessed: 0, gamesCreated: 0, resultsUpdated: 0, errors: [] }
+  const summary: SyncSummary = { weeksProcessed: 0, gamesCreated: 0, resultsUpdated: 0, liveStatusUpdated: 0, errors: [] }
 
   const { data: weeks, error: weeksError } = await adminClient
     .from('weeks')
@@ -127,7 +130,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: existingGames, error: existingError } = await adminClient
       .from('games')
-      .select('id, home_team_id, away_team_id, espn_event_id, result_source, home_score, away_score')
+      .select('id, home_team_id, away_team_id, espn_event_id, result_source, home_score, away_score, live_period, live_clock')
       .eq('week_id', week.id)
     if (existingError) {
       summary.errors.push(`Semana ${week.type} ${week.number}: no se pudieron leer partidos existentes (${existingError.message})`)
@@ -151,6 +154,8 @@ Deno.serve(async (req: Request) => {
       home_score?: number
       away_score?: number
       result_source?: 'auto_sync'
+      live_period?: number
+      live_clock?: string
     }[] = []
     const resultUpdates: {
       id: string
@@ -159,6 +164,7 @@ Deno.serve(async (req: Request) => {
       away_score: number
     }[] = []
     const espnIdBackfills: { id: string; espn_event_id: string }[] = []
+    const liveStatusUpdates: { id: string; live_period: number | null; live_clock: string | null }[] = []
 
     for (const event of events) {
       const parsed = parseEspnEvent(event)
@@ -189,6 +195,8 @@ Deno.serve(async (req: Request) => {
                 result_source: 'auto_sync' as const,
               }
             : {}),
+          ...(parsed.livePeriod !== null ? { live_period: parsed.livePeriod } : {}),
+          ...(parsed.liveClock !== null ? { live_clock: parsed.liveClock } : {}),
         })
         if (hasResult) summary.resultsUpdated += 1
         continue
@@ -196,6 +204,14 @@ Deno.serve(async (req: Request) => {
 
       if (!existing.espn_event_id) {
         espnIdBackfills.push({ id: existing.id, espn_event_id: parsed.espnEventId })
+      }
+
+      // Cuarto/reloj en vivo: independiente de la precedencia manual del
+      // resultado (esta desactualizado en cuanto el partido termina, sin
+      // importar quien haya cargado el marcador final). Solo se escribe si
+      // cambio, para no generar un update por partido en cada corrida.
+      if (existing.live_period !== parsed.livePeriod || existing.live_clock !== parsed.liveClock) {
+        liveStatusUpdates.push({ id: existing.id, live_period: parsed.livePeriod, live_clock: parsed.liveClock })
       }
 
       const isManual = existing.result_source === 'manual'
@@ -248,6 +264,18 @@ Deno.serve(async (req: Request) => {
         summary.errors.push(`Partido ${update.id}: no se pudo actualizar el resultado (${updateError.message})`)
       } else {
         summary.resultsUpdated += 1
+      }
+    }
+
+    for (const update of liveStatusUpdates) {
+      const { error: liveUpdateError } = await adminClient
+        .from('games')
+        .update({ live_period: update.live_period, live_clock: update.live_clock })
+        .eq('id', update.id)
+      if (liveUpdateError) {
+        summary.errors.push(`Partido ${update.id}: no se pudo actualizar el cuarto en vivo (${liveUpdateError.message})`)
+      } else {
+        summary.liveStatusUpdated += 1
       }
     }
   }

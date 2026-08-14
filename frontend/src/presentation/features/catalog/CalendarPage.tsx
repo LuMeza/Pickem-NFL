@@ -4,6 +4,7 @@ import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
 import { useNow } from '@/presentation/hooks/useNow'
 import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
+import { formatLivePeriod } from '@/core/rules/formatLivePeriod'
 import { weekLabel } from '@/presentation/features/pickem/weekLabel'
 import type { Game, Week, WeekType } from '@/core/entities/catalog'
 import type { GameResult } from '@/core/entities/gameResult'
@@ -87,7 +88,7 @@ function MatchChip({
       {status === 'live' && (
         <span className={styles.matchChipStatus}>
           <span className={styles.liveDot} aria-hidden="true" />
-          En vivo
+          {formatLivePeriod(game.livePeriod, game.liveClock) ?? 'En vivo'}
         </span>
       )}
     </li>

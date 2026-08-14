@@ -4,7 +4,15 @@ import type { Game } from '@/core/entities/catalog'
 import type { GameResult } from '@/core/entities/gameResult'
 
 function game(id: string, home: string, away: string, kickoffAt: string): Game {
-  return { id, weekId: 'week-1', homeTeamId: home, awayTeamId: away, kickoffAt: new Date(kickoffAt) }
+  return {
+    id,
+    weekId: 'week-1',
+    homeTeamId: home,
+    awayTeamId: away,
+    kickoffAt: new Date(kickoffAt),
+    livePeriod: null,
+    liveClock: null,
+  }
 }
 
 function result(gameId: string, outcome: GameResult['outcome']): GameResult {

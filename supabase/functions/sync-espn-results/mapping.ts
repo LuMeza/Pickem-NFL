@@ -65,7 +65,7 @@ export interface EspnCompetitor {
 export interface EspnEvent {
   id: string
   date: string
-  status: { type: { completed: boolean } }
+  status: { type: { completed: boolean; state: string }; period?: number; displayClock?: string }
   competitions: Array<{ competitors: EspnCompetitor[] }>
 }
 
@@ -77,6 +77,9 @@ export interface ParsedEspnGame {
   completed: boolean
   homeScore: number | null
   awayScore: number | null
+  /** Cuarto en curso (1-4, 5+ tiempo extra) y reloj mostrado, solo mientras status.type.state === 'in'. */
+  livePeriod: number | null
+  liveClock: string | null
 }
 
 /** Extrae los datos relevantes de un evento del scoreboard, o null si el evento no trae ambos equipos definidos (ej. playoffs con matchup aún no decidido, "TBD"). */
@@ -96,6 +99,10 @@ export function parseEspnEvent(event: EspnEvent): ParsedEspnGame | null {
   const homeScore = completed && home.score !== undefined ? Number(home.score) : null
   const awayScore = completed && away.score !== undefined ? Number(away.score) : null
 
+  const isLive = event.status.type.state === 'in'
+  const livePeriod = isLive && event.status.period !== undefined ? event.status.period : null
+  const liveClock = isLive && event.status.displayClock !== undefined ? event.status.displayClock : null
+
   return {
     espnEventId: event.id,
     kickoffAt: new Date(event.date),
@@ -104,5 +111,7 @@ export function parseEspnEvent(event: EspnEvent): ParsedEspnGame | null {
     completed,
     homeScore,
     awayScore,
+    livePeriod,
+    liveClock,
   }
 }

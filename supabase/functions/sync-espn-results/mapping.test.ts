@@ -73,7 +73,7 @@ function buildEvent(overrides: Partial<EspnEvent> = {}): EspnEvent {
   return {
     id: '401772510',
     date: '2025-09-05T00:20Z',
-    status: { type: { completed: true } },
+    status: { type: { completed: true, state: 'post' } },
     competitions: [
       {
         competitors: [
@@ -100,11 +100,29 @@ describe('parseEspnEvent', () => {
   })
 
   it('returns null scores for a scheduled (not yet played) event', () => {
-    const event = buildEvent({ status: { type: { completed: false } } })
+    const event = buildEvent({ status: { type: { completed: false, state: 'pre' } } })
     const result = parseEspnEvent(event)
     expect(result?.completed).toBe(false)
     expect(result?.homeScore).toBeNull()
     expect(result?.awayScore).toBeNull()
+    expect(result?.livePeriod).toBeNull()
+    expect(result?.liveClock).toBeNull()
+  })
+
+  it('parses the live period/clock for an in-progress event', () => {
+    const event = buildEvent({
+      status: { type: { completed: false, state: 'in' }, period: 3, displayClock: '5:13' },
+    })
+    const result = parseEspnEvent(event)
+    expect(result?.completed).toBe(false)
+    expect(result?.livePeriod).toBe(3)
+    expect(result?.liveClock).toBe('5:13')
+  })
+
+  it('does not report a live period for a finished event', () => {
+    const result = parseEspnEvent(buildEvent())
+    expect(result?.livePeriod).toBeNull()
+    expect(result?.liveClock).toBeNull()
   })
 
   it('returns null when a matchup is not yet decided (TBD)', () => {

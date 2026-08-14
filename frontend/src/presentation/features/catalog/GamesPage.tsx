@@ -8,6 +8,7 @@ import { useSaveWeeklyPick } from '@/presentation/hooks/useSaveWeeklyPick'
 import { useNow } from '@/presentation/hooks/useNow'
 import { isWeeklyPickLocked, weeklyPickGroupDeadline } from '@/core/rules/weeklyPickGroupDeadline'
 import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
+import { formatLivePeriod } from '@/core/rules/formatLivePeriod'
 import type { Game } from '@/core/entities/catalog'
 import type { GameResult } from '@/core/entities/gameResult'
 import type { WeeklyPickValue } from '@/core/ports/WeeklyPickRepository'
@@ -141,7 +142,9 @@ function GameProposal({
       {!hasResult && isLive && (
         <div className={styles.scoreboard}>
           <span className={styles.liveDot} aria-hidden="true" />
-          <span className={`${styles.scoreboardValue} ${styles.scoreboardLive}`}>En vivo</span>
+          <span className={`${styles.scoreboardValue} ${styles.scoreboardLive}`}>
+            {formatLivePeriod(game.livePeriod, game.liveClock) ?? 'En vivo'}
+          </span>
         </div>
       )}
       <PredictionCard
