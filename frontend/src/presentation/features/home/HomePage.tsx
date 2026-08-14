@@ -122,7 +122,7 @@ export function HomePage() {
                   {standingPosition
                     ? `de ${standingPosition.totalPlayers} jugadores`
                     : isPlatformAdmin
-                      ? 'No participás'
+                      ? 'No participas'
                       : 'Sin datos aún'}
                 </span>
                 <span className={styles.standingsHeroDetail}>
