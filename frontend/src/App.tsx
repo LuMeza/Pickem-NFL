@@ -17,6 +17,8 @@ import { RequestModuleAccessPage } from '@/presentation/features/groups/RequestM
 import { PickemHubPage } from '@/presentation/features/pickem/PickemHubPage'
 import { PickemStandingsRedirect } from '@/presentation/features/pickem/PickemStandingsRedirect'
 import { PickemStandingsPage } from '@/presentation/features/pickem/PickemStandingsPage'
+import { WeeklyPicksBoardRedirect } from '@/presentation/features/pickem/WeeklyPicksBoardRedirect'
+import { WeeklyPicksBoardPage } from '@/presentation/features/pickem/WeeklyPicksBoardPage'
 import { SurvivorRedirect } from '@/presentation/features/survivor/SurvivorRedirect'
 import { SurvivorPickPage } from '@/presentation/features/survivor/SurvivorPickPage'
 import { SurvivorStandingsPage } from '@/presentation/features/survivor/SurvivorStandingsPage'
@@ -60,6 +62,8 @@ function App() {
             <Route path="/pickem" element={<PickemHubPage />} />
             <Route path="/pickem/tabla" element={<PickemStandingsRedirect />} />
             <Route path="/pickem/tabla/:weekId" element={<PickemStandingsPage />} />
+            <Route path="/pickem/picks" element={<WeeklyPicksBoardRedirect />} />
+            <Route path="/pickem/picks/:weekId" element={<WeeklyPicksBoardPage />} />
             <Route path="/survivor" element={<SurvivorRedirect />} />
             <Route path="/survivor/semana/:weekId" element={<SurvivorPickPage />} />
             <Route path="/survivor/tabla" element={<SurvivorStandingsPage />} />

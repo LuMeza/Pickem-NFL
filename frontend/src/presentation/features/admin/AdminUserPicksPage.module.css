@@ -26,15 +26,19 @@
   padding: 0;
 }
 
-.matrixTable,
+.downloadButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+}
+
 .simpleTable {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
 }
 
-.matrixTable th,
-.matrixTable td,
 .simpleTable th,
 .simpleTable td {
   padding: 10px 14px;
@@ -43,7 +47,6 @@
   white-space: nowrap;
 }
 
-.matrixTable tbody tr:last-child td,
 .simpleTable tbody tr:last-child td {
   border-bottom: none;
 }
@@ -57,46 +60,8 @@
   font-weight: 400;
 }
 
-.simpleTable tbody tr:hover,
-.matrixTable tbody tr:hover {
+.simpleTable tbody tr:hover {
   background: rgba(255, 255, 255, 0.03);
-}
-
-/* Columna de usuario fija a la izquierda al hacer scroll horizontal de la matriz. */
-.userHeaderCell {
-  position: sticky;
-  left: 0;
-  background: var(--bg-surface);
-  font-weight: 500;
-  z-index: 1;
-}
-
-.gameHeaderCell {
-  text-align: center;
-}
-
-.gameHeaderTeams {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.pickCell {
-  text-align: center;
-}
-
-.pickCell[data-status='correct'] {
-  background: rgba(200, 255, 61, 0.1);
-  box-shadow: inset 0 0 0 1px rgba(200, 255, 61, 0.35);
-}
-
-.pickCell[data-status='incorrect'] {
-  background: rgba(255, 84, 104, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(255, 84, 104, 0.3);
-}
-
-.dash {
-  color: var(--text-muted);
 }
 
 .teamPick {

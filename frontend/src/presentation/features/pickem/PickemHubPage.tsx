@@ -25,6 +25,12 @@ export function PickemHubPage() {
           description="Elige tu equipo de la semana, sin repetir en toda la temporada"
         />
         <ActionCard
+          to="/pickem/picks"
+          icon="users"
+          title="Picks de todos"
+          description="Compará tus picks con los de los demás, una vez que se bloquea la semana"
+        />
+        <ActionCard
           to="/playoffs"
           icon="trophy"
           title="Playoffs"

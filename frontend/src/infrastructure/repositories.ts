@@ -11,6 +11,7 @@ import { SupabaseSurvivorRepository } from '@/infrastructure/supabase/SupabaseSu
 import { SupabaseCatalogRepository } from '@/infrastructure/supabase/SupabaseCatalogRepository'
 import { SupabaseResultsRepository } from '@/infrastructure/supabase/SupabaseResultsRepository'
 import { SupabaseSyncRepository } from '@/infrastructure/supabase/SupabaseSyncRepository'
+import { SupabaseWeeklyPicksBoardRepository } from '@/infrastructure/supabase/SupabaseWeeklyPicksBoardRepository'
 
 /**
  * Punto único de construcción de los adapters concretos. Solo `src/main.tsx`
@@ -30,5 +31,6 @@ export function createSupabaseRepositories(): Repositories {
     syncRepository: new SupabaseSyncRepository(supabaseClient),
     adminPicksRepository: new SupabaseAdminPicksRepository(supabaseClient),
     achievementsRepository: new SupabaseAchievementsRepository(supabaseClient),
+    weeklyPicksBoardRepository: new SupabaseWeeklyPicksBoardRepository(supabaseClient),
   }
 }

@@ -10,39 +10,30 @@ import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import { weekLabel as formatWeekLabel } from '@/presentation/features/pickem/weekLabel'
+import {
+  WeeklyPicksMatrix,
+  pickStatus,
+  pickedTeamId,
+  pickLabel,
+  type WeeklyPicksMatrixUser,
+} from '@/presentation/features/pickem/weeklyPicksMatrix/WeeklyPicksMatrix'
+import {
+  downloadWeeklyPicksMatrixPdf,
+  downloadSurvivorPicksPdf,
+} from '@/presentation/features/pickem/weeklyPicksMatrix/weeklyPicksMatrixExport'
 import type { Game, Week } from '@/core/entities/catalog'
-import type { AdminUserWeeklyPick, AdminWeeklyPickRow } from '@/core/ports/AdminPicksRepository'
+import type { AdminUserWeeklyPick } from '@/core/ports/AdminPicksRepository'
 import styles from './AdminUserPicksPage.module.css'
 
 type Mode = 'porSemana' | 'porUsuario'
 type Quiniela = 'weekly' | 'survivor'
-type PickStatus = 'correct' | 'incorrect' | 'pending' | 'noPick'
 
 function weekLabel(week: Week | undefined): string {
   return week ? formatWeekLabel(week) : ''
 }
 
-function pickStatus(pick: string | null, outcome: string | null): PickStatus {
-  if (pick === null) return 'noPick'
-  if (outcome === null) return 'pending'
-  return pick === outcome ? 'correct' : 'incorrect'
-}
-
-function pickedTeamId(pick: string | null, game: Game | undefined): string | null {
-  if (pick === null || pick === 'tie' || !game) return null
-  return pick === 'home' ? game.homeTeamId : game.awayTeamId
-}
-
-function pickLabel(pick: string | null, game: Game | undefined, teamName: (id: string) => string): string {
-  if (pick === null) return 'Sin pick'
-  if (pick === 'tie') return 'Empate'
-  if (!game) return pick
-  return teamName(pick === 'home' ? game.homeTeamId : game.awayTeamId)
-}
-
-function matchupTitle(game: Game | undefined, teamName: (id: string) => string): string {
-  if (!game) return 'Partido no encontrado'
-  return `${teamName(game.homeTeamId)} vs ${teamName(game.awayTeamId)}`
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 }
 
 /** Escudos de local/visita + nombres, mismo patron que AdminResultsPage. */
@@ -91,6 +82,7 @@ export function AdminUserPicksPage() {
   const [quiniela, setQuiniela] = useState<Quiniela>('weekly')
   const [selectedWeekId, setSelectedWeekId] = useState('')
   const [selectedUserId, setSelectedUserId] = useState('')
+  const [downloadingPdf, setDownloadingPdf] = useState(false)
 
   const {
     status: weeklyWeekStatus,
@@ -141,7 +133,7 @@ export function AdminUserPicksPage() {
     .filter((game) => game.weekId === selectedWeekId)
     .sort((a, b) => a.kickoffAt.getTime() - b.kickoffAt.getTime())
 
-  const weeklyByUser = new Map<string, { displayName: string; rowsByGame: Map<string, AdminWeeklyPickRow> }>()
+  const weeklyByUser = new Map<string, WeeklyPicksMatrixUser>()
   weeklyWeekRows?.forEach((row) => {
     const entry = weeklyByUser.get(row.userId) ?? { displayName: row.displayName, rowsByGame: new Map() }
     entry.rowsByGame.set(row.gameId, row)
@@ -158,6 +150,49 @@ export function AdminUserPicksPage() {
 
   const userSurvivorByWeek = new Map((userSurvivorPicks ?? []).map((pick) => [pick.weekId, pick]))
   const userSurvivorWeeksOrdered = orderedWeeks.filter((week) => userSurvivorByWeek.has(week.id))
+
+  const selectedWeek = weeks?.find((week) => week.id === selectedWeekId)
+
+  async function handleDownloadWeeklyPdf() {
+    if (downloadingPdf || !selectedWeek || weeklyByUser.size === 0) return
+    setDownloadingPdf(true)
+    try {
+      await downloadWeeklyPicksMatrixPdf({
+        rows: weeklyByUser,
+        games: gamesForSelectedWeek,
+        title: weekLabel(selectedWeek),
+        subtitle: 'Pickem semanal — picks de usuarios',
+        fileName: `picks-semanal-${slugify(weekLabel(selectedWeek))}.pdf`,
+      })
+    } catch (err) {
+      console.error('No se pudo generar el PDF de picks', err)
+    } finally {
+      setDownloadingPdf(false)
+    }
+  }
+
+  async function handleDownloadSurvivorPdf() {
+    if (downloadingPdf || !selectedWeek || !survivorWeekRows || survivorWeekRows.length === 0) return
+    setDownloadingPdf(true)
+    try {
+      await downloadSurvivorPicksPdf({
+        rows: survivorWeekRows.map((row) => ({
+          displayName: row.displayName,
+          teamId: row.teamId,
+          lifeNumber: row.lifeNumber,
+          status: row.status,
+        })),
+        teamName,
+        title: weekLabel(selectedWeek),
+        subtitle: 'Survivor — picks de usuarios',
+        fileName: `picks-survivor-${slugify(weekLabel(selectedWeek))}.pdf`,
+      })
+    } catch (err) {
+      console.error('No se pudo generar el PDF de picks', err)
+    } finally {
+      setDownloadingPdf(false)
+    }
+  }
 
   return (
     <section>
@@ -222,45 +257,18 @@ export function AdminUserPicksPage() {
                 <EmptyState message="Nadie tiene picks para esta semana." />
               )}
               {weeklyByUser.size > 0 && (
-                <div className={`${styles.tableScroll} glass-surface`}>
-                  <table className={styles.matrixTable}>
-                    <thead>
-                      <tr>
-                        <th className={styles.userHeaderCell}>Usuario</th>
-                        {gamesForSelectedWeek.map((game) => (
-                          <th key={game.id} className={styles.gameHeaderCell}>
-                            <span className={styles.gameHeaderTeams}>
-                              <TeamBadge teamId={game.homeTeamId} size="sm" />
-                              <TeamBadge teamId={game.awayTeamId} size="sm" />
-                            </span>
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[...weeklyByUser.entries()].map(([userId, entry]) => (
-                        <tr key={userId}>
-                          <td className={styles.userHeaderCell}>{entry.displayName}</td>
-                          {gamesForSelectedWeek.map((game) => {
-                            const row = entry.rowsByGame.get(game.id)
-                            const status = pickStatus(row?.pick ?? null, row?.outcome ?? null)
-                            const teamId = pickedTeamId(row?.pick ?? null, game)
-                            return (
-                              <td
-                                key={game.id}
-                                className={styles.pickCell}
-                                data-status={status}
-                                title={`${matchupTitle(game, teamName)} — ${pickLabel(row?.pick ?? null, game, teamName)}`}
-                              >
-                                {teamId ? <TeamBadge teamId={teamId} size="sm" /> : <span className={styles.dash}>—</span>}
-                              </td>
-                            )
-                          })}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <>
+                  <button
+                    type="button"
+                    className={`button-secondary ${styles.downloadButton}`}
+                    onClick={handleDownloadWeeklyPdf}
+                    disabled={downloadingPdf}
+                  >
+                    <Icon name="download" size={14} />
+                    {downloadingPdf ? 'Generando PDF...' : 'Descargar PDF'}
+                  </button>
+                  <WeeklyPicksMatrix rows={weeklyByUser} games={gamesForSelectedWeek} teamName={teamName} />
+                </>
               )}
             </>
           )}
@@ -273,33 +281,44 @@ export function AdminUserPicksPage() {
                 <EmptyState message="Nadie tiene picks de survivor para esta semana." />
               )}
               {survivorWeekRows && survivorWeekRows.length > 0 && (
-                <div className={`${styles.tableScroll} glass-surface`}>
-                  <table className={styles.simpleTable}>
-                    <thead>
-                      <tr>
-                        <th>Usuario</th>
-                        <th>Pick</th>
-                        <th>Vida</th>
-                        <th>Estado</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {survivorWeekRows.map((row) => (
-                        <tr key={row.userId}>
-                          <td>{row.displayName}</td>
-                          <td data-status={row.teamId ? 'pending' : 'noPick'}>
-                            <span className={styles.teamPick}>
-                              {row.teamId && <TeamBadge teamId={row.teamId} size="sm" />}
-                              {row.teamId ? teamName(row.teamId) : 'Sin pick'}
-                            </span>
-                          </td>
-                          <td>{row.lifeNumber ?? '—'}</td>
-                          <td>{row.status === 'eliminated' ? 'Eliminado' : 'Vivo'}</td>
+                <>
+                  <button
+                    type="button"
+                    className={`button-secondary ${styles.downloadButton}`}
+                    onClick={handleDownloadSurvivorPdf}
+                    disabled={downloadingPdf}
+                  >
+                    <Icon name="download" size={14} />
+                    {downloadingPdf ? 'Generando PDF...' : 'Descargar PDF'}
+                  </button>
+                  <div className={`${styles.tableScroll} glass-surface`}>
+                    <table className={styles.simpleTable}>
+                      <thead>
+                        <tr>
+                          <th>Usuario</th>
+                          <th>Pick</th>
+                          <th>Vida</th>
+                          <th>Estado</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {survivorWeekRows.map((row) => (
+                          <tr key={row.userId}>
+                            <td>{row.displayName}</td>
+                            <td data-status={row.teamId ? 'pending' : 'noPick'}>
+                              <span className={styles.teamPick}>
+                                {row.teamId && <TeamBadge teamId={row.teamId} size="sm" />}
+                                {row.teamId ? teamName(row.teamId) : 'Sin pick'}
+                              </span>
+                            </td>
+                            <td>{row.lifeNumber ?? '—'}</td>
+                            <td>{row.status === 'eliminated' ? 'Eliminado' : 'Vivo'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </>
           )}

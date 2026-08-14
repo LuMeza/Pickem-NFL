@@ -9,6 +9,7 @@ import type { SurvivorRepository } from './SurvivorRepository'
 import type { CatalogRepository } from './CatalogRepository'
 import type { ResultsRepository } from './ResultsRepository'
 import type { SyncRepository } from './SyncRepository'
+import type { WeeklyPicksBoardRepository } from './WeeklyPicksBoardRepository'
 
 /** Conjunto de repositorios que la app inyecta en la raiz (ver src/main.tsx). */
 export interface Repositories {
@@ -23,4 +24,5 @@ export interface Repositories {
   syncRepository: SyncRepository
   adminPicksRepository: AdminPicksRepository
   achievementsRepository: AchievementsRepository
+  weeklyPicksBoardRepository: WeeklyPicksBoardRepository
 }

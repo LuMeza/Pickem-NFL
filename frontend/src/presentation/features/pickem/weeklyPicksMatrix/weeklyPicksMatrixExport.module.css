@@ -1,0 +1,72 @@
+/* Mismas reglas de fondo solido que ExportLayouts.module.css (sin backdrop-filter, no se traduce bien al rasterizar). */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table th,
+.table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--glass-border);
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.table thead th {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.userCell {
+  font-weight: 600;
+}
+
+.gameCell {
+  text-align: center;
+}
+
+.gameTeams {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pickCell {
+  text-align: center;
+}
+
+.pickCell[data-status='correct'] {
+  background: rgba(200, 255, 61, 0.12);
+}
+
+.pickCell[data-status='incorrect'] {
+  background: rgba(255, 84, 104, 0.1);
+}
+
+.dash {
+  color: var(--text-muted);
+}
+
+.teamPick {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 6px;
+  background: var(--bg-surface);
+  object-fit: contain;
+  flex-shrink: 0;
+}
