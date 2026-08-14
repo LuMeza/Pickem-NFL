@@ -16,6 +16,10 @@ import type { StandingRow } from '@/core/entities/standings'
 import { weekLabel } from './weekLabel'
 import styles from './PickemStandingsPage.module.css'
 
+const PODIUM_CLASS = [styles.podium1, styles.podium2, styles.podium3]
+/** A partir de esta racha de aciertos consecutivos se prende el fuego al lado del nombre. */
+const FIRE_STREAK_THRESHOLD = 3
+
 function StandingsList({ rows }: { rows: StandingRow[] }) {
   if (rows.length === 0) {
     return <p className="text-body-sm text-muted">Todavía no hay resultados para mostrar.</p>
@@ -30,10 +34,17 @@ function StandingsList({ rows }: { rows: StandingRow[] }) {
           position = index + 1
           previousCount = row.correctCount
         }
+        const podiumClass = PODIUM_CLASS[position - 1] ?? ''
+        const onFire = row.currentStreak >= FIRE_STREAK_THRESHOLD
         return (
-          <li key={row.userId} className={`${styles.row} glass-surface`}>
+          <li key={row.userId} className={`${styles.row} glass-surface ${podiumClass}`}>
             <span className={styles.position}>{position}</span>
             <span className={styles.name}>{row.displayName}</span>
+            {onFire && (
+              <span className={styles.streak} title={`${row.currentStreak} aciertos seguidos`}>
+                🔥 {row.currentStreak}
+              </span>
+            )}
             <span className={styles.count}>{row.correctCount}</span>
           </li>
         )

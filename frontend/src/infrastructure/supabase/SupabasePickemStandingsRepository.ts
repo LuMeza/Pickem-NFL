@@ -7,6 +7,7 @@ interface StandingRowResponse {
   display_name: string
   correct_count?: number
   total_correct?: number
+  current_streak?: number
 }
 
 function toStandingRows(rows: StandingRowResponse[], countField: 'correct_count' | 'total_correct'): StandingRow[] {
@@ -14,6 +15,7 @@ function toStandingRows(rows: StandingRowResponse[], countField: 'correct_count'
     userId: row.user_id,
     displayName: row.display_name,
     correctCount: Number(row[countField] ?? 0),
+    currentStreak: Number(row.current_streak ?? 0),
   }))
 }
 

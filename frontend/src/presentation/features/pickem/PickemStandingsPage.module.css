@@ -18,26 +18,96 @@
 .row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   padding: 10px 16px;
+  transition:
+    transform 150ms ease-out,
+    border-color 150ms ease-out;
+}
+
+.row:hover {
+  transform: translateX(2px);
 }
 
 .position {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--text-muted);
-  width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
   flex-shrink: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
 }
 
 .name {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  background: rgba(242, 183, 5, 0.12);
+  border: 1px solid rgba(242, 183, 5, 0.3);
+  border-radius: 999px;
+  padding: 2px 8px;
 }
 
 .count {
+  flex-shrink: 0;
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 20px;
+  text-align: right;
+}
+
+/* Podio: primeros 3 puestos con acento de color, coherente con el resto de
+   la UI (oro/plata/bronce sobre la superficie glass ya existente). */
+.podium1 {
+  border-color: rgba(242, 183, 5, 0.4);
+  background:
+    linear-gradient(160deg, rgba(242, 183, 5, 0.14), rgba(255, 255, 255, 0) 50%),
+    var(--glass-bg);
+}
+.podium1 .position {
+  background: var(--accent-gold);
+  color: var(--bg-base);
+}
+.podium1 .count {
+  color: var(--accent-gold);
+}
+
+.podium2 {
+  border-color: rgba(203, 213, 225, 0.35);
+}
+.podium2 .position {
+  background: #cbd5e1;
+  color: var(--bg-base);
+}
+
+.podium3 {
+  border-color: rgba(217, 119, 6, 0.4);
+}
+.podium3 .position {
+  background: #d97706;
+  color: var(--bg-base);
 }
 
 .winnerBanner {
