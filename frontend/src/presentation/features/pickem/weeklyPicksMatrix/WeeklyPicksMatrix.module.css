@@ -62,3 +62,8 @@
 .dash {
   color: var(--text-muted);
 }
+
+.tie {
+  font-size: 12px;
+  font-weight: 500;
+}

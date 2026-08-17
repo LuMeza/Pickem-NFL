@@ -6,6 +6,16 @@
   margin-bottom: 12px;
 }
 
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sectionHeader .sectionTitle {
+  margin-bottom: 0;
+}
+
 /* ---------- Podio (top 3 por nivel de puntaje) ---------- */
 
 .podiumPanel {

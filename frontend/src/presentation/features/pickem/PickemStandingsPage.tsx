@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
 import { useCanViewPickemTables } from '@/presentation/hooks/useCanViewPickemTables'
+import { useCheckPlatformAdmin } from '@/presentation/hooks/useCheckPlatformAdmin'
 import { useListWeeklyStandings } from '@/presentation/hooks/useListWeeklyStandings'
 import { useListSeasonStandings } from '@/presentation/hooks/useListSeasonStandings'
 import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
@@ -13,8 +14,13 @@ import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/Loading
 import { isPlayoffsStarted } from '@/core/rules/isPlayoffsStarted'
 import { resolveTiedRanking } from '@/core/rules/resolveTiedRanking'
 import type { StandingRow } from '@/core/entities/standings'
+import { downloadWeeklyStandingsPdf, type StandingsExportRow } from './weeklyPicksMatrix/weeklyPicksMatrixExport'
 import { weekLabel } from './weekLabel'
 import styles from './PickemStandingsPage.module.css'
+
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
 
 /** A partir de esta racha de aciertos consecutivos se prende el fuego al lado del nombre. */
 const FIRE_STREAK_THRESHOLD = 3
@@ -44,6 +50,19 @@ function initials(displayName: string): string {
 
 function firstName(displayName: string): string {
   return displayName.trim().split(/\s+/)[0] ?? displayName
+}
+
+/** Aplana los niveles de empate en filas planas para el PDF, marcando ganador(es) al primer nivel. */
+function buildStandingsExportRows(rows: StandingRow[]): StandingsExportRow[] {
+  return groupIntoTiers(rows).flatMap((tier) =>
+    tier.rows.map((row) => ({
+      userId: row.userId,
+      displayName: row.displayName,
+      correctCount: row.correctCount,
+      position: tier.position,
+      isWinner: tier.position === 1,
+    })),
+  )
 }
 
 /** Agrupa filas ya ordenadas por correctCount en "niveles": empatados en el mismo puntaje comparten posición (ranking de competencia — 1,1,1,4,5, no 1,1,1,2,3). */
@@ -157,9 +176,11 @@ export function PickemStandingsPage() {
   const { data: group } = useSession().group
   const { data: weeks } = useSession().weeks
   const { data: canView, run: loadCanView } = useCanViewPickemTables()
+  const { data: isAdmin, run: loadIsAdmin } = useCheckPlatformAdmin()
   const { status: weeklyStatus, data: weeklyStandings, run: loadWeeklyStandings } = useListWeeklyStandings()
   const { data: seasonStandings, run: loadSeasonStandings } = useListSeasonStandings()
   const { data: wildCardGames, run: loadWildCardGames } = useListGamesForWeek()
+  const [downloadingPdf, setDownloadingPdf] = useState(false)
 
   useEffect(() => {
     if (group && weekId) {
@@ -168,6 +189,10 @@ export function PickemStandingsPage() {
       loadSeasonStandings({ groupId: group.id })
     }
   }, [group, weekId, loadCanView, loadWeeklyStandings, loadSeasonStandings])
+
+  useEffect(() => {
+    loadIsAdmin()
+  }, [loadIsAdmin])
 
   const wildCardWeek = weeks?.find((week) => week.type === 'playoffs' && week.number === 1)
   useEffect(() => {
@@ -186,6 +211,24 @@ export function PickemStandingsPage() {
         .map((userId) => seasonStandings?.find((row) => row.userId === userId)?.displayName ?? userId)
         .join(', ')
     : ''
+
+  async function handleDownloadWeeklyStandingsPdf() {
+    const rows = weeklyStandings ?? []
+    if (downloadingPdf || !activeWeek || rows.length === 0) return
+    setDownloadingPdf(true)
+    try {
+      await downloadWeeklyStandingsPdf({
+        rows: buildStandingsExportRows(rows),
+        title: weekLabel(activeWeek),
+        subtitle: 'Pickem semanal — tabla de posiciones',
+        fileName: `tabla-posiciones-${slugify(weekLabel(activeWeek))}.pdf`,
+      })
+    } catch (err) {
+      console.error('No se pudo generar el PDF de la tabla de posiciones', err)
+    } finally {
+      setDownloadingPdf(false)
+    }
+  }
 
   return (
     <section>
@@ -210,9 +253,22 @@ export function PickemStandingsPage() {
           )}
 
           <div className={styles.section}>
-            <h2 className={`text-display-sm ${styles.sectionTitle}`}>
-              {activeWeek ? weekLabel(activeWeek) : 'Esta semana'}
-            </h2>
+            <div className={styles.sectionHeader}>
+              <h2 className={`text-display-sm ${styles.sectionTitle}`}>
+                {activeWeek ? weekLabel(activeWeek) : 'Esta semana'}
+              </h2>
+              {isAdmin && (weeklyStandings ?? []).length > 0 && (
+                <button
+                  type="button"
+                  className="button-secondary"
+                  onClick={handleDownloadWeeklyStandingsPdf}
+                  disabled={downloadingPdf}
+                >
+                  <Icon name="download" size={14} />
+                  {downloadingPdf ? 'Generando PDF...' : 'Descargar PDF'}
+                </button>
+              )}
+            </div>
             {weeklyStatus === 'pending' && <LoadingSpinner variant="inline" />}
             <StandingsList rows={weeklyStandings ?? []} />
           </div>

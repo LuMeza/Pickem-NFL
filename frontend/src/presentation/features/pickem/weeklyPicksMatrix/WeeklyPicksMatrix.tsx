@@ -72,17 +72,23 @@ export function WeeklyPicksMatrix({
             <tr key={userId}>
               <td className={styles.userHeaderCell}>{entry.displayName}</td>
               {games.map((game) => {
-                const row = entry.rowsByGame.get(game.id)
-                const status = pickStatus(row?.pick ?? null, row?.outcome ?? null)
-                const teamId = pickedTeamId(row?.pick ?? null, game)
+                const pick = row?.pick ?? null
+                const status = pickStatus(pick, row?.outcome ?? null)
+                const teamId = pickedTeamId(pick, game)
                 return (
                   <td
                     key={game.id}
                     className={styles.pickCell}
                     data-status={status}
-                    title={`${matchupTitle(game, teamName)} — ${pickLabel(row?.pick ?? null, game, teamName)}`}
+                    title={`${matchupTitle(game, teamName)} — ${pickLabel(pick, game, teamName)}`}
                   >
-                    {teamId ? <TeamBadge teamId={teamId} size="sm" /> : <span className={styles.dash}>—</span>}
+                    {teamId ? (
+                      <TeamBadge teamId={teamId} size="sm" />
+                    ) : pick === 'tie' ? (
+                      <span className={styles.tie}>Empate</span>
+                    ) : (
+                      <span className={styles.dash}>—</span>
+                    )}
                   </td>
                 )
               })}

@@ -78,12 +78,18 @@ function ExportMatrixTable({ rows, games }: { rows: Map<string, WeeklyPicksMatri
           <tr key={userId}>
             <td className={styles.userCell}>{entry.displayName}</td>
             {games.map((game) => {
-              const row = entry.rowsByGame.get(game.id)
-              const status = pickStatus(row?.pick ?? null, row?.outcome ?? null)
-              const teamId = pickedTeamId(row?.pick ?? null, game)
+              const pick = row?.pick ?? null
+              const status = pickStatus(pick, row?.outcome ?? null)
+              const teamId = pickedTeamId(pick, game)
               return (
                 <td key={game.id} className={styles.pickCell} data-status={status}>
-                  {teamId ? <ExportBadge teamId={teamId} size={22} /> : <span className={styles.dash}>—</span>}
+                  {teamId ? (
+                    <ExportBadge teamId={teamId} size={22} />
+                  ) : pick === 'tie' ? (
+                    <span className={styles.tie}>Empate</span>
+                  ) : (
+                    <span className={styles.dash}>—</span>
+                  )}
                 </td>
               )
             })}
@@ -134,6 +140,66 @@ function ExportSurvivorTable({
         ))}
       </tbody>
     </table>
+  )
+}
+
+export interface StandingsExportRow {
+  userId: string
+  displayName: string
+  correctCount: number
+  /** Posicion de competencia (empatados comparten posicion, ver groupIntoTiers en PickemStandingsPage). */
+  position: number
+  /** true para todos los empatados en la posicion 1. */
+  isWinner: boolean
+}
+
+function ExportStandingsTable({ rows }: { rows: StandingsExportRow[] }) {
+  return (
+    <table className={styles.table}>
+      <thead>
+        <tr>
+          <th className={styles.positionCell}>Pos</th>
+          <th className={styles.userCell}>Usuario</th>
+          <th className={styles.countCell}>Aciertos</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.userId} data-winner={row.isWinner}>
+            <td className={styles.positionCell}>{row.position}°</td>
+            <td className={styles.userCell}>
+              {row.isWinner && <span aria-hidden="true">🏆 </span>}
+              {row.displayName}
+            </td>
+            <td className={styles.countCell}>{row.correctCount}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
+export async function downloadWeeklyStandingsPdf(params: {
+  rows: StandingsExportRow[]
+  title: string
+  subtitle: string
+  fileName: string
+}): Promise<void> {
+  const { rows, title, subtitle, fileName } = params
+  const naturalWidth = await measureNaturalWidth(<ExportStandingsTable rows={rows} />)
+  const widthPx = pageWidthFor(naturalWidth)
+  await downloadPagesAsPdf(
+    [
+      {
+        widthPx,
+        node: (
+          <ExportPage title={title} subtitle={subtitle} widthPx={widthPx}>
+            <ExportStandingsTable rows={rows} />
+          </ExportPage>
+        ),
+      },
+    ],
+    fileName,
   )
 }
 
