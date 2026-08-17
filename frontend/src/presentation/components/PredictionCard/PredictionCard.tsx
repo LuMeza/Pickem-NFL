@@ -25,6 +25,8 @@ interface PredictionCardCommonProps {
   selectedOptionId?: string | null
   /** Solo relevante si status === 'closed'. */
   correct?: boolean
+  /** Opcion que gano el partido (id de `options`). Solo relevante si status === 'closed'. */
+  outcomeOptionId?: string | null
   /** Anillo dorado (>24h) vs rojo (<2h) al cierre, solo si status === 'picked'. */
   urgent?: boolean
   /** Color de marca del equipo elegido (hex) — tiñe el resaltado y el reverso en vez del lima genérico. */
@@ -57,10 +59,12 @@ export type PredictionCardProps = PredictionCardBinaryProps | PredictionCardTrip
  * ya conoce agregaba un paso extra sin payoff (feedback de producto).
  */
 export function PredictionCard(props: PredictionCardProps) {
-  const { status, selectedOptionId, correct, urgent, pickedAccent, onSelect, variant, options } = props
+  const { status, selectedOptionId, correct, outcomeOptionId, urgent, pickedAccent, onSelect, variant, options } =
+    props
   const prefersReducedMotion = usePrefersReducedMotion()
   const flipped = status === 'closed'
   const selected = options.find((option) => option.id === selectedOptionId) ?? null
+  const winner = options.find((option) => option.id === outcomeOptionId) ?? null
   const accentStyle = pickedAccent ? ({ '--picked-accent': pickedAccent } as CSSProperties) : undefined
   const optionsDisabled = status === 'locked' || status === 'closed'
 
@@ -130,17 +134,34 @@ export function PredictionCard(props: PredictionCardProps) {
 
         <div className={`${styles.face} ${styles.back}`} aria-hidden={!flipped}>
           {status === 'closed' && (
-            <span
-              className={`${styles.resultBadge} ${correct ? styles.resultCorrect : styles.resultIncorrect}`}
-              aria-label={correct ? 'Acierto' : 'Fallo'}
-              role="img"
-            >
-              {correct ? '✓' : '✕'}
-            </span>
+            <>
+              <span
+                className={`${styles.resultBadge} ${correct ? styles.resultCorrect : styles.resultIncorrect}`}
+                aria-label={correct ? 'Acierto' : 'Fallo'}
+                role="img"
+              >
+                {correct ? '✓' : '✕'}
+              </span>
+              <div className={styles.resultSummary}>
+                <div className={styles.resultRow}>
+                  <span className={styles.resultRowCaption}>
+                    <Icon name="trophy" size={11} /> Ganó
+                  </span>
+                  <span className={styles.resultRowValue}>
+                    {winner?.logo}
+                    <span>{winner?.label ?? ''}</span>
+                  </span>
+                </div>
+                <div className={styles.resultRow} data-correct={correct}>
+                  <span className={styles.resultRowCaption}>Tu pick</span>
+                  <span className={styles.resultRowValue}>
+                    {selected?.logo}
+                    <span>{selected?.label ?? ''}</span>
+                  </span>
+                </div>
+              </div>
+            </>
           )}
-          <div className={styles.pickedLabel}>
-            <span>{selected?.label ?? ''}</span>
-          </div>
         </div>
       </div>
     </div>

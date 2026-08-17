@@ -152,6 +152,7 @@ function GameProposal({
         status={status}
         selectedOptionId={pickedValue}
         correct={correct}
+        outcomeOptionId={result?.outcome ?? null}
         urgent={urgent}
         pickedAccent={pickedAccent}
         onSelect={(optionId) => onPick(game.id, optionId as WeeklyPickValue)}
