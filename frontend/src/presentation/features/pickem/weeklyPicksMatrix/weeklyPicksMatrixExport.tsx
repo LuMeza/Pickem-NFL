@@ -78,6 +78,7 @@ function ExportMatrixTable({ rows, games }: { rows: Map<string, WeeklyPicksMatri
           <tr key={userId}>
             <td className={styles.userCell}>{entry.displayName}</td>
             {games.map((game) => {
+              const row = entry.rowsByGame.get(game.id)
               const pick = row?.pick ?? null
               const status = pickStatus(pick, row?.outcome ?? null)
               const teamId = pickedTeamId(pick, game)
