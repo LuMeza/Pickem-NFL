@@ -1,74 +1,51 @@
-.scene {
-  perspective: 1000px;
-  min-height: 168px;
+/*
+ * El "volteo" no es un rotateY 3D con backface-visibility: ese patrón
+ * depende de que el navegador oculte correctamente la cara que queda de
+ * espaldas, y en renderizado por software (entornos sin GPU, remoto,
+ * ciertas VMs — confirmado en produccion con un usuario real) Chromium no
+ * la oculta y termina pintando el frente espejado en vez del reverso. En
+ * vez de eso, PredictionCard.tsx solo monta una cara a la vez y esto es
+ * apenas la animación de "achique" que acompaña el cambio (ver
+ * FLIP_DURATION_MS ahi) — nunca depende de esconder una cara "de atrás".
+ */
+@keyframes cardFlipSquash {
+  0% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
 }
 
 .card {
   position: relative;
   width: 100%;
-  height: 100%;
   min-height: 168px;
-  transform-style: preserve-3d;
-  transition: transform 300ms ease-out;
-}
-
-.card[data-flipped='true'] {
-  transform: rotateY(180deg);
-}
-
-/* Alternativa sin rotación (reduced motion, tarea 3.6): cross-fade instantaneo. */
-.card[data-reduced-motion='true'] {
-  transition: none;
-  transform: none;
-}
-.card[data-reduced-motion='true'] .face {
-  transition: opacity 1ms linear;
-}
-.card[data-reduced-motion='true'] .front {
-  opacity: 1;
-}
-.card[data-reduced-motion='true'][data-flipped='true'] .front {
-  display: none;
-}
-.card[data-reduced-motion='true'] .back {
-  display: none;
-}
-.card[data-reduced-motion='true'][data-flipped='true'] .back {
-  display: flex;
-  opacity: 1;
-}
-/* .back siempre trae su propio rotateY(180deg) (línea ~52) para quedar al
-   derecho cuando el padre .card gira; en reduced motion el padre ya no gira
-   (transform: none arriba), así que hay que neutralizar también el propio
-   giro de .back o su backface-visibility:hidden lo deja invisible aunque
-   display sea flex. */
-.card[data-reduced-motion='true'] .back {
-  transform: none;
-}
-
-.face {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
   display: flex;
   flex-direction: column;
   padding: 16px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 45%), var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 14px 32px -16px rgba(0, 0, 0, 0.65),
+    0 4px 12px -6px rgba(0, 0, 0, 0.5);
 }
 
-.back {
-  transform: rotateY(180deg);
+.card[data-flipping='true'] {
+  animation: cardFlipSquash 300ms ease-in-out;
 }
 
-/* Estado cerrado (partido jugado, con resultado): pierde el glow, opacidad 70%. */
+/* Estado cerrado (partido jugado, con resultado): pierde el glow, opacidad
+   70%, y el borde toma el color de marca del equipo elegido
+   (--picked-accent, ver Cancha Nocturna) en vez de un lima genérico — si no
+   llega el prop, cae al lima de siempre. */
 .card[data-status='closed'] {
   opacity: 0.7;
-}
-
-/* El reverso toma el color de marca del equipo elegido (--picked-accent, ver
-   Cancha Nocturna) en vez de un lima genérico — si no llega el prop, cae al
-   lima de siempre. */
-.card[data-flipped='true'] {
   border-color: var(--picked-accent, var(--glass-border));
   box-shadow:
     0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
@@ -77,7 +54,7 @@
 }
 
 /* Estado bloqueada (sin acceso o ya cerrada sin resultado): sin flip habilitado. */
-.card[data-status='locked'] .face {
+.card[data-status='locked'] {
   filter: grayscale(0.3);
 }
 

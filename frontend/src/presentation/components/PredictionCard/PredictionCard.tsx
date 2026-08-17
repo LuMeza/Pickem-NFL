@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { usePrefersReducedMotion } from '@/presentation/hooks/usePrefersReducedMotion'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import styles from './PredictionCard.module.css'
@@ -46,6 +46,8 @@ interface PredictionCardTripleProps extends PredictionCardCommonProps {
 
 export type PredictionCardProps = PredictionCardBinaryProps | PredictionCardTripleProps
 
+const FLIP_DURATION_MS = 300
+
 /**
  * Tareas 3.1-3.7 (sistema-diseno-ui): componente de carta de predicción
  * compartido entre Pickem Semanal, Survivor y Playoffs (ver design.md
@@ -57,12 +59,42 @@ export type PredictionCardProps = PredictionCardBinaryProps | PredictionCardTrip
  * únicamente para `closed` (revelar acierto/fallo): ahi la animación
  * comunica algo nuevo. Voltear solo para "confirmar" un pick que el usuario
  * ya conoce agregaba un paso extra sin payoff (feedback de producto).
+ *
+ * El "volteo" NO es un rotateY 3D con backface-visibility: ese patrón
+ * depende de que el navegador oculte correctamente la cara que queda de
+ * espaldas, y en renderizado por software (entornos sin GPU, remoto,
+ * ciertas VMs — confirmado en producción con un usuario real) Chromium no
+ * la oculta y termina pintando el frente espejado en vez del reverso. En
+ * vez de eso, solo se monta una cara a la vez (`showBack`) y la animación es
+ * un achique a ancho 0 que dispara el cambio de contenido exactamente a la
+ * mitad (ver useEffect) — funciona igual sin importar el navegador porque
+ * nunca depende de esconder una cara "de atrás".
  */
 export function PredictionCard(props: PredictionCardProps) {
   const { status, selectedOptionId, correct, outcomeOptionId, urgent, pickedAccent, onSelect, variant, options } =
     props
   const prefersReducedMotion = usePrefersReducedMotion()
   const flipped = status === 'closed'
+  const [showBack, setShowBack] = useState(flipped)
+  const [flipping, setFlipping] = useState(false)
+  const wasFlipped = useRef(flipped)
+
+  useEffect(() => {
+    if (flipped === wasFlipped.current) return
+    wasFlipped.current = flipped
+    if (prefersReducedMotion) {
+      setShowBack(flipped)
+      return
+    }
+    setFlipping(true)
+    const swapTimer = setTimeout(() => setShowBack(flipped), FLIP_DURATION_MS / 2)
+    const endTimer = setTimeout(() => setFlipping(false), FLIP_DURATION_MS)
+    return () => {
+      clearTimeout(swapTimer)
+      clearTimeout(endTimer)
+    }
+  }, [flipped, prefersReducedMotion])
+
   const selected = options.find((option) => option.id === selectedOptionId) ?? null
   const winner = options.find((option) => option.id === outcomeOptionId) ?? null
   const accentStyle = pickedAccent ? ({ '--picked-accent': pickedAccent } as CSSProperties) : undefined
@@ -74,15 +106,37 @@ export function PredictionCard(props: PredictionCardProps) {
   }
 
   return (
-    <div className={styles.scene}>
-      <div
-        className={`${styles.card} glass-surface`}
-        data-flipped={flipped}
-        data-reduced-motion={prefersReducedMotion}
-        data-status={status}
-        style={accentStyle}
-      >
-        <div className={`${styles.face} ${styles.front}`} aria-hidden={flipped}>
+    <div className={styles.card} data-flipping={flipping} data-status={status} style={accentStyle}>
+      {showBack ? (
+        <>
+          <span
+            className={`${styles.resultBadge} ${correct ? styles.resultCorrect : styles.resultIncorrect}`}
+            aria-label={correct ? 'Acierto' : 'Fallo'}
+            role="img"
+          >
+            {correct ? '✓' : '✕'}
+          </span>
+          <div className={styles.resultSummary}>
+            <div className={styles.resultRow}>
+              <span className={styles.resultRowCaption}>
+                <Icon name="trophy" size={11} /> Ganó
+              </span>
+              <span className={styles.resultRowValue}>
+                {winner?.logo}
+                <span>{winner?.label ?? ''}</span>
+              </span>
+            </div>
+            <div className={styles.resultRow} data-correct={correct}>
+              <span className={styles.resultRowCaption}>Tu pick</span>
+              <span className={styles.resultRowValue}>
+                {selected?.logo}
+                <span>{selected?.label ?? ''}</span>
+              </span>
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
           {status === 'locked' && (
             <span className={styles.lockIcon} aria-label="Bloqueada">
               <Icon name="lock" size={14} />
@@ -120,9 +174,7 @@ export function PredictionCard(props: PredictionCardProps) {
                     disabled={optionsDisabled}
                     onClick={() => handleSelect(option.id)}
                   >
-                    {isSelected && (
-                      <Icon name="check" size={14} />
-                    )}
+                    {isSelected && <Icon name="check" size={14} />}
                     {option.logo && <span className={styles.tripleOptionLogo}>{option.logo}</span>}
                     <span className={styles.tripleOptionLabel}>{option.label}</span>
                   </button>
@@ -130,40 +182,8 @@ export function PredictionCard(props: PredictionCardProps) {
               })}
             </div>
           )}
-        </div>
-
-        <div className={`${styles.face} ${styles.back}`} aria-hidden={!flipped}>
-          {status === 'closed' && (
-            <>
-              <span
-                className={`${styles.resultBadge} ${correct ? styles.resultCorrect : styles.resultIncorrect}`}
-                aria-label={correct ? 'Acierto' : 'Fallo'}
-                role="img"
-              >
-                {correct ? '✓' : '✕'}
-              </span>
-              <div className={styles.resultSummary}>
-                <div className={styles.resultRow}>
-                  <span className={styles.resultRowCaption}>
-                    <Icon name="trophy" size={11} /> Ganó
-                  </span>
-                  <span className={styles.resultRowValue}>
-                    {winner?.logo}
-                    <span>{winner?.label ?? ''}</span>
-                  </span>
-                </div>
-                <div className={styles.resultRow} data-correct={correct}>
-                  <span className={styles.resultRowCaption}>Tu pick</span>
-                  <span className={styles.resultRowValue}>
-                    {selected?.logo}
-                    <span>{selected?.label ?? ''}</span>
-                  </span>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+        </>
+      )}
     </div>
   )
 }
