@@ -32,7 +32,7 @@
 }
 
 .podiumEmpty {
-  width: 96px;
+  width: 100px;
 }
 
 .podiumSlot {
@@ -40,7 +40,21 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  width: 96px;
+  width: 100px;
+}
+
+@media (min-width: 768px) {
+  .podiumSlot,
+  .podiumEmpty {
+    width: 132px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .podiumSlot,
+  .podiumEmpty {
+    width: 152px;
+  }
 }
 
 .podiumAvatars {
@@ -79,14 +93,28 @@
 }
 
 .podiumNames {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.podiumNameLine {
   max-width: 100%;
   font-size: 12px;
   font-weight: 600;
+  line-height: 1.25;
   text-align: center;
   color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.podiumNameMore {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
 .podiumBlock {
@@ -100,6 +128,16 @@
   border-bottom: none;
   border-radius: 10px 10px 0 0;
   background: rgba(255, 255, 255, 0.04);
+}
+
+.podiumRankLabel {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  font-size: 13px;
+  opacity: 0.85;
 }
 
 .podiumScore {
@@ -222,9 +260,8 @@
 .nameText {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .count {

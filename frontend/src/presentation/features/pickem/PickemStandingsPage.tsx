@@ -48,10 +48,6 @@ function initials(displayName: string): string {
   return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase()
 }
 
-function firstName(displayName: string): string {
-  return displayName.trim().split(/\s+/)[0] ?? displayName
-}
-
 /** Aplana los niveles de empate en filas planas para el PDF, marcando ganador(es) al primer nivel. */
 function buildStandingsExportRows(rows: StandingRow[]): StandingsExportRow[] {
   return groupIntoTiers(rows).flatMap((tier) =>
@@ -79,18 +75,14 @@ function groupIntoTiers(rows: StandingRow[]): Tier[] {
   return tiers
 }
 
+const PODIUM_RANK_LABEL: Record<1 | 2 | 3, string> = { 1: '1ER', 2: '2DO', 3: '3ER' }
+
 function PodiumSlot({ tier, rank }: { tier?: Tier; rank: 1 | 2 | 3 }) {
   if (!tier) return <div className={styles.podiumEmpty} aria-hidden="true" />
 
   const rankClass = rank === 1 ? styles.podiumFirst : rank === 2 ? styles.podiumSecond : styles.podiumThird
   const shown = tier.rows.slice(0, MAX_PODIUM_AVATARS)
   const extra = tier.rows.length - shown.length
-  const label =
-    tier.rows.length === 1
-      ? tier.rows[0]!.displayName
-      : tier.rows.length === 2
-        ? tier.rows.map((row) => firstName(row.displayName)).join(' y ')
-        : `${tier.rows.length} empatados`
 
   return (
     <div className={`${styles.podiumSlot} ${rankClass}`}>
@@ -102,11 +94,19 @@ function PodiumSlot({ tier, rank }: { tier?: Tier; rank: 1 | 2 | 3 }) {
         ))}
         {extra > 0 && <span className={styles.podiumAvatarExtra}>+{extra}</span>}
       </div>
-      <span className={styles.podiumNames} title={tier.rows.map((row) => row.displayName).join(', ')}>
-        {label}
-      </span>
+      <div className={styles.podiumNames}>
+        {shown.map((row) => (
+          <span key={row.userId} className={styles.podiumNameLine}>
+            {row.displayName}
+          </span>
+        ))}
+        {extra > 0 && <span className={styles.podiumNameMore}>+{extra} más</span>}
+      </div>
       <div className={styles.podiumBlock}>
-        {rank === 1 && <Icon name="trophy" size={16} />}
+        <span className={styles.podiumRankLabel}>
+          {rank === 1 && <Icon name="trophy" size={12} />}
+          {PODIUM_RANK_LABEL[rank]}
+        </span>
         <span className={styles.podiumScore}>{tier.rows[0]!.correctCount}</span>
       </div>
     </div>
