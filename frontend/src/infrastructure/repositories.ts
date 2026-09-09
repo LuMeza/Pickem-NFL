@@ -2,6 +2,7 @@ import type { Repositories } from '@/core/ports'
 import { supabaseClient } from '@/infrastructure/supabase/client'
 import { SupabaseAchievementsRepository } from '@/infrastructure/supabase/SupabaseAchievementsRepository'
 import { SupabaseAdminPicksRepository } from '@/infrastructure/supabase/SupabaseAdminPicksRepository'
+import { SupabaseAdminPaymentsRepository } from '@/infrastructure/supabase/SupabaseAdminPaymentsRepository'
 import { SupabaseAuthRepository } from '@/infrastructure/supabase/SupabaseAuthRepository'
 import { SupabaseGroupRepository } from '@/infrastructure/supabase/SupabaseGroupRepository'
 import { SupabaseModuleAccessRepository } from '@/infrastructure/supabase/SupabaseModuleAccessRepository'
@@ -30,6 +31,7 @@ export function createSupabaseRepositories(): Repositories {
     resultsRepository: new SupabaseResultsRepository(supabaseClient),
     syncRepository: new SupabaseSyncRepository(supabaseClient),
     adminPicksRepository: new SupabaseAdminPicksRepository(supabaseClient),
+    adminPaymentsRepository: new SupabaseAdminPaymentsRepository(supabaseClient),
     achievementsRepository: new SupabaseAchievementsRepository(supabaseClient),
     weeklyPicksBoardRepository: new SupabaseWeeklyPicksBoardRepository(supabaseClient),
   }

@@ -33,6 +33,11 @@ export type {
   AdminUserWeeklyPick,
   AdminUserSurvivorPick,
 } from './AdminPicksRepository'
+export type {
+  AdminPaymentsRepository,
+  AdminWeeklyPaymentRow,
+  AdminSurvivorPaymentRow,
+} from './AdminPaymentsRepository'
 export type { Repositories } from './Repositories'
 export type { Profile } from '@/core/entities/profile'
 export type { AchievementsRepository } from './AchievementsRepository'

@@ -1,5 +1,6 @@
 import type { AchievementsRepository } from './AchievementsRepository'
 import type { AdminPicksRepository } from './AdminPicksRepository'
+import type { AdminPaymentsRepository } from './AdminPaymentsRepository'
 import type { AuthRepository } from './AuthRepository'
 import type { GroupRepository } from './GroupRepository'
 import type { ModuleAccessRepository } from './ModuleAccessRepository'
@@ -23,6 +24,7 @@ export interface Repositories {
   resultsRepository: ResultsRepository
   syncRepository: SyncRepository
   adminPicksRepository: AdminPicksRepository
+  adminPaymentsRepository: AdminPaymentsRepository
   achievementsRepository: AchievementsRepository
   weeklyPicksBoardRepository: WeeklyPicksBoardRepository
 }

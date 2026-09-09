@@ -5,6 +5,11 @@ import { useListAdminWeeklyPicksForWeek } from '@/presentation/hooks/useListAdmi
 import { useListAdminSurvivorPicksForWeek } from '@/presentation/hooks/useListAdminSurvivorPicksForWeek'
 import { useListAdminWeeklyPicksForUser } from '@/presentation/hooks/useListAdminWeeklyPicksForUser'
 import { useListAdminSurvivorPicksForUser } from '@/presentation/hooks/useListAdminSurvivorPicksForUser'
+import { useListSurvivorGroupState } from '@/presentation/hooks/useListSurvivorGroupState'
+import { useListAdminWeeklyPayments } from '@/presentation/hooks/useListAdminWeeklyPayments'
+import { useSetAdminWeeklyPayment } from '@/presentation/hooks/useSetAdminWeeklyPayment'
+import { useListAdminSurvivorPayments } from '@/presentation/hooks/useListAdminSurvivorPayments'
+import { useSetAdminSurvivorPayment } from '@/presentation/hooks/useSetAdminSurvivorPayment'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
@@ -23,10 +28,12 @@ import {
 } from '@/presentation/features/pickem/weeklyPicksMatrix/weeklyPicksMatrixExport'
 import type { Game, Week } from '@/core/entities/catalog'
 import type { AdminUserWeeklyPick } from '@/core/ports/AdminPicksRepository'
+import type { SurvivorLife } from '@/core/entities/survivor'
 import styles from './AdminUserPicksPage.module.css'
 
-type Mode = 'porSemana' | 'porUsuario'
+type Mode = 'porSemana' | 'porUsuario' | 'pagos'
 type Quiniela = 'weekly' | 'survivor'
+const SURVIVOR_LIVES: SurvivorLife[] = [1, 2, 3]
 
 function weekLabel(week: Week | undefined): string {
   return week ? formatWeekLabel(week) : ''
@@ -83,6 +90,8 @@ export function AdminUserPicksPage() {
   const [selectedWeekId, setSelectedWeekId] = useState('')
   const [selectedUserId, setSelectedUserId] = useState('')
   const [downloadingPdf, setDownloadingPdf] = useState(false)
+  const [paymentsQuiniela, setPaymentsQuiniela] = useState<Quiniela>('weekly')
+  const [paymentsWeekId, setPaymentsWeekId] = useState('')
 
   const {
     status: weeklyWeekStatus,
@@ -104,6 +113,23 @@ export function AdminUserPicksPage() {
     data: userSurvivorPicks,
     run: loadUserSurvivor,
   } = useListAdminSurvivorPicksForUser()
+  const {
+    status: weeklyPaymentsStatus,
+    data: weeklyPayments,
+    run: loadWeeklyPayments,
+  } = useListAdminWeeklyPayments()
+  const { run: setWeeklyPayment } = useSetAdminWeeklyPayment()
+  const {
+    status: survivorPaymentsStatus,
+    data: survivorPayments,
+    run: loadSurvivorPayments,
+  } = useListAdminSurvivorPayments()
+  const { run: setSurvivorPayment } = useSetAdminSurvivorPayment()
+  const {
+    status: survivorRosterStatus,
+    data: survivorRoster,
+    run: loadSurvivorRoster,
+  } = useListSurvivorGroupState()
 
   useEffect(() => {
     if (group) loadMembers({ groupId: group.id })
@@ -120,6 +146,45 @@ export function AdminUserPicksPage() {
     loadUserWeekly({ groupId: group.id, userId: selectedUserId })
     loadUserSurvivor({ groupId: group.id, userId: selectedUserId })
   }, [group, mode, selectedUserId, loadUserWeekly, loadUserSurvivor])
+
+  const reloadWeeklyPayments = () => {
+    if (group && paymentsWeekId) loadWeeklyPayments({ groupId: group.id, weekId: paymentsWeekId })
+  }
+  const reloadSurvivorPayments = () => {
+    if (group) loadSurvivorPayments({ groupId: group.id })
+  }
+
+  useEffect(() => {
+    if (!group || mode !== 'pagos' || paymentsQuiniela !== 'weekly' || !paymentsWeekId) return
+    loadWeeklyPayments({ groupId: group.id, weekId: paymentsWeekId })
+  }, [group, mode, paymentsQuiniela, paymentsWeekId, loadWeeklyPayments])
+
+  useEffect(() => {
+    if (!group || mode !== 'pagos' || paymentsQuiniela !== 'survivor') return
+    loadSurvivorPayments({ groupId: group.id })
+    loadSurvivorRoster({ groupId: group.id })
+  }, [group, mode, paymentsQuiniela, loadSurvivorPayments, loadSurvivorRoster])
+
+  async function handleToggleWeeklyPayment(userId: string, paid: boolean) {
+    if (!group || !paymentsWeekId) return
+    await setWeeklyPayment({ groupId: group.id, weekId: paymentsWeekId, userId, paid })
+    reloadWeeklyPayments()
+  }
+
+  async function handleToggleSurvivorPayment(userId: string, lifeNumber: SurvivorLife, paid: boolean) {
+    if (!group) return
+    await setSurvivorPayment({ groupId: group.id, userId, lifeNumber, paid })
+    reloadSurvivorPayments()
+  }
+
+  const weeklyPaidByUser = new Map((weeklyPayments ?? []).map((row) => [row.userId, row.paid]))
+  const survivorPaidByUserAndLife = new Map<string, Map<SurvivorLife, boolean>>()
+  survivorPayments?.forEach((row) => {
+    const byLife = survivorPaidByUserAndLife.get(row.userId) ?? new Map<SurvivorLife, boolean>()
+    byLife.set(row.lifeNumber, row.paid)
+    survivorPaidByUserAndLife.set(row.userId, byLife)
+  })
+  const paymentsWeekOptions = (weeks ?? []).filter((week) => week.type !== 'playoffs')
 
   const teamName = (id: string) => teams?.find((team) => team.id === id)?.name ?? id
   const gameById = new Map((games ?? []).map((game) => [game.id, game]))
@@ -226,6 +291,13 @@ export function AdminUserPicksPage() {
           onClick={() => setMode('porUsuario')}
         >
           Por usuario
+        </button>
+        <button
+          type="button"
+          className={mode === 'pagos' ? '' : 'button-secondary'}
+          onClick={() => setMode('pagos')}
+        >
+          Pagos
         </button>
       </div>
 
@@ -412,6 +484,138 @@ export function AdminUserPicksPage() {
                           </tr>
                         )
                       })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
+        </>
+      )}
+
+      {mode === 'pagos' && (
+        <>
+          <div className={styles.filters}>
+            <label>
+              Quiniela
+              <select
+                value={paymentsQuiniela}
+                onChange={(event) => {
+                  setPaymentsQuiniela(event.target.value as Quiniela)
+                  setPaymentsWeekId('')
+                }}
+              >
+                <option value="weekly">Pickem semanal</option>
+                <option value="survivor">Survivor</option>
+              </select>
+            </label>
+            {paymentsQuiniela === 'weekly' && (
+              <label>
+                Semana
+                <select value={paymentsWeekId} onChange={(event) => setPaymentsWeekId(event.target.value)}>
+                  <option value="">Selecciona una semana</option>
+                  {paymentsWeekOptions.map((week) => (
+                    <option key={week.id} value={week.id}>
+                      {weekLabel(week)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+          </div>
+
+          {paymentsQuiniela === 'weekly' && (
+            <>
+              {!paymentsWeekId && <p className="text-body-sm text-muted">Elige una semana para ver los pagos.</p>}
+              {paymentsWeekId && (
+                <>
+                  {weeklyPaymentsStatus === 'pending' && <LoadingSpinner variant="inline" />}
+                  {weeklyPaymentsStatus === 'error' && <p role="alert">No se pudieron cargar los pagos.</p>}
+                  {members && members.length === 0 && weeklyPaymentsStatus === 'success' && (
+                    <EmptyState message="No hay miembros en el grupo." />
+                  )}
+                  {members && members.length > 0 && (
+                    <div className={`${styles.tableScroll} glass-surface`}>
+                      <table className={styles.simpleTable}>
+                        <thead>
+                          <tr>
+                            <th>Usuario</th>
+                            <th>Pagó</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {members.map((member) => (
+                            <tr key={member.userId}>
+                              <td>{member.displayName}</td>
+                              <td>
+                                <input
+                                  type="checkbox"
+                                  checked={weeklyPaidByUser.get(member.userId) ?? false}
+                                  onChange={(event) => handleToggleWeeklyPayment(member.userId, event.target.checked)}
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
+
+          {paymentsQuiniela === 'survivor' && (
+            <>
+              <p className="text-body-sm text-muted">
+                La vida 1 se cobra al entrar. La vida 2 y la vida 3 solo se habilitan cuando el usuario la pidió y
+                se le aprobó.
+              </p>
+              {(survivorPaymentsStatus === 'pending' || survivorRosterStatus === 'pending') && (
+                <LoadingSpinner variant="inline" />
+              )}
+              {(survivorPaymentsStatus === 'error' || survivorRosterStatus === 'error') && (
+                <p role="alert">No se pudieron cargar los pagos.</p>
+              )}
+              {survivorRoster && survivorRoster.length === 0 && survivorRosterStatus === 'success' && (
+                <EmptyState message="No hay jugadores de survivor en el grupo." />
+              )}
+              {survivorRoster && survivorRoster.length > 0 && (
+                <div className={`${styles.tableScroll} glass-surface`}>
+                  <table className={styles.simpleTable}>
+                    <thead>
+                      <tr>
+                        <th>Usuario</th>
+                        <th>Vida 1</th>
+                        <th>Vida 2</th>
+                        <th>Vida 3</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {survivorRoster.map((participant) => (
+                        <tr key={participant.userId}>
+                          <td>{participant.displayName}</td>
+                          {SURVIVOR_LIVES.map((life) => {
+                            const unlocked = participant.currentLife >= life
+                            const paid = survivorPaidByUserAndLife.get(participant.userId)?.get(life) ?? false
+                            return (
+                              <td key={life}>
+                                {unlocked ? (
+                                  <input
+                                    type="checkbox"
+                                    checked={paid}
+                                    onChange={(event) =>
+                                      handleToggleSurvivorPayment(participant.userId, life, event.target.checked)
+                                    }
+                                  />
+                                ) : (
+                                  <span className="text-muted">—</span>
+                                )}
+                              </td>
+                            )
+                          })}
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>

@@ -42,7 +42,7 @@ const SECTIONS: AdminSection[] = [
   {
     title: 'Supervision',
     actions: [
-      { to: '/admin/picks', icon: 'search', title: 'Ver picks de usuarios', description: 'Pickem semanal y Survivor, por semana o por usuario' },
+      { to: '/admin/picks', icon: 'search', title: 'Ver picks de usuarios', description: 'Pickem semanal y Survivor: picks por semana o usuario, y quién ya pagó' },
     ],
   },
 ]
