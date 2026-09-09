@@ -15,6 +15,7 @@ import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
+import { SearchableSelect } from '@/presentation/components/SearchableSelect/SearchableSelect'
 import { weekLabel as formatWeekLabel } from '@/presentation/features/pickem/weekLabel'
 import {
   WeeklyPicksMatrix,
@@ -488,17 +489,16 @@ export function AdminUserPicksPage() {
 
       {mode === 'porUsuario' && (
         <>
-          <label>
-            Usuario
-            <select value={selectedUserId} onChange={(event) => setSelectedUserId(event.target.value)}>
-              <option value="">Selecciona un usuario</option>
-              {sortedMembers?.map((member) => (
-                <option key={member.userId} value={member.userId}>
-                  {member.displayName}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className={styles.field}>
+            <span className={styles.fieldLabel}>Usuario</span>
+            <SearchableSelect
+              options={(sortedMembers ?? []).map((member) => ({ value: member.userId, label: member.displayName }))}
+              value={selectedUserId}
+              onChange={setSelectedUserId}
+              placeholder="Busca o selecciona un usuario"
+              emptyMessage="Nadie coincide con la búsqueda."
+            />
+          </div>
 
           {!selectedUserId && <p className="text-body-sm text-muted">Elige un usuario para ver su historial.</p>}
 

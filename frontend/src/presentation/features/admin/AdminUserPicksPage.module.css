@@ -20,6 +20,20 @@
   min-width: 180px;
 }
 
+/* Igual que un <label> global (font-size/color/margin), pero como <div>+<span>
+   para no anidar el <label> propio del SearchableSelect (input+icono) dentro
+   de otro <label> — invalido semanticamente y rompe el foco por click. */
+.field {
+  margin-bottom: 12px;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
 .tableScroll {
   overflow-x: auto;
   margin-top: 16px;
