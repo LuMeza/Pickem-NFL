@@ -139,6 +139,26 @@ td[data-status='noPick'] {
   background: rgba(200, 255, 61, 0.18);
 }
 
+/* Circulo compacto (sin texto) para ir pegado al nombre — misma logica de
+   color que .paidPill, pensado para tablas con muchas columnas de partido
+   donde un badge con texto ocuparia demasiado. */
+.paidDot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 120ms ease-out,
+    border-color 120ms ease-out,
+    color 120ms ease-out;
+}
+
 .notApplicable {
   display: inline-flex;
   align-items: center;

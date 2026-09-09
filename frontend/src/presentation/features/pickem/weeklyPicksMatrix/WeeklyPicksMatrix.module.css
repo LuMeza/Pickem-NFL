@@ -1,3 +1,9 @@
+.scrollHint {
+  display: flex;
+  justify-content: flex-end;
+  margin: 12px 0 4px;
+}
+
 .tableScroll {
   overflow-x: auto;
   margin-top: 16px;
@@ -44,14 +50,28 @@
   z-index: 1;
 }
 
+.userCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Columnas de partido angostas a proposito (escudos xs) — con 16+ partidos
+   por semana, el ancho por columna es lo que mas empuja el scroll horizontal. */
+.matrixTable .gameHeaderCell,
+.matrixTable .pickCell {
+  padding: 8px 6px;
+}
+
 .gameHeaderCell {
   text-align: center;
 }
 
 .gameHeaderTeams {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .pickCell {

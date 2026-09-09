@@ -38,77 +38,86 @@ export interface WeeklyPicksMatrixUser {
   rowsByGame: Map<string, WeeklyPicksMatrixCell>
 }
 
-export interface WeeklyPicksMatrixExtraColumn {
-  header: string
-  renderCell: (userId: string) => ReactNode
-}
+/** Cuando hay mas partidos que esto, la matriz muestra un aviso de que hay que deslizar para verlos todos. */
+const SCROLL_HINT_THRESHOLD = 6
 
 /**
  * Tabla usuario x partido (escudo del equipo elegido, color segun acierto/error).
  * Compartida entre el panel admin ("Picks de usuarios") y el apartado de
  * usuarios ("Picks de todos") — misma data, distinta fuente/gate de acceso.
- * `extraColumn` es opcional (solo lo usa el panel admin, ej. estado de pago)
- * para no acoplar un concepto admin-only al componente compartido.
+ * `renderUserPrefix` es opcional (solo lo usa el panel admin, para el estado
+ * de pago junto al nombre) para no acoplar un concepto admin-only al
+ * componente compartido.
  */
 export function WeeklyPicksMatrix({
   rows,
   games,
   teamName,
-  extraColumn,
+  renderUserPrefix,
 }: {
   rows: Map<string, WeeklyPicksMatrixUser>
   games: Game[]
   teamName: (id: string) => string
-  extraColumn?: WeeklyPicksMatrixExtraColumn
+  renderUserPrefix?: (userId: string) => ReactNode
 }) {
   return (
-    <div className={`${styles.tableScroll} glass-surface`}>
-      <table className={styles.matrixTable}>
-        <thead>
-          <tr>
-            <th className={styles.userHeaderCell}>Usuario</th>
-            {games.map((game) => (
-              <th key={game.id} className={styles.gameHeaderCell}>
-                <span className={styles.gameHeaderTeams}>
-                  <TeamBadge teamId={game.homeTeamId} size="sm" />
-                  <TeamBadge teamId={game.awayTeamId} size="sm" />
-                </span>
-              </th>
-            ))}
-            {extraColumn && <th className={styles.gameHeaderCell}>{extraColumn.header}</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {[...rows.entries()].map(([userId, entry]) => (
-            <tr key={userId}>
-              <td className={styles.userHeaderCell}>{entry.displayName}</td>
-              {games.map((game) => {
-                const row = entry.rowsByGame.get(game.id)
-                const pick = row?.pick ?? null
-                const status = pickStatus(pick, row?.outcome ?? null)
-                const teamId = pickedTeamId(pick, game)
-                return (
-                  <td
-                    key={game.id}
-                    className={styles.pickCell}
-                    data-status={status}
-                    title={`${matchupTitle(game, teamName)} — ${pickLabel(pick, game, teamName)}`}
-                  >
-                    {teamId ? (
-                      <TeamBadge teamId={teamId} size="sm" />
-                    ) : pick === 'tie' ? (
-                      <span className={styles.tie}>Empate</span>
-                    ) : (
-                      <span className={styles.dash}>—</span>
-                    )}
-                  </td>
-                )
-              })}
-              {extraColumn && <td className={styles.pickCell}>{extraColumn.renderCell(userId)}</td>}
+    <>
+      {games.length > SCROLL_HINT_THRESHOLD && (
+        <p className={`text-body-sm text-muted ${styles.scrollHint}`}>
+          Desliza para ver los {games.length} partidos →
+        </p>
+      )}
+      <div className={`${styles.tableScroll} glass-surface`}>
+        <table className={styles.matrixTable}>
+          <thead>
+            <tr>
+              <th className={styles.userHeaderCell}>Usuario</th>
+              {games.map((game) => (
+                <th key={game.id} className={styles.gameHeaderCell}>
+                  <span className={styles.gameHeaderTeams}>
+                    <TeamBadge teamId={game.homeTeamId} size="xs" />
+                    <TeamBadge teamId={game.awayTeamId} size="xs" />
+                  </span>
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {[...rows.entries()].map(([userId, entry]) => (
+              <tr key={userId}>
+                <td className={styles.userHeaderCell}>
+                  <span className={styles.userCell}>
+                    {renderUserPrefix?.(userId)}
+                    {entry.displayName}
+                  </span>
+                </td>
+                {games.map((game) => {
+                  const row = entry.rowsByGame.get(game.id)
+                  const pick = row?.pick ?? null
+                  const status = pickStatus(pick, row?.outcome ?? null)
+                  const teamId = pickedTeamId(pick, game)
+                  return (
+                    <td
+                      key={game.id}
+                      className={styles.pickCell}
+                      data-status={status}
+                      title={`${matchupTitle(game, teamName)} — ${pickLabel(pick, game, teamName)}`}
+                    >
+                      {teamId ? (
+                        <TeamBadge teamId={teamId} size="xs" />
+                      ) : pick === 'tie' ? (
+                        <span className={styles.tie}>Empate</span>
+                      ) : (
+                        <span className={styles.dash}>—</span>
+                      )}
+                    </td>
+                  )
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   )
 }

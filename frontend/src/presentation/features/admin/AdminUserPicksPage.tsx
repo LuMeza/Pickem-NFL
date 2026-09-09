@@ -203,6 +203,22 @@ export function AdminUserPicksPage() {
     )
   }
 
+  /** Version compacta del pill de pago (circulo, sin texto) para ir pegada al nombre en tablas con muchas columnas. */
+  function renderPaidDot(displayName: string, paid: boolean, onToggle: () => void) {
+    return (
+      <button
+        type="button"
+        aria-pressed={paid}
+        aria-label={`${displayName}: ${paid ? 'pagó' : 'falta pagar'}`}
+        title={paid ? 'Pagó' : 'Falta pagar'}
+        className={`${styles.paidDot} ${paid ? styles.paidPillOn : styles.paidPillOff}`}
+        onClick={onToggle}
+      >
+        {paid && <Icon name="check" size={11} />}
+      </button>
+    )
+  }
+
   const weeklyPaidByUser = new Map((weeklyPayments ?? []).map((row) => [row.userId, row.paid]))
   const survivorPaidByUserAndLife = new Map<string, Map<SurvivorLife, boolean>>()
   survivorPayments?.forEach((row) => {
@@ -386,12 +402,12 @@ export function AdminUserPicksPage() {
                     rows={weeklyByUser}
                     games={gamesForSelectedWeek}
                     teamName={teamName}
-                    extraColumn={{
-                      header: 'Pagó',
-                      renderCell: (userId) => {
-                        const paid = weeklyPaidByUser.get(userId) ?? false
-                        return renderPaidPill(paid, () => handleToggleWeeklyPayment(selectedWeekId, userId, !paid))
-                      },
+                    renderUserPrefix={(userId) => {
+                      const paid = weeklyPaidByUser.get(userId) ?? false
+                      const displayName = weeklyByUser.get(userId)?.displayName ?? ''
+                      return renderPaidDot(displayName, paid, () =>
+                        handleToggleWeeklyPayment(selectedWeekId, userId, !paid),
+                      )
                     }}
                   />
                 </>
@@ -435,7 +451,6 @@ export function AdminUserPicksPage() {
                           <th>Pick</th>
                           <th>Vida</th>
                           <th>Estado</th>
-                          <th>Pagó</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -445,7 +460,15 @@ export function AdminUserPicksPage() {
                             : false
                           return (
                             <tr key={row.userId}>
-                              <td>{row.displayName}</td>
+                              <td>
+                                <span className={styles.teamPick}>
+                                  {row.lifeNumber &&
+                                    renderPaidDot(row.displayName, paid, () =>
+                                      handleToggleSurvivorPayment(row.userId, row.lifeNumber as SurvivorLife, !paid),
+                                    )}
+                                  {row.displayName}
+                                </span>
+                              </td>
                               <td data-status={row.teamId ? 'pending' : 'noPick'}>
                                 <span className={styles.teamPick}>
                                   {row.teamId && <TeamBadge teamId={row.teamId} size="sm" />}
@@ -454,15 +477,6 @@ export function AdminUserPicksPage() {
                               </td>
                               <td>{row.lifeNumber ?? '—'}</td>
                               <td>{row.status === 'eliminated' ? 'Eliminado' : 'Vivo'}</td>
-                              <td>
-                                {row.lifeNumber ? (
-                                  renderPaidPill(paid, () =>
-                                    handleToggleSurvivorPayment(row.userId, row.lifeNumber as SurvivorLife, !paid),
-                                  )
-                                ) : (
-                                  <span className={`text-muted ${styles.notApplicable}`}>—</span>
-                                )}
-                              </td>
                             </tr>
                           )
                         })}

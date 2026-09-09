@@ -5,8 +5,10 @@ import styles from './TeamBadge.module.css'
 
 export interface TeamBadgeProps {
   teamId: string
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'xs' | 'sm' | 'md' | 'lg'
 }
+
+const SIZE_CLASS = { xs: 'xs', sm: 'sm', md: 'md', lg: 'lg' } as const
 
 /**
  * Escudo de equipo: logo oficial cargado desde el CDN de ESPN, con
@@ -16,7 +18,7 @@ export interface TeamBadgeProps {
 export function TeamBadge({ teamId, size = 'md' }: TeamBadgeProps) {
   const [imageFailed, setImageFailed] = useState(false)
   const { primary, secondary } = getTeamColors(teamId)
-  const sizeClass = size === 'sm' ? styles.sm : size === 'lg' ? styles.lg : styles.md
+  const sizeClass = styles[SIZE_CLASS[size]]
 
   if (imageFailed) {
     return (
