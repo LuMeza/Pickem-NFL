@@ -66,11 +66,13 @@
   justify-content: center;
   width: var(--touch-target-min);
   height: var(--touch-target-min);
+  padding: 0;
   flex-shrink: 0;
   border-radius: 999px;
   background: var(--bg-surface);
   border: 1px solid var(--glass-border);
   color: var(--text-primary);
+  font-weight: 400;
   text-decoration: none;
   transition:
     border-color 150ms ease-out,
@@ -133,6 +135,7 @@
   color: var(--text-muted);
   text-decoration: none;
   font-size: 12px;
+  font-weight: 400;
   text-align: center;
   transition:
     border-color 150ms ease-out,

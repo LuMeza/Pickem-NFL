@@ -14,6 +14,7 @@ import { Icon } from '@/presentation/components/Icon/Icon'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
+import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
 import { weekLabel as formatWeekLabel } from '@/presentation/features/pickem/weekLabel'
 import {
   WeeklyPicksMatrix,
@@ -26,7 +27,7 @@ import {
   downloadWeeklyPicksMatrixPdf,
   downloadSurvivorPicksPdf,
 } from '@/presentation/features/pickem/weeklyPicksMatrix/weeklyPicksMatrixExport'
-import type { Game, Week } from '@/core/entities/catalog'
+import type { Game, Week, WeekType } from '@/core/entities/catalog'
 import type { AdminUserWeeklyPick } from '@/core/ports/AdminPicksRepository'
 import type { SurvivorLife } from '@/core/entities/survivor'
 import styles from './AdminUserPicksPage.module.css'
@@ -34,6 +35,9 @@ import styles from './AdminUserPicksPage.module.css'
 type Mode = 'porSemana' | 'porUsuario' | 'pagos'
 type Quiniela = 'weekly' | 'survivor'
 const SURVIVOR_LIVES: SurvivorLife[] = [1, 2, 3]
+/** Segmentos de temporada validos por quiniela — mismo criterio que ya filtraba el <select> de semana. */
+const WEEKLY_SEGMENTS: WeekType[] = ['hof', 'pretemporada', 'regular']
+const SURVIVOR_SEGMENTS: WeekType[] = ['regular']
 
 function weekLabel(week: Week | undefined): string {
   return week ? formatWeekLabel(week) : ''
@@ -226,15 +230,9 @@ export function AdminUserPicksPage() {
     byLife.set(row.lifeNumber, row.paid)
     survivorPaidByUserAndLife.set(row.userId, byLife)
   })
-  const paymentsWeekOptions = (weeks ?? []).filter((week) => week.type !== 'playoffs')
-
   const teamName = (id: string) => teams?.find((team) => team.id === id)?.name ?? id
   const gameById = new Map((games ?? []).map((game) => [game.id, game]))
   const orderedWeeks = weeks ?? []
-
-  const weekOptions = orderedWeeks.filter((week) =>
-    quiniela === 'weekly' ? week.type !== 'playoffs' : week.type === 'regular',
-  )
 
   const gamesForSelectedWeek = (games ?? [])
     .filter((game) => game.weekId === selectedWeekId)
@@ -359,18 +357,12 @@ export function AdminUserPicksPage() {
                 <option value="survivor">Survivor</option>
               </select>
             </label>
-            <label>
-              Semana
-              <select value={selectedWeekId} onChange={(event) => setSelectedWeekId(event.target.value)}>
-                <option value="">Selecciona una semana</option>
-                {weekOptions.map((week) => (
-                  <option key={week.id} value={week.id}>
-                    {weekLabel(week)}
-                  </option>
-                ))}
-              </select>
-            </label>
           </div>
+          <WeekSelector
+            activeWeekId={selectedWeekId}
+            onSelect={setSelectedWeekId}
+            allowedSegments={quiniela === 'weekly' ? WEEKLY_SEGMENTS : SURVIVOR_SEGMENTS}
+          />
 
           {!selectedWeekId && <p className="text-body-sm text-muted">Elige una semana para ver los picks.</p>}
 
@@ -589,20 +581,10 @@ export function AdminUserPicksPage() {
                 <option value="survivor">Survivor</option>
               </select>
             </label>
-            {paymentsQuiniela === 'weekly' && (
-              <label>
-                Semana
-                <select value={paymentsWeekId} onChange={(event) => setPaymentsWeekId(event.target.value)}>
-                  <option value="">Selecciona una semana</option>
-                  {paymentsWeekOptions.map((week) => (
-                    <option key={week.id} value={week.id}>
-                      {weekLabel(week)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
           </div>
+          {paymentsQuiniela === 'weekly' && (
+            <WeekSelector activeWeekId={paymentsWeekId} onSelect={setPaymentsWeekId} allowedSegments={WEEKLY_SEGMENTS} />
+          )}
 
           {paymentsQuiniela === 'weekly' && (
             <>

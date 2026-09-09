@@ -20,25 +20,30 @@ function sortByNumber(weeks: Week[]): Week[] {
 
 export interface WeekSelectorProps {
   activeWeekId: string
-  /** Construye el href de cada semana. Por defecto apunta al calendario de partidos (`/weeks/:id/games`); las pantallas de acceso semanal del pickem lo sobreescriben para quedarse en su propia ruta. */
+  /** Construye el href de cada semana. Por defecto apunta al calendario de partidos (`/weeks/:id/games`); las pantallas de acceso semanal del pickem lo sobreescriben para quedarse en su propia ruta. Ignorado si se pasa `onSelect`. */
   linkTo?: (weekId: string) => string
   /** Semanas que no se pueden navegar todavía (ej. Survivor, design.md decision 8 — no adelantarse a una semana futura sin saber si el usuario sigue vivo). Por defecto ninguna semana está deshabilitada. */
   isWeekDisabled?: (week: Week) => boolean
   /** Segmentos de temporada que la pantalla soporta (ej. Survivor solo aplica a `regular`, ver modulo-survivor design.md decision 1). Por defecto, todos. */
   allowedSegments?: WeekType[]
+  /** Modo controlado (sin navegación): en vez de armar un link con `linkTo` y navegar, llama esto con el id elegido. Pensado para filtros locales (ej. panel admin) que no representan una ruta propia por semana. */
+  onSelect?: (weekId: string) => void
 }
 
 /**
  * Selector de semana en dos niveles: segmentos por tipo de temporada
  * (pretemporada/regular/playoffs) + un stepper dentro del segmento activo,
  * con una hoja desplegable para saltar directo. Sustituye a un carrusel plano
- * de +20 chips, que se vuelve lento de recorrer (feedback de UX).
+ * de +20 chips, que se vuelve lento de recorrer (feedback de UX) — y al
+ * mismo `<select>` nativo de +20 opciones que se vuelve igual de lento e
+ * ilegible cuando se usa como filtro (ver panel admin, onSelect).
  */
 export function WeekSelector({
   activeWeekId,
   linkTo = (weekId) => `/weeks/${weekId}/games`,
   isWeekDisabled = () => false,
   allowedSegments = SEGMENT_ORDER,
+  onSelect,
 }: WeekSelectorProps) {
   const { data: weeks } = useSession().weeks
   const navigate = useNavigate()
@@ -87,9 +92,14 @@ export function WeekSelector({
 
   if (!weeks || weeks.length === 0 || !activeSegment) return null
 
+  function selectWeek(weekId: string) {
+    if (onSelect) onSelect(weekId)
+    else navigate(linkTo(weekId))
+  }
+
   function goToSegment(type: WeekType) {
     const firstOfSegment = sortByNumber(weeks!.filter((week) => week.type === type))[0]
-    if (firstOfSegment) navigate(linkTo(firstOfSegment.id))
+    if (firstOfSegment) selectWeek(firstOfSegment.id)
     setIsPickerOpen(false)
   }
 
@@ -113,19 +123,34 @@ export function WeekSelector({
       )}
 
       <div className={styles.stepper}>
-        <Link
-          to={prevWeek ? linkTo(prevWeek.id) : '#'}
-          tabIndex={prevWeek ? 0 : -1}
-          aria-disabled={!prevWeek}
-          className={`${styles.stepButton} ${!prevWeek ? styles.stepButtonDisabled : ''}`}
-          onClick={(event) => {
-            if (!prevWeek) event.preventDefault()
-            setIsPickerOpen(false)
-          }}
-        >
-          <span aria-hidden="true">◀</span>
-          <span className={styles.srOnly}>Semana anterior</span>
-        </Link>
+        {onSelect ? (
+          <button
+            type="button"
+            disabled={!prevWeek}
+            className={`${styles.stepButton} ${!prevWeek ? styles.stepButtonDisabled : ''}`}
+            onClick={() => {
+              if (prevWeek) selectWeek(prevWeek.id)
+              setIsPickerOpen(false)
+            }}
+          >
+            <span aria-hidden="true">◀</span>
+            <span className={styles.srOnly}>Semana anterior</span>
+          </button>
+        ) : (
+          <Link
+            to={prevWeek ? linkTo(prevWeek.id) : '#'}
+            tabIndex={prevWeek ? 0 : -1}
+            aria-disabled={!prevWeek}
+            className={`${styles.stepButton} ${!prevWeek ? styles.stepButtonDisabled : ''}`}
+            onClick={(event) => {
+              if (!prevWeek) event.preventDefault()
+              setIsPickerOpen(false)
+            }}
+          >
+            <span aria-hidden="true">◀</span>
+            <span className={styles.srOnly}>Semana anterior</span>
+          </Link>
+        )}
 
         <button
           type="button"
@@ -136,19 +161,34 @@ export function WeekSelector({
           {activeWeek ? weekLabel(activeWeek) : 'Elegir semana'}
         </button>
 
-        <Link
-          to={nextWeek ? linkTo(nextWeek.id) : '#'}
-          tabIndex={nextWeek ? 0 : -1}
-          aria-disabled={!nextWeek}
-          className={`${styles.stepButton} ${!nextWeek ? styles.stepButtonDisabled : ''}`}
-          onClick={(event) => {
-            if (!nextWeek) event.preventDefault()
-            setIsPickerOpen(false)
-          }}
-        >
-          <span aria-hidden="true">▶</span>
-          <span className={styles.srOnly}>Semana siguiente</span>
-        </Link>
+        {onSelect ? (
+          <button
+            type="button"
+            disabled={!nextWeek}
+            className={`${styles.stepButton} ${!nextWeek ? styles.stepButtonDisabled : ''}`}
+            onClick={() => {
+              if (nextWeek) selectWeek(nextWeek.id)
+              setIsPickerOpen(false)
+            }}
+          >
+            <span aria-hidden="true">▶</span>
+            <span className={styles.srOnly}>Semana siguiente</span>
+          </button>
+        ) : (
+          <Link
+            to={nextWeek ? linkTo(nextWeek.id) : '#'}
+            tabIndex={nextWeek ? 0 : -1}
+            aria-disabled={!nextWeek}
+            className={`${styles.stepButton} ${!nextWeek ? styles.stepButtonDisabled : ''}`}
+            onClick={(event) => {
+              if (!nextWeek) event.preventDefault()
+              setIsPickerOpen(false)
+            }}
+          >
+            <span aria-hidden="true">▶</span>
+            <span className={styles.srOnly}>Semana siguiente</span>
+          </Link>
+        )}
       </div>
 
       {isPickerOpen && (
@@ -167,12 +207,31 @@ export function WeekSelector({
               )
             }
 
+            const chipClassName = `${styles.pickerChip} ${week.id === activeWeekId ? styles.pickerChipActive : ''}`
+
+            if (onSelect) {
+              return (
+                <button
+                  key={week.id}
+                  type="button"
+                  role="menuitem"
+                  className={chipClassName}
+                  onClick={() => {
+                    selectWeek(week.id)
+                    setIsPickerOpen(false)
+                  }}
+                >
+                  {weekLabel(week)}
+                </button>
+              )
+            }
+
             return (
               <Link
                 key={week.id}
                 to={linkTo(week.id)}
                 role="menuitem"
-                className={`${styles.pickerChip} ${week.id === activeWeekId ? styles.pickerChipActive : ''}`}
+                className={chipClassName}
                 onClick={() => setIsPickerOpen(false)}
               >
                 {weekLabel(week)}
