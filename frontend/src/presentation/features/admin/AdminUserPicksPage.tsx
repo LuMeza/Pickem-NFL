@@ -233,6 +233,10 @@ export function AdminUserPicksPage() {
   const teamName = (id: string) => teams?.find((team) => team.id === id)?.name ?? id
   const gameById = new Map((games ?? []).map((game) => [game.id, game]))
   const orderedWeeks = weeks ?? []
+  /** El listado de group_members no viene ordenado — sin esto el selector de usuario y la tabla de pagos semanales quedan en orden aleatorio, imposibles de escanear con muchos miembros. */
+  const sortedMembers = members
+    ? [...members].sort((a, b) => a.displayName.localeCompare(b.displayName, 'es', { sensitivity: 'base' }))
+    : null
 
   const gamesForSelectedWeek = (games ?? [])
     .filter((game) => game.weekId === selectedWeekId)
@@ -488,7 +492,7 @@ export function AdminUserPicksPage() {
             Usuario
             <select value={selectedUserId} onChange={(event) => setSelectedUserId(event.target.value)}>
               <option value="">Selecciona un usuario</option>
-              {members?.map((member) => (
+              {sortedMembers?.map((member) => (
                 <option key={member.userId} value={member.userId}>
                   {member.displayName}
                 </option>
@@ -593,14 +597,14 @@ export function AdminUserPicksPage() {
                 <>
                   {weeklyPaymentsStatus === 'pending' && <LoadingSpinner variant="inline" />}
                   {weeklyPaymentsStatus === 'error' && <p role="alert">No se pudieron cargar los pagos.</p>}
-                  {members && members.length === 0 && weeklyPaymentsStatus === 'success' && (
+                  {sortedMembers && sortedMembers.length === 0 && weeklyPaymentsStatus === 'success' && (
                     <EmptyState message="No hay miembros en el grupo." />
                   )}
-                  {members && members.length > 0 && (
+                  {sortedMembers && sortedMembers.length > 0 && (
                     <>
                       <p className={`text-body-sm text-muted ${styles.paymentsSummary}`}>
-                        {members.filter((member) => weeklyPaidByUser.get(member.userId)).length} de {members.length}{' '}
-                        pagaron esta semana.
+                        {sortedMembers.filter((member) => weeklyPaidByUser.get(member.userId)).length} de{' '}
+                        {sortedMembers.length} pagaron esta semana.
                       </p>
                       <div className={`${styles.tableScroll} glass-surface`}>
                         <table className={styles.simpleTable}>
@@ -611,7 +615,7 @@ export function AdminUserPicksPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {members.map((member) => {
+                            {sortedMembers.map((member) => {
                               const paid = weeklyPaidByUser.get(member.userId) ?? false
                               return (
                                 <tr key={member.userId}>
