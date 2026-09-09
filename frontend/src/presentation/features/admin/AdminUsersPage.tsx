@@ -135,7 +135,9 @@ export function AdminUsersPage() {
           <span className="kicker">
             <Icon name="users" size={13} /> Usuarios
           </span>
-          <h1 className="text-display-lg">Usuarios</h1>
+          <h1 className="text-display-lg">
+            Usuarios{users && users.length > 0 && <span className={styles.count}>{users.length}</span>}
+          </h1>
         </div>
         <button type="button" onClick={openCreateModal}>
           Nuevo usuario

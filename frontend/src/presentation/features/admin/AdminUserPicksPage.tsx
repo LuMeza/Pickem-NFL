@@ -535,30 +535,43 @@ export function AdminUserPicksPage() {
                     <EmptyState message="No hay miembros en el grupo." />
                   )}
                   {members && members.length > 0 && (
-                    <div className={`${styles.tableScroll} glass-surface`}>
-                      <table className={styles.simpleTable}>
-                        <thead>
-                          <tr>
-                            <th>Usuario</th>
-                            <th>Pagó</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {members.map((member) => (
-                            <tr key={member.userId}>
-                              <td>{member.displayName}</td>
-                              <td>
-                                <input
-                                  type="checkbox"
-                                  checked={weeklyPaidByUser.get(member.userId) ?? false}
-                                  onChange={(event) => handleToggleWeeklyPayment(member.userId, event.target.checked)}
-                                />
-                              </td>
+                    <>
+                      <p className={`text-body-sm text-muted ${styles.paymentsSummary}`}>
+                        {members.filter((member) => weeklyPaidByUser.get(member.userId)).length} de {members.length}{' '}
+                        pagaron esta semana.
+                      </p>
+                      <div className={`${styles.tableScroll} glass-surface`}>
+                        <table className={styles.simpleTable}>
+                          <thead>
+                            <tr>
+                              <th>Usuario</th>
+                              <th>Estado</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                          </thead>
+                          <tbody>
+                            {members.map((member) => {
+                              const paid = weeklyPaidByUser.get(member.userId) ?? false
+                              return (
+                                <tr key={member.userId}>
+                                  <td>{member.displayName}</td>
+                                  <td>
+                                    <button
+                                      type="button"
+                                      aria-pressed={paid}
+                                      className={`${styles.paidPill} ${paid ? styles.paidPillOn : styles.paidPillOff}`}
+                                      onClick={() => handleToggleWeeklyPayment(member.userId, !paid)}
+                                    >
+                                      {paid && <Icon name="check" size={12} />}
+                                      {paid ? 'Pagó' : 'Falta'}
+                                    </button>
+                                  </td>
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
                   )}
                 </>
               )}
@@ -601,15 +614,17 @@ export function AdminUserPicksPage() {
                             return (
                               <td key={life}>
                                 {unlocked ? (
-                                  <input
-                                    type="checkbox"
-                                    checked={paid}
-                                    onChange={(event) =>
-                                      handleToggleSurvivorPayment(participant.userId, life, event.target.checked)
-                                    }
-                                  />
+                                  <button
+                                    type="button"
+                                    aria-pressed={paid}
+                                    className={`${styles.paidPill} ${paid ? styles.paidPillOn : styles.paidPillOff}`}
+                                    onClick={() => handleToggleSurvivorPayment(participant.userId, life, !paid)}
+                                  >
+                                    {paid && <Icon name="check" size={12} />}
+                                    {paid ? 'Pagó' : 'Falta'}
+                                  </button>
                                 ) : (
-                                  <span className="text-muted">—</span>
+                                  <span className={`text-muted ${styles.notApplicable}`}>—</span>
                                 )}
                               </td>
                             )

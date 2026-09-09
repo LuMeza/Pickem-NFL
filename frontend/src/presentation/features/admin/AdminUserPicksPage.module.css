@@ -92,6 +92,61 @@ td[data-status='noPick'] {
   margin-top: 20px;
 }
 
+.paymentsSummary {
+  margin: 0 0 12px;
+}
+
+/* Toggle de estado de pago — botón-pill, no checkbox: mismo lenguaje que los
+   badges de estado del resto del panel admin (ver ModuleAccessRequestsPage),
+   asi "pagó/falta" se lee como estado en vez de como control de formulario. */
+.paidPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 36px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 120ms ease-out,
+    border-color 120ms ease-out,
+    color 120ms ease-out;
+}
+
+.paidPillOff {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--glass-border);
+}
+.paidPillOff:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.paidPillOn {
+  background: rgba(200, 255, 61, 0.12);
+  color: var(--accent-lime);
+  border: 1px solid rgba(200, 255, 61, 0.3);
+}
+.paidPillOn:hover {
+  background: rgba(200, 255, 61, 0.18);
+}
+
+.notApplicable {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 14px;
+}
+
 .weekTitle {
   display: block;
   font-family: var(--font-display);

@@ -26,6 +26,15 @@
   background: rgba(255, 255, 255, 0.03);
 }
 
+.matrixTable thead th {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
 /* Columna de usuario fija a la izquierda al hacer scroll horizontal de la matriz. */
 .userHeaderCell {
   position: sticky;

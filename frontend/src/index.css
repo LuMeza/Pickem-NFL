@@ -216,6 +216,50 @@ select {
   border-radius: 8px;
 }
 
+/* Checkbox propio (la regla de arriba es para inputs de texto — un checkbox
+   heredandola se vuelve una caja de 44px con el tilde nativo perdido
+   adentro). appearance:none + check dibujado a mano en vez del control del
+   SO, para que combine con el resto de la UI (glass oscuro + acento lime). */
+input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+  display: inline-grid;
+  place-content: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background 120ms ease-out,
+    border-color 120ms ease-out;
+}
+input[type='checkbox']::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background-color: var(--bg-base);
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  transform: scale(0);
+  transition: transform 100ms ease-out;
+}
+input[type='checkbox']:checked {
+  background: var(--accent-lime);
+  border-color: var(--accent-lime);
+}
+input[type='checkbox']:checked::before {
+  transform: scale(1);
+}
+input[type='checkbox']:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 label {
   display: flex;
   flex-direction: column;
