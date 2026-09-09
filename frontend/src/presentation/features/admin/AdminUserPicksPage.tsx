@@ -137,9 +137,23 @@ export function AdminUserPicksPage() {
 
   useEffect(() => {
     if (!group || mode !== 'porSemana' || !selectedWeekId) return
-    if (quiniela === 'weekly') loadWeeklyForWeek({ groupId: group.id, weekId: selectedWeekId })
-    else loadSurvivorForWeek({ groupId: group.id, weekId: selectedWeekId })
-  }, [group, mode, quiniela, selectedWeekId, loadWeeklyForWeek, loadSurvivorForWeek])
+    if (quiniela === 'weekly') {
+      loadWeeklyForWeek({ groupId: group.id, weekId: selectedWeekId })
+      loadWeeklyPayments({ groupId: group.id, weekId: selectedWeekId })
+    } else {
+      loadSurvivorForWeek({ groupId: group.id, weekId: selectedWeekId })
+      loadSurvivorPayments({ groupId: group.id })
+    }
+  }, [
+    group,
+    mode,
+    quiniela,
+    selectedWeekId,
+    loadWeeklyForWeek,
+    loadSurvivorForWeek,
+    loadWeeklyPayments,
+    loadSurvivorPayments,
+  ])
 
   useEffect(() => {
     if (!group || mode !== 'porUsuario' || !selectedUserId) return
@@ -147,9 +161,6 @@ export function AdminUserPicksPage() {
     loadUserSurvivor({ groupId: group.id, userId: selectedUserId })
   }, [group, mode, selectedUserId, loadUserWeekly, loadUserSurvivor])
 
-  const reloadWeeklyPayments = () => {
-    if (group && paymentsWeekId) loadWeeklyPayments({ groupId: group.id, weekId: paymentsWeekId })
-  }
   const reloadSurvivorPayments = () => {
     if (group) loadSurvivorPayments({ groupId: group.id })
   }
@@ -165,16 +176,31 @@ export function AdminUserPicksPage() {
     loadSurvivorRoster({ groupId: group.id })
   }, [group, mode, paymentsQuiniela, loadSurvivorPayments, loadSurvivorRoster])
 
-  async function handleToggleWeeklyPayment(userId: string, paid: boolean) {
-    if (!group || !paymentsWeekId) return
-    await setWeeklyPayment({ groupId: group.id, weekId: paymentsWeekId, userId, paid })
-    reloadWeeklyPayments()
+  /** weekId explicito porque esta misma tabla de pagos se usa tanto desde "Por semana" (selectedWeekId) como desde "Pagos" (paymentsWeekId). */
+  async function handleToggleWeeklyPayment(weekId: string, userId: string, paid: boolean) {
+    if (!group || !weekId) return
+    await setWeeklyPayment({ groupId: group.id, weekId, userId, paid })
+    loadWeeklyPayments({ groupId: group.id, weekId })
   }
 
   async function handleToggleSurvivorPayment(userId: string, lifeNumber: SurvivorLife, paid: boolean) {
     if (!group) return
     await setSurvivorPayment({ groupId: group.id, userId, lifeNumber, paid })
     reloadSurvivorPayments()
+  }
+
+  function renderPaidPill(paid: boolean, onToggle: () => void) {
+    return (
+      <button
+        type="button"
+        aria-pressed={paid}
+        className={`${styles.paidPill} ${paid ? styles.paidPillOn : styles.paidPillOff}`}
+        onClick={onToggle}
+      >
+        {paid && <Icon name="check" size={12} />}
+        {paid ? 'Pagó' : 'Falta'}
+      </button>
+    )
   }
 
   const weeklyPaidByUser = new Map((weeklyPayments ?? []).map((row) => [row.userId, row.paid]))
@@ -341,6 +367,11 @@ export function AdminUserPicksPage() {
               )}
               {weeklyByUser.size > 0 && (
                 <>
+                  <p className={`text-body-sm text-muted ${styles.paymentsSummary}`}>
+                    {weeklyByUser.size} usuario{weeklyByUser.size === 1 ? '' : 's'} ·{' '}
+                    {[...weeklyByUser.keys()].filter((userId) => weeklyPaidByUser.get(userId)).length} pagaron esta
+                    semana.
+                  </p>
                   <button
                     type="button"
                     className={`button-secondary ${styles.downloadButton}`}
@@ -351,7 +382,18 @@ export function AdminUserPicksPage() {
                     <Icon name="download" size={14} />
                     {downloadingPdf ? 'Generando PDF...' : 'Descargar PDF'}
                   </button>
-                  <WeeklyPicksMatrix rows={weeklyByUser} games={gamesForSelectedWeek} teamName={teamName} />
+                  <WeeklyPicksMatrix
+                    rows={weeklyByUser}
+                    games={gamesForSelectedWeek}
+                    teamName={teamName}
+                    extraColumn={{
+                      header: 'Pagó',
+                      renderCell: (userId) => {
+                        const paid = weeklyPaidByUser.get(userId) ?? false
+                        return renderPaidPill(paid, () => handleToggleWeeklyPayment(selectedWeekId, userId, !paid))
+                      },
+                    }}
+                  />
                 </>
               )}
             </>
@@ -366,6 +408,15 @@ export function AdminUserPicksPage() {
               )}
               {survivorWeekRows && survivorWeekRows.length > 0 && (
                 <>
+                  <p className={`text-body-sm text-muted ${styles.paymentsSummary}`}>
+                    {survivorWeekRows.length} usuario{survivorWeekRows.length === 1 ? '' : 's'} ·{' '}
+                    {
+                      survivorWeekRows.filter(
+                        (row) => row.lifeNumber && survivorPaidByUserAndLife.get(row.userId)?.get(row.lifeNumber),
+                      ).length
+                    }{' '}
+                    pagaron su vida actual.
+                  </p>
                   <button
                     type="button"
                     className={`button-secondary ${styles.downloadButton}`}
@@ -384,22 +435,37 @@ export function AdminUserPicksPage() {
                           <th>Pick</th>
                           <th>Vida</th>
                           <th>Estado</th>
+                          <th>Pagó</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {survivorWeekRows.map((row) => (
-                          <tr key={row.userId}>
-                            <td>{row.displayName}</td>
-                            <td data-status={row.teamId ? 'pending' : 'noPick'}>
-                              <span className={styles.teamPick}>
-                                {row.teamId && <TeamBadge teamId={row.teamId} size="sm" />}
-                                {row.teamId ? teamName(row.teamId) : 'Sin pick'}
-                              </span>
-                            </td>
-                            <td>{row.lifeNumber ?? '—'}</td>
-                            <td>{row.status === 'eliminated' ? 'Eliminado' : 'Vivo'}</td>
-                          </tr>
-                        ))}
+                        {survivorWeekRows.map((row) => {
+                          const paid = row.lifeNumber
+                            ? (survivorPaidByUserAndLife.get(row.userId)?.get(row.lifeNumber) ?? false)
+                            : false
+                          return (
+                            <tr key={row.userId}>
+                              <td>{row.displayName}</td>
+                              <td data-status={row.teamId ? 'pending' : 'noPick'}>
+                                <span className={styles.teamPick}>
+                                  {row.teamId && <TeamBadge teamId={row.teamId} size="sm" />}
+                                  {row.teamId ? teamName(row.teamId) : 'Sin pick'}
+                                </span>
+                              </td>
+                              <td>{row.lifeNumber ?? '—'}</td>
+                              <td>{row.status === 'eliminated' ? 'Eliminado' : 'Vivo'}</td>
+                              <td>
+                                {row.lifeNumber ? (
+                                  renderPaidPill(paid, () =>
+                                    handleToggleSurvivorPayment(row.userId, row.lifeNumber as SurvivorLife, !paid),
+                                  )
+                                ) : (
+                                  <span className={`text-muted ${styles.notApplicable}`}>—</span>
+                                )}
+                              </td>
+                            </tr>
+                          )
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -555,15 +621,9 @@ export function AdminUserPicksPage() {
                                 <tr key={member.userId}>
                                   <td>{member.displayName}</td>
                                   <td>
-                                    <button
-                                      type="button"
-                                      aria-pressed={paid}
-                                      className={`${styles.paidPill} ${paid ? styles.paidPillOn : styles.paidPillOff}`}
-                                      onClick={() => handleToggleWeeklyPayment(member.userId, !paid)}
-                                    >
-                                      {paid && <Icon name="check" size={12} />}
-                                      {paid ? 'Pagó' : 'Falta'}
-                                    </button>
+                                    {renderPaidPill(paid, () =>
+                                      handleToggleWeeklyPayment(paymentsWeekId, member.userId, !paid),
+                                    )}
                                   </td>
                                 </tr>
                               )
@@ -614,15 +674,9 @@ export function AdminUserPicksPage() {
                             return (
                               <td key={life}>
                                 {unlocked ? (
-                                  <button
-                                    type="button"
-                                    aria-pressed={paid}
-                                    className={`${styles.paidPill} ${paid ? styles.paidPillOn : styles.paidPillOff}`}
-                                    onClick={() => handleToggleSurvivorPayment(participant.userId, life, !paid)}
-                                  >
-                                    {paid && <Icon name="check" size={12} />}
-                                    {paid ? 'Pagó' : 'Falta'}
-                                  </button>
+                                  renderPaidPill(paid, () =>
+                                    handleToggleSurvivorPayment(participant.userId, life, !paid),
+                                  )
                                 ) : (
                                   <span className={`text-muted ${styles.notApplicable}`}>—</span>
                                 )}

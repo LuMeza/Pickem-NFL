@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import type { Game } from '@/core/entities/catalog'
 import styles from './WeeklyPicksMatrix.module.css'
@@ -37,19 +38,28 @@ export interface WeeklyPicksMatrixUser {
   rowsByGame: Map<string, WeeklyPicksMatrixCell>
 }
 
+export interface WeeklyPicksMatrixExtraColumn {
+  header: string
+  renderCell: (userId: string) => ReactNode
+}
+
 /**
  * Tabla usuario x partido (escudo del equipo elegido, color segun acierto/error).
  * Compartida entre el panel admin ("Picks de usuarios") y el apartado de
  * usuarios ("Picks de todos") — misma data, distinta fuente/gate de acceso.
+ * `extraColumn` es opcional (solo lo usa el panel admin, ej. estado de pago)
+ * para no acoplar un concepto admin-only al componente compartido.
  */
 export function WeeklyPicksMatrix({
   rows,
   games,
   teamName,
+  extraColumn,
 }: {
   rows: Map<string, WeeklyPicksMatrixUser>
   games: Game[]
   teamName: (id: string) => string
+  extraColumn?: WeeklyPicksMatrixExtraColumn
 }) {
   return (
     <div className={`${styles.tableScroll} glass-surface`}>
@@ -65,6 +75,7 @@ export function WeeklyPicksMatrix({
                 </span>
               </th>
             ))}
+            {extraColumn && <th className={styles.gameHeaderCell}>{extraColumn.header}</th>}
           </tr>
         </thead>
         <tbody>
@@ -93,6 +104,7 @@ export function WeeklyPicksMatrix({
                   </td>
                 )
               })}
+              {extraColumn && <td className={styles.pickCell}>{extraColumn.renderCell(userId)}</td>}
             </tr>
           ))}
         </tbody>
