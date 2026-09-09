@@ -1,9 +1,80 @@
+@keyframes revealUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  animation: revealUp 550ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 .title {
-  margin-bottom: 4px;
+  margin-bottom: 0;
+  animation-delay: 60ms;
+}
+
+/* Linea de primer down: la marca amarilla de transmision que "mide" la
+   jugada — se dibuja de izquierda a derecha y la ficha "1ST" entra al
+   final, como el gráfico de TV bloqueando en su lugar. Es la firma visual
+   de esta pantalla; el resto del layout se queda quieto para no competirle. */
+.firstDownLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 16px;
+}
+
+.firstDownBar {
+  flex: 1;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent-gold), rgba(242, 183, 5, 0.15));
+  box-shadow: 0 0 12px -2px rgba(242, 183, 5, 0.65);
+  transform-origin: left;
+  animation: firstDownDraw 650ms 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.firstDownChip {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--bg-base);
+  background: var(--accent-gold);
+  padding: 3px 6px;
+  border-radius: 4px;
+  animation: firstDownChipIn 260ms 980ms ease-out both;
+}
+
+@keyframes firstDownDraw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes firstDownChipIn {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .subtitle {
   margin: 0 0 20px;
+  animation-delay: 120ms;
 }
 
 /* Numero de "camiseta" apenas visible en la esquina de la tarjeta — refuerzo
@@ -42,6 +113,10 @@
   padding-left: 38px;
 }
 
+.form {
+  animation-delay: 220ms;
+}
+
 .submit {
   width: 100%;
   margin-top: 4px;
@@ -49,6 +124,10 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-height: 52px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  animation-delay: 320ms;
   transition:
     transform 150ms ease-out,
     box-shadow 150ms ease-out;
@@ -62,6 +141,7 @@
   font-family: var(--font-body);
   font-size: 14px;
   margin: 16px 0 0;
+  animation-delay: 380ms;
 }
 
 .forgotLink {

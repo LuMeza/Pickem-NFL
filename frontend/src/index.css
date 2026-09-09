@@ -274,8 +274,11 @@ label {
 }
 
 /* Pantallas fuera del AppShell (login, cambio de contraseña obligatorio):
-   tarjeta centrada sobre una "cancha" de fondo — líneas de yarda sutiles,
-   coherente con Cancha Nocturna (ver propuesta de rediseno). */
+   tarjeta centrada sobre una "cancha" de noche — reflectores de estadio
+   (blanco frio, no lime: --accent-lime se reserva para accion primaria, ver
+   §1 del design-system — un glow decorativo lo diluye) cayendo desde las
+   esquinas superiores, mas lineas de yarda. Coherente con Cancha Nocturna
+   (ver propuesta de rediseno). */
 .auth-screen {
   min-height: 100vh;
   display: flex;
@@ -284,15 +287,19 @@ label {
   padding: 16px;
   position: relative;
   overflow: hidden;
+  background-color: var(--bg-base);
   background-image:
+    radial-gradient(ellipse 70% 60% at 6% -15%, rgba(244, 246, 248, 0.22), transparent 65%),
+    radial-gradient(ellipse 70% 60% at 94% -15%, rgba(244, 246, 248, 0.22), transparent 65%),
     repeating-linear-gradient(
       90deg,
       rgba(255, 255, 255, 0.035) 0,
       rgba(255, 255, 255, 0.035) 1px,
       transparent 1px,
       transparent 64px
-    ),
-    radial-gradient(500px circle at 50% 0%, rgba(200, 255, 61, 0.1), transparent 60%);
+    );
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 .auth-screen > section {
   position: relative;

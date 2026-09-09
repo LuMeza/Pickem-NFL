@@ -25,12 +25,18 @@ export function LoginPage() {
     <div className="auth-screen">
       <section className="glass-surface">
         <span className={styles.watermark} aria-hidden="true">12</span>
-        <span className="auth-kicker">
+        <span className={`auth-kicker ${styles.reveal}`}>
           <Icon name="football" size={13} /> Pickem NFL
         </span>
-        <h1 className={`text-display-lg ${styles.title}`}>Bienvenido</h1>
-        <p className={`text-body-sm text-muted ${styles.subtitle}`}>Entra con la cuenta que te dio el administrador.</p>
-        <form onSubmit={handleSubmit}>
+        <h1 className={`text-display-lg ${styles.title} ${styles.reveal}`}>Bienvenido</h1>
+        <div className={styles.firstDownLine} aria-hidden="true">
+          <span className={styles.firstDownBar} />
+          <span className={styles.firstDownChip}>1ST</span>
+        </div>
+        <p className={`text-body-sm text-muted ${styles.subtitle} ${styles.reveal}`}>
+          Entra con la cuenta que te dio el administrador.
+        </p>
+        <form onSubmit={handleSubmit} className={`${styles.form} ${styles.reveal}`}>
           <label>
             Correo
             <div className={styles.inputWrap}>
@@ -59,13 +65,13 @@ export function LoginPage() {
               />
             </div>
           </label>
-          <button type="submit" className={styles.submit} disabled={status === 'pending'}>
+          <button type="submit" className={`${styles.submit} ${styles.reveal}`} disabled={status === 'pending'}>
             <Icon name="football" size={16} />
             {status === 'pending' ? 'Ingresando...' : 'Ingresar'}
           </button>
         </form>
         {error && <p role="alert">Correo o contraseña incorrectos.</p>}
-        <p className={styles.footer}>
+        <p className={`${styles.footer} ${styles.reveal}`}>
           <Link to="/forgot-password" className={styles.forgotLink}>
             Olvidé mi contraseña
             <Icon name="arrowLeft" size={14} className={styles.forgotIcon} />
