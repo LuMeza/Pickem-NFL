@@ -25,6 +25,7 @@ interface SurvivorForWeekRow {
   status: string
   is_admin: boolean
   is_test_account: boolean
+  is_withdrawn: boolean
 }
 
 interface WeeklyForUserRow {
@@ -80,6 +81,7 @@ export class SupabaseAdminPicksRepository implements AdminPicksRepository {
       status: row.status as AdminSurvivorPickRow['status'],
       isAdmin: row.is_admin,
       isTestAccount: row.is_test_account,
+      isWithdrawn: row.is_withdrawn,
     }))
   }
 

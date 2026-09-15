@@ -10,6 +10,8 @@ import { useListAdminWeeklyPayments } from '@/presentation/hooks/useListAdminWee
 import { useSetAdminWeeklyPayment } from '@/presentation/hooks/useSetAdminWeeklyPayment'
 import { useListAdminSurvivorPayments } from '@/presentation/hooks/useListAdminSurvivorPayments'
 import { useSetAdminSurvivorPayment } from '@/presentation/hooks/useSetAdminSurvivorPayment'
+import { useListAdminSurvivorWithdrawals } from '@/presentation/hooks/useListAdminSurvivorWithdrawals'
+import { useSetAdminSurvivorWithdrawal } from '@/presentation/hooks/useSetAdminSurvivorWithdrawal'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
@@ -135,6 +137,12 @@ export function AdminUserPicksPage() {
     data: survivorRoster,
     run: loadSurvivorRoster,
   } = useListSurvivorGroupState()
+  const {
+    status: survivorWithdrawalsStatus,
+    data: survivorWithdrawals,
+    run: loadSurvivorWithdrawals,
+  } = useListAdminSurvivorWithdrawals()
+  const { run: setSurvivorWithdrawal } = useSetAdminSurvivorWithdrawal()
 
   useEffect(() => {
     if (group) loadMembers({ groupId: group.id })
@@ -179,7 +187,8 @@ export function AdminUserPicksPage() {
     if (!group || mode !== 'pagos' || paymentsQuiniela !== 'survivor') return
     loadSurvivorPayments({ groupId: group.id })
     loadSurvivorRoster({ groupId: group.id })
-  }, [group, mode, paymentsQuiniela, loadSurvivorPayments, loadSurvivorRoster])
+    loadSurvivorWithdrawals({ groupId: group.id })
+  }, [group, mode, paymentsQuiniela, loadSurvivorPayments, loadSurvivorRoster, loadSurvivorWithdrawals])
 
   /** weekId explicito porque esta misma tabla de pagos se usa tanto desde "Por semana" (selectedWeekId) como desde "Pagos" (paymentsWeekId). */
   async function handleToggleWeeklyPayment(weekId: string, userId: string, paid: boolean) {
@@ -192,6 +201,14 @@ export function AdminUserPicksPage() {
     if (!group) return
     await setSurvivorPayment({ groupId: group.id, userId, lifeNumber, paid })
     reloadSurvivorPayments()
+  }
+
+  /** Retirar recalcula el estado de Survivor, asi que hace falta refrescar el roster ademas de la lista de retiros. */
+  async function handleToggleSurvivorWithdrawal(userId: string, withdrawn: boolean) {
+    if (!group) return
+    await setSurvivorWithdrawal({ groupId: group.id, userId, withdrawn })
+    loadSurvivorWithdrawals({ groupId: group.id })
+    loadSurvivorRoster({ groupId: group.id })
   }
 
   function renderPaidPill(paid: boolean, onToggle: () => void) {
@@ -220,6 +237,21 @@ export function AdminUserPicksPage() {
         onClick={onToggle}
       >
         {paid && <Icon name="check" size={11} />}
+      </button>
+    )
+  }
+
+  /** Pill de "Retirado" — mismo estilo que renderPaidPill pero invertido (verde = activo, no retirado). */
+  function renderWithdrawnPill(withdrawn: boolean, onToggle: () => void) {
+    return (
+      <button
+        type="button"
+        aria-pressed={withdrawn}
+        className={`${styles.paidPill} ${withdrawn ? styles.paidPillOff : styles.paidPillOn}`}
+        onClick={onToggle}
+      >
+        {!withdrawn && <Icon name="check" size={12} />}
+        {withdrawn ? 'Retirado' : 'Activo'}
       </button>
     )
   }
@@ -259,7 +291,29 @@ export function AdminUserPicksPage() {
     weeklyByUserForExport.set(row.userId, entry)
   })
 
-  const survivorWeekRowsForExport = (survivorWeekRows ?? []).filter((row) => !row.isAdmin && !row.isTestAccount)
+  const survivorWeekRowsForExport = (survivorWeekRows ?? []).filter(
+    (row) => !row.isAdmin && !row.isTestAccount && !row.isWithdrawn,
+  )
+
+  const survivorWithdrawnByUser = new Map((survivorWithdrawals ?? []).map((row) => [row.userId, row.withdrawn]))
+  const survivorRosterByUser = new Map((survivorRoster ?? []).map((participant) => [participant.userId, participant]))
+  /** El roster (survivor_group_roster) ya excluye a los retirados, asi que si solo se iterara ese listado
+   * el admin no podria revertir un retiro — se completa con quienes tienen fila en survivor_withdrawals. */
+  const survivorPagosUserIds = new Set<string>([
+    ...(survivorRoster ?? []).map((participant) => participant.userId),
+    ...(survivorWithdrawals ?? []).filter((row) => row.withdrawn).map((row) => row.userId),
+  ])
+  const survivorPagosRows = [...survivorPagosUserIds]
+    .map((userId) => ({
+      userId,
+      displayName:
+        survivorRosterByUser.get(userId)?.displayName ??
+        sortedMembers?.find((member) => member.userId === userId)?.displayName ??
+        '',
+      participant: survivorRosterByUser.get(userId),
+      withdrawn: survivorWithdrawnByUser.get(userId) ?? false,
+    }))
+    .sort((a, b) => a.displayName.localeCompare(b.displayName, 'es', { sensitivity: 'base' }))
 
   const userWeeklyByWeek = new Map<string, AdminUserWeeklyPick[]>()
   userWeeklyPicks?.forEach((pick) => {
@@ -473,7 +527,9 @@ export function AdminUserPicksPage() {
                                 </span>
                               </td>
                               <td>{row.lifeNumber ?? '—'}</td>
-                              <td>{row.status === 'eliminated' ? 'Eliminado' : 'Vivo'}</td>
+                              <td>
+                                {row.isWithdrawn ? 'Retirado' : row.status === 'eliminated' ? 'Eliminado' : 'Vivo'}
+                              </td>
                             </tr>
                           )
                         })}
@@ -642,18 +698,19 @@ export function AdminUserPicksPage() {
             <>
               <p className="text-body-sm text-muted">
                 La vida 1 se cobra al entrar. La vida 2 y la vida 3 solo se habilitan cuando el usuario la pidió y
-                se le aprobó.
+                se le aprobó. A quien no pagó se lo puede retirar del pool — deja de contar en el recálculo, en las
+                posiciones y en el PDF de picks, sin perder su historial.
               </p>
-              {(survivorPaymentsStatus === 'pending' || survivorRosterStatus === 'pending') && (
-                <LoadingSpinner variant="inline" />
-              )}
-              {(survivorPaymentsStatus === 'error' || survivorRosterStatus === 'error') && (
-                <p role="alert">No se pudieron cargar los pagos.</p>
-              )}
-              {survivorRoster && survivorRoster.length === 0 && survivorRosterStatus === 'success' && (
+              {(survivorPaymentsStatus === 'pending' ||
+                survivorRosterStatus === 'pending' ||
+                survivorWithdrawalsStatus === 'pending') && <LoadingSpinner variant="inline" />}
+              {(survivorPaymentsStatus === 'error' ||
+                survivorRosterStatus === 'error' ||
+                survivorWithdrawalsStatus === 'error') && <p role="alert">No se pudieron cargar los pagos.</p>}
+              {survivorPagosRows.length === 0 && survivorRosterStatus === 'success' && (
                 <EmptyState message="No hay jugadores de survivor en el grupo." />
               )}
-              {survivorRoster && survivorRoster.length > 0 && (
+              {survivorPagosRows.length > 0 && (
                 <div className={`${styles.tableScroll} glass-surface`}>
                   <table className={styles.simpleTable}>
                     <thead>
@@ -662,27 +719,31 @@ export function AdminUserPicksPage() {
                         <th>Vida 1</th>
                         <th>Vida 2</th>
                         <th>Vida 3</th>
+                        <th>Pool</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {survivorRoster.map((participant) => (
-                        <tr key={participant.userId}>
-                          <td>{participant.displayName}</td>
+                      {survivorPagosRows.map((row) => (
+                        <tr key={row.userId}>
+                          <td>{row.displayName}</td>
                           {SURVIVOR_LIVES.map((life) => {
-                            const unlocked = participant.currentLife >= life
-                            const paid = survivorPaidByUserAndLife.get(participant.userId)?.get(life) ?? false
+                            const unlocked = (row.participant?.currentLife ?? 1) >= life
+                            const paid = survivorPaidByUserAndLife.get(row.userId)?.get(life) ?? false
                             return (
                               <td key={life}>
                                 {unlocked ? (
-                                  renderPaidPill(paid, () =>
-                                    handleToggleSurvivorPayment(participant.userId, life, !paid),
-                                  )
+                                  renderPaidPill(paid, () => handleToggleSurvivorPayment(row.userId, life, !paid))
                                 ) : (
                                   <span className={`text-muted ${styles.notApplicable}`}>—</span>
                                 )}
                               </td>
                             )
                           })}
+                          <td>
+                            {renderWithdrawnPill(row.withdrawn, () =>
+                              handleToggleSurvivorWithdrawal(row.userId, !row.withdrawn),
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>

@@ -22,6 +22,8 @@ export interface AdminSurvivorPickRow {
   /** Para filtrar estas filas al armar el PDF (pensado para jugadores reales) sin tocar la vista en pantalla, que sigue mostrando todo. */
   isAdmin: boolean
   isTestAccount: boolean
+  /** Retirado del pool por el admin (no pago) — mismo criterio que isAdmin/isTestAccount para filtrar el PDF. */
+  isWithdrawn: boolean
 }
 
 export interface AdminUserWeeklyPick {

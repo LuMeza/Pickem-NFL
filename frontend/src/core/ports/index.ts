@@ -37,6 +37,7 @@ export type {
   AdminPaymentsRepository,
   AdminWeeklyPaymentRow,
   AdminSurvivorPaymentRow,
+  AdminSurvivorWithdrawalRow,
 } from './AdminPaymentsRepository'
 export type { Repositories } from './Repositories'
 export type { Profile } from '@/core/entities/profile'
