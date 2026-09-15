@@ -131,8 +131,13 @@ Deno.serve(async (req: Request) => {
       pickUrl: `${SITE_URL}/survivor/semana/${row.week_id}`,
     })
 
-    const subject =
-      row.type === 'alive' ? `Survivor — sigues vivo (semana ${week.number})` : `Survivor — quedaste eliminado (semana ${week.number})`
+    const subjectByReason: Record<PendingNotification['reason'], string> = {
+      won: 'sigues vivo',
+      lost_can_revive: 'perdiste, pero puedes seguir',
+      lost_no_lives: 'quedaste eliminado',
+      missed_revival_window: 'quedaste eliminado',
+    }
+    const subject = `Survivor — ${subjectByReason[row.reason]} (semana ${week.number})`
 
     const result = await sendEmail({ to: profile.email, subject, html })
 

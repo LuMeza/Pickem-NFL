@@ -152,14 +152,9 @@ export function HomePage() {
                 ? 'Aún no juegas'
                 : survivorParticipant.status === 'alive'
                   ? `Vivo · ${survivorParticipant.currentLife} vida${survivorParticipant.currentLife > 1 ? 's' : ''}`
-                  : survivorParticipant.status === 'needs_life_request'
-                    ? 'Necesita solicitar vida'
-                    : survivorParticipant.status === 'life_request_pending'
-                      ? 'Vida en revisión'
-                      : 'Eliminado'
+                  : 'Eliminado'
             }
             detail={survivorParticipant ? undefined : 'Elige tu equipo de la semana'}
-            urgent={survivorParticipant?.status === 'needs_life_request'}
           />
 
           {showPicksTile && activeWeek && (

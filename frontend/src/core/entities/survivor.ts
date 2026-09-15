@@ -1,23 +1,13 @@
 export type SurvivorLife = 1 | 2 | 3
 
 /**
- * Feedback de producto (post-implementacion, ver design.md decision 7): las
- * vidas extra ya no se otorgan solas al perder — hay dos estados intermedios
- * mientras se resuelve la solicitud de la siguiente vida.
+ * Feedback de producto: al perder con vidas disponibles, el usuario queda
+ * "eliminado" de inmediato — no hay estado intermedio de solicitud. Tiene una
+ * sola ventana (la semana inmediata siguiente, ver revivalDeadlineWeekId) para
+ * revivir eligiendo equipo a tiempo; si la deja pasar, queda eliminado en
+ * definitiva.
  */
-export type SurvivorStatus = 'alive' | 'needs_life_request' | 'life_request_pending' | 'eliminated'
-
-export type SurvivorLifeRequestStatus = 'solicitado' | 'aprobado' | 'rechazado'
-
-/** Solicitud de vida extra — ver design.md decision 7. */
-export interface SurvivorLifeRequest {
-  id: string
-  userId: string
-  displayName: string
-  lifeNumber: SurvivorLife
-  status: SurvivorLifeRequestStatus
-  requestedAt: string
-}
+export type SurvivorStatus = 'alive' | 'eliminated'
 
 export interface SurvivorState {
   currentLife: SurvivorLife
@@ -26,6 +16,8 @@ export interface SurvivorState {
   firstLossWeekId: string | null
   /** Semana de la eliminación definitiva, o null mientras siga vivo. */
   eliminatedWeekId: string | null
+  /** Semana en la que, si elige equipo, revive consumiendo una vida extra; null si está vivo o ya eliminado en definitiva. */
+  revivalDeadlineWeekId: string | null
 }
 
 /**

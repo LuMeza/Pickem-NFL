@@ -13,9 +13,7 @@ const RANK_LABEL: Record<number, string> = { 1: '1er lugar', 2: '2do lugar', 3: 
 
 const STATUS_RANK: Record<SurvivorParticipant['status'], number> = {
   alive: 0,
-  life_request_pending: 1,
-  needs_life_request: 1,
-  eliminated: 2,
+  eliminated: 1,
 }
 
 function sortRoster(roster: SurvivorParticipant[]): SurvivorParticipant[] {
@@ -76,12 +74,6 @@ export function SurvivorStandingsPage() {
               <span className={`${styles.statusPill} ${styles.statusAlive}`}>
                 Vivo · <SurvivorLifeIndicator currentLife={participant.currentLife} />
               </span>
-            )}
-            {participant.status === 'needs_life_request' && (
-              <span className={`${styles.statusPill} ${styles.statusPending}`}>Necesita solicitar vida</span>
-            )}
-            {participant.status === 'life_request_pending' && (
-              <span className={`${styles.statusPill} ${styles.statusPending}`}>Vida en revisión</span>
             )}
             {participant.status === 'eliminated' && (
               <span className={`${styles.statusPill} ${styles.statusEliminated}`}>

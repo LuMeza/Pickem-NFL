@@ -6,9 +6,7 @@ import { useListMySurvivorPicks } from '@/presentation/hooks/useListMySurvivorPi
 import { useSaveSurvivorPick } from '@/presentation/hooks/useSaveSurvivorPick'
 import { useListSurvivorGroupState } from '@/presentation/hooks/useListSurvivorGroupState'
 import { useGetSurvivorCurrentWeek } from '@/presentation/hooks/useGetSurvivorCurrentWeek'
-import { useRequestSurvivorLife } from '@/presentation/hooks/useRequestSurvivorLife'
 import { useCountdown } from '@/presentation/hooks/useCountdown'
-import type { SurvivorLife } from '@/core/entities/survivor'
 import { isWeekAccessLocked } from '@/core/rules/isWeekAccessLocked'
 import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
@@ -48,7 +46,6 @@ export function SurvivorPickPage() {
   const { data: groupState, run: loadGroupState } = useListSurvivorGroupState()
   const { status: saveStatus, error: saveError, run: savePick } = useSaveSurvivorPick()
   const { data: currentWeekNumber, run: loadCurrentWeekNumber } = useGetSurvivorCurrentWeek()
-  const { status: requestLifeStatus, error: requestLifeError, run: requestLife } = useRequestSurvivorLife()
   const [search, setSearch] = useState('')
 
   useEffect(() => {
@@ -73,8 +70,7 @@ export function SurvivorPickPage() {
   const isRegularWeek = activeWeek?.type === 'regular'
   const myState = groupState?.find((participant) => participant.userId === profile?.userId)
   const isEliminated = myState?.status === 'eliminated'
-  const needsLifeRequest = myState?.status === 'needs_life_request'
-  const lifeRequestPending = myState?.status === 'life_request_pending'
+  const isRevivalWindow = isEliminated && myState?.revivalDeadlineWeekId === weekId
   const isWeekLocked =
     isRegularWeek && currentWeekNumber != null && (activeWeek?.number ?? 0) > currentWeekNumber
 
@@ -101,17 +97,6 @@ export function SurvivorPickPage() {
     }
   }
 
-  async function handleRequestLife() {
-    if (!group || !profile || !myState) return
-    const lifeNumber = (myState.currentLife + 1) as SurvivorLife
-    try {
-      await requestLife({ groupId: group.id, userId: profile.userId, lifeNumber })
-      loadGroupState({ groupId: group.id })
-    } catch {
-      // el error queda reflejado via requestLifeError, ver render mas abajo
-    }
-  }
-
   if (!weekId) return null
 
   const normalizedSearch = search.trim().toLowerCase()
@@ -126,8 +111,8 @@ export function SurvivorPickPage() {
       </span>
       <h1 className="text-display-lg">Tu equipo semanal</h1>
       <p className="text-body-sm text-muted">
-        Elige un equipo distinto cada semana. Si pierde o empata, se consume una vida extra; si pierdes sin vidas
-        disponibles, quedas eliminado.
+        Elige un equipo distinto cada semana. Si pierde o empata quedas eliminado, pero tienes la semana siguiente
+        para revivir eligiendo otro equipo a tiempo — hasta agotar tus vidas extra.
       </p>
       {myState && (
         <p className="text-body-sm">
@@ -149,30 +134,21 @@ export function SurvivorPickPage() {
         <EmptyState message="Todavía no está disponible — se habilita cuando termine la semana anterior." />
       )}
 
-      {isRegularWeek && !isWeekLocked && isEliminated && (
+      {isRegularWeek && !isWeekLocked && isEliminated && !isRevivalWindow && (
         <EmptyState message="Ya quedaste eliminado del Survivor esta temporada. Puedes seguir viendo el estado del grupo." />
       )}
 
-      {isRegularWeek && !isWeekLocked && needsLifeRequest && (
-        <EmptyState
-          message="Perdiste con tu vida actual. Pídele una vida extra al admin para poder seguir pickeando."
-          action={
-            <>
-              <button type="button" onClick={handleRequestLife} disabled={requestLifeStatus === 'pending'}>
-                {requestLifeStatus === 'pending' ? 'Enviando...' : 'Solicitar vida extra'}
-              </button>
-              {requestLifeError && (
-                <p className="text-body-sm" role="alert">
-                  No se pudo enviar la solicitud. Intenta de nuevo.
-                </p>
-              )}
-            </>
-          }
-        />
-      )}
-
-      {isRegularWeek && !isWeekLocked && !isEliminated && !needsLifeRequest && (
+      {isRegularWeek && !isWeekLocked && (!isEliminated || isRevivalWindow) && (
         <>
+          {isRevivalWindow && !currentPick && (
+            <div className={styles.deadlineBanner} role="status">
+              <Icon name="calendar" size={14} className={styles.deadlineIcon} />
+              <div className={styles.deadlineText}>
+                <p>Perdiste la semana pasada, pero todavía tienes una vida extra.</p>
+                <p>Elige un equipo antes de que empiece el primer partido o quedarás eliminado.</p>
+              </div>
+            </div>
+          )}
           {deadlineLabel && (
             <div className={styles.deadlineBanner} role="status">
               <Icon name="calendar" size={14} className={styles.deadlineIcon} />
@@ -187,12 +163,6 @@ export function SurvivorPickPage() {
           {!currentPick && pickWindowClosed && (
             <p className="text-body-sm text-muted">
               Ya cerró la selección de esta semana — no llegaste a elegir equipo.
-            </p>
-          )}
-          {lifeRequestPending && (
-            <p className="text-body-sm text-muted">
-              Tu solicitud de vida extra está en revisión — puedes seguir pickeando, pero si el admin la rechaza estos
-              picks no van a contar.
             </p>
           )}
           {gamesStatus === 'pending' && <LoadingSpinner variant="inline" label="Cargando partidos" />}

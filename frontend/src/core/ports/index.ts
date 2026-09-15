@@ -13,15 +13,13 @@ export type {
 } from './WeeklyPickRepository'
 export type { PickemStandingsRepository } from './PickemStandingsRepository'
 export type { StandingRow } from '@/core/entities/standings'
-export type { SurvivorRepository, SaveSurvivorPickParams, SurvivorLifeRequestDecision } from './SurvivorRepository'
+export type { SurvivorRepository, SaveSurvivorPickParams } from './SurvivorRepository'
 export type {
   SurvivorState,
   SurvivorParticipant,
   SurvivorPick,
   SurvivorStatus,
   SurvivorLife,
-  SurvivorLifeRequest,
-  SurvivorLifeRequestStatus,
 } from '@/core/entities/survivor'
 export type { CatalogRepository, NewGame } from './CatalogRepository'
 export type { ResultsRepository } from './ResultsRepository'

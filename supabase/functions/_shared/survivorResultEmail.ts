@@ -5,7 +5,7 @@ export interface SurvivorResultEmailParams {
   weekNumber: number
   teamName: string
   type: 'alive' | 'eliminated'
-  reason: 'won' | 'life_used' | 'lost_no_lives' | 'life_rejected'
+  reason: 'won' | 'lost_can_revive' | 'lost_no_lives' | 'missed_revival_window'
   pickUrl: string
 }
 
@@ -15,19 +15,19 @@ const COPY: Record<SurvivorResultEmailParams['reason'], { headline: string; body
     body: 'ganó su partido esta semana. Ya puedes elegir tu equipo para la próxima semana.',
     accent: '#C8FF3D',
   },
-  life_used: {
-    headline: 'Usaste una vida, pero sigues vivo',
-    body: 'perdió esta semana, pero tu vida extra aprobada te mantiene en el Survivor. Ya puedes elegir tu equipo para la próxima semana.',
-    accent: '#C8FF3D',
+  lost_can_revive: {
+    headline: 'Perdiste, pero todavía puedes seguir',
+    body: 'perdió esta semana. Todavía te queda una vida extra: elige un equipo para la próxima semana antes de que arranque el primer partido, o quedarás eliminado.',
+    accent: '#F2B705',
   },
   lost_no_lives: {
     headline: 'Quedaste eliminado del Survivor',
     body: 'perdió esta semana y ya no te quedaban vidas disponibles. Puedes seguir viendo la tabla del grupo.',
     accent: '#FF6B6B',
   },
-  life_rejected: {
+  missed_revival_window: {
     headline: 'Quedaste eliminado del Survivor',
-    body: 'perdió esta semana y tu solicitud de vida extra fue rechazada. Puedes seguir viendo la tabla del grupo.',
+    body: 'perdió la semana pasada y no elegiste equipo a tiempo para usar tu vida extra. Puedes seguir viendo la tabla del grupo.',
     accent: '#FF6B6B',
   },
 }
