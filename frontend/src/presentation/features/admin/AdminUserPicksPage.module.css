@@ -34,6 +34,57 @@
   margin-bottom: 4px;
 }
 
+/* Campo de texto simple para filtrar una tabla ya renderizada (a diferencia de
+   SearchableSelect, no elige una opcion ni cierra un panel — solo achica las
+   filas visibles a medida que se escribe). Mismo look que SearchableSelect.searchBox. */
+.searchField {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  height: var(--touch-target-min);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: var(--glass-bg);
+  color: var(--text-muted);
+  margin-bottom: 0;
+  transition: border-color 150ms ease-out;
+}
+
+.searchField:focus-within {
+  border-color: var(--accent-lime);
+}
+
+.searchField svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  opacity: 0.6;
+  transition: opacity 150ms ease-out;
+}
+
+.searchField:focus-within svg {
+  opacity: 1;
+  color: var(--accent-lime);
+}
+
+.searchField input {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+}
+
+.searchField input::placeholder {
+  color: var(--text-muted);
+}
+
 .tableScroll {
   overflow-x: auto;
   margin-top: 16px;

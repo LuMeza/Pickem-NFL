@@ -99,6 +99,7 @@ export function AdminUserPicksPage() {
   const [downloadingPdf, setDownloadingPdf] = useState(false)
   const [paymentsQuiniela, setPaymentsQuiniela] = useState<Quiniela>('weekly')
   const [paymentsWeekId, setPaymentsWeekId] = useState('')
+  const [survivorPagosQuery, setSurvivorPagosQuery] = useState('')
 
   const {
     status: weeklyWeekStatus,
@@ -314,6 +315,11 @@ export function AdminUserPicksPage() {
       withdrawn: survivorWithdrawnByUser.get(userId) ?? false,
     }))
     .sort((a, b) => a.displayName.localeCompare(b.displayName, 'es', { sensitivity: 'base' }))
+
+  const normalizedSurvivorPagosQuery = survivorPagosQuery.trim().toLowerCase()
+  const survivorPagosRowsFiltered = normalizedSurvivorPagosQuery
+    ? survivorPagosRows.filter((row) => row.displayName.toLowerCase().includes(normalizedSurvivorPagosQuery))
+    : survivorPagosRows
 
   const userWeeklyByWeek = new Map<string, AdminUserWeeklyPick[]>()
   userWeeklyPicks?.forEach((pick) => {
@@ -711,44 +717,65 @@ export function AdminUserPicksPage() {
                 <EmptyState message="No hay jugadores de survivor en el grupo." />
               )}
               {survivorPagosRows.length > 0 && (
-                <div className={`${styles.tableScroll} glass-surface`}>
-                  <table className={styles.simpleTable}>
-                    <thead>
-                      <tr>
-                        <th>Usuario</th>
-                        <th>Vida 1</th>
-                        <th>Vida 2</th>
-                        <th>Vida 3</th>
-                        <th>Pool</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {survivorPagosRows.map((row) => (
-                        <tr key={row.userId}>
-                          <td>{row.displayName}</td>
-                          {SURVIVOR_LIVES.map((life) => {
-                            const unlocked = (row.participant?.currentLife ?? 1) >= life
-                            const paid = survivorPaidByUserAndLife.get(row.userId)?.get(life) ?? false
-                            return (
-                              <td key={life}>
-                                {unlocked ? (
-                                  renderPaidPill(paid, () => handleToggleSurvivorPayment(row.userId, life, !paid))
-                                ) : (
-                                  <span className={`text-muted ${styles.notApplicable}`}>—</span>
+                <>
+                  <div className={styles.field}>
+                    <span className={styles.fieldLabel}>Buscar jugador</span>
+                    <label className={styles.searchField}>
+                      <Icon name="search" size={16} />
+                      <input
+                        type="text"
+                        value={survivorPagosQuery}
+                        onChange={(event) => setSurvivorPagosQuery(event.target.value)}
+                        placeholder="Escribe un nombre para filtrar la tabla"
+                      />
+                    </label>
+                  </div>
+                  {survivorPagosRowsFiltered.length === 0 && (
+                    <EmptyState message="Nadie coincide con la búsqueda." />
+                  )}
+                  {survivorPagosRowsFiltered.length > 0 && (
+                    <div className={`${styles.tableScroll} glass-surface`}>
+                      <table className={styles.simpleTable}>
+                        <thead>
+                          <tr>
+                            <th>Usuario</th>
+                            <th>Vida 1</th>
+                            <th>Vida 2</th>
+                            <th>Vida 3</th>
+                            <th>Pool</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {survivorPagosRowsFiltered.map((row) => (
+                            <tr key={row.userId}>
+                              <td>{row.displayName}</td>
+                              {SURVIVOR_LIVES.map((life) => {
+                                const unlocked = (row.participant?.currentLife ?? 1) >= life
+                                const paid = survivorPaidByUserAndLife.get(row.userId)?.get(life) ?? false
+                                return (
+                                  <td key={life}>
+                                    {unlocked ? (
+                                      renderPaidPill(paid, () =>
+                                        handleToggleSurvivorPayment(row.userId, life, !paid),
+                                      )
+                                    ) : (
+                                      <span className={`text-muted ${styles.notApplicable}`}>—</span>
+                                    )}
+                                  </td>
+                                )
+                              })}
+                              <td>
+                                {renderWithdrawnPill(row.withdrawn, () =>
+                                  handleToggleSurvivorWithdrawal(row.userId, !row.withdrawn),
                                 )}
                               </td>
-                            )
-                          })}
-                          <td>
-                            {renderWithdrawnPill(row.withdrawn, () =>
-                              handleToggleSurvivorWithdrawal(row.userId, !row.withdrawn),
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}
