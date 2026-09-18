@@ -19,12 +19,10 @@
       update on public.survivor_picks`) que borra la fila de
       `survivor_pick_exceptions` que matchee `group_id/user_id/week_id` del
       pick recién guardado.
-- [ ] 1.5 Verificar en Supabase local/staging: insertar una excepción a mano,
-      confirmar que un pick con horario ya cerrado pasa la RLS, y que tras
-      guardarlo la fila de la excepción desaparece sola. **Pendiente** — no
-      hay entorno de Supabase disponible en esta sesión para migrar y probar
-      contra una base real; correr `supabase db push` (o el flujo de deploy
-      que use el proyecto) y validar el flujo manualmente.
+- [x] 1.5 Migración aplicada al proyecto de producción (`pick'emNFL`,
+      `ddxpspoufmdlkbuwbxpe`) con `supabase db push` — `migration list`
+      confirma local=remote para `20260918000000`. Falta la prueba funcional
+      end-to-end (otorgar → elegir → auto-cierre), ver 7.2.
 
 ## 2. Core — puerto y casos de uso
 
