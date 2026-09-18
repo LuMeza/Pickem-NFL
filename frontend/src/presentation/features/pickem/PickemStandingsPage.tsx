@@ -14,6 +14,7 @@ import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/Loading
 import { isPlayoffsStarted } from '@/core/rules/isPlayoffsStarted'
 import { resolveTiedRanking } from '@/core/rules/resolveTiedRanking'
 import type { StandingRow } from '@/core/entities/standings'
+import type { WeekType } from '@/core/entities/catalog'
 import { downloadWeeklyStandingsPdf, type StandingsExportRow } from './weeklyPicksMatrix/weeklyPicksMatrixExport'
 import { weekLabel } from './weekLabel'
 import styles from './PickemStandingsPage.module.css'
@@ -21,6 +22,9 @@ import styles from './PickemStandingsPage.module.css'
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 }
+
+/** Nadie hizo picks en HOF ni pretemporada — no aportan nada a la tabla de posiciones. */
+const STANDINGS_SEGMENTS: WeekType[] = ['regular', 'playoffs']
 
 /** A partir de esta racha de aciertos consecutivos se prende el fuego al lado del nombre. */
 const FIRE_STREAK_THRESHOLD = 3
@@ -236,7 +240,7 @@ export function PickemStandingsPage() {
         <Icon name="trophy" size={13} /> Pickem semanal
       </span>
       <h1 className="text-display-lg">Tabla de posiciones</h1>
-      <WeekSelector activeWeekId={weekId} linkTo={(id) => `/pickem/tabla/${id}`} />
+      <WeekSelector activeWeekId={weekId} linkTo={(id) => `/pickem/tabla/${id}`} allowedSegments={STANDINGS_SEGMENTS} />
 
       {canView === false && <EmptyState message={EMPTY_STATE_COPY.noModuleAccess} />}
 
