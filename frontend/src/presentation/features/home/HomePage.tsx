@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { ActionCard } from '@/presentation/components/ActionCard/ActionCard'
 import { StatTile } from '@/presentation/components/StatTile/StatTile'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
@@ -20,7 +19,12 @@ import { weekLabel } from '@/presentation/features/pickem/weekLabel'
 import { UpcomingGamesStrip } from './UpcomingGamesStrip'
 import styles from './HomePage.module.css'
 
-/** Landing post-login — agrupada por que necesita hacer el usuario, no por orden de creación (ver design-system.md). */
+/**
+ * Landing post-login — jerarquía por frecuencia de decisión, no por lista de
+ * rutas: posición (hero) > acción pendiente de la semana > desempeño pasivo >
+ * próximos partidos > accesos secundarios. Pickem/Survivor/Calendario/Perfil
+ * ya viven en el NavBar, así que Inicio no los repite como tarjetas.
+ */
 export function HomePage() {
   const { profile: profileResource, group: groupResource, weeks: weeksResource, games: gamesResource } = useSession()
   const { data: profile } = profileResource
@@ -140,11 +144,11 @@ export function HomePage() {
       )}
 
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Tu resumen</h2>
+        <h2 className={styles.sectionTitle}>Esta semana</h2>
         <div className="card-grid">
           <StatTile
             to={survivorParticipant ? '/survivor/tabla' : '/survivor'}
-            icon="football"
+            icon="heart"
             kicker="Survivor"
             loading={!group || survivorRoster == null}
             value={
@@ -167,89 +171,56 @@ export function HomePage() {
               urgent={pendingPicksCount != null && pendingPicksCount > 0}
             />
           )}
-
-          <StatTile
-            to="/profile"
-            icon="check"
-            kicker="Efectividad"
-            loading={statsStatus === 'idle' || statsStatus === 'pending'}
-            value={hasPicked && accuracy != null ? `${accuracy}%` : hasPicksPendingResult ? 'Pendiente' : 'Sin picks aún'}
-            detail={
-              hasPicked && stats
-                ? `${stats.totalCorrect}/${stats.totalPicked} aciertos`
-                : hasPicksPendingResult
-                  ? 'Esperando resultados'
-                  : 'Haz tu primer pick'
-            }
-          />
-
-          <StatTile
-            to="/profile"
-            icon="trophy"
-            kicker="Logros"
-            loading={achievementsStatus === 'idle' || achievementsStatus === 'pending'}
-            value={achievements ? `${unlockedAchievements} de ${achievements.length}` : 'Sin datos aún'}
-            detail="Desbloqueados"
-          />
         </div>
+
+        <Link to="/profile" className={`${styles.performanceBar} glass-surface glass-interactive`}>
+          <span className={styles.performanceStat}>
+            <span className={styles.performanceKicker}>Efectividad</span>
+            {statsStatus === 'idle' || statsStatus === 'pending' ? (
+              <LoadingSpinner variant="inline" />
+            ) : (
+              <>
+                <span className={styles.performanceValue}>
+                  {hasPicked && accuracy != null ? `${accuracy}%` : hasPicksPendingResult ? 'Pendiente' : 'Sin picks aún'}
+                </span>
+                <span className={styles.performanceDetail}>
+                  {hasPicked && stats
+                    ? `${stats.totalCorrect}/${stats.totalPicked} aciertos`
+                    : hasPicksPendingResult
+                      ? 'Esperando resultados'
+                      : 'Haz tu primer pick'}
+                </span>
+              </>
+            )}
+          </span>
+          <span className={styles.performanceDivider} aria-hidden="true" />
+          <span className={styles.performanceStat}>
+            <span className={styles.performanceKicker}>Logros</span>
+            {achievementsStatus === 'idle' || achievementsStatus === 'pending' ? (
+              <LoadingSpinner variant="inline" />
+            ) : (
+              <>
+                <span className={styles.performanceValue}>
+                  {achievements ? `${unlockedAchievements} de ${achievements.length}` : 'Sin datos aún'}
+                </span>
+                <span className={styles.performanceDetail}>Desbloqueados</span>
+              </>
+            )}
+          </span>
+        </Link>
       </div>
 
       <UpcomingGamesStrip />
 
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Tu semana</h2>
-        <div className="card-grid">
-          <ActionCard
-            to="/weeks"
-            icon="calendar"
-            title="Ver semanas y partidos"
-            description="Entra a la semana activa y revisa las propuestas de cada partido"
-            featured
-          />
-          <ActionCard
-            to="/survivor"
-            icon="football"
-            title="Survivor"
-            description="Elige tu equipo de la semana, sin repetir en toda la temporada"
-          />
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Tablas y resultados</h2>
-        <div className="card-grid">
-          <ActionCard
-            to="/pickem/tabla"
-            icon="trophy"
-            title="Tabla de posiciones"
-            description="Aciertos de la semana y acumulado de temporada"
-          />
-          <ActionCard
-            to="/survivor/tabla"
-            icon="trophy"
-            title="Estado de Survivor"
-            description="Quien sigue vivo, quien uso vidas extra y el podio"
-          />
-          <ActionCard
-            to="/calendario"
-            icon="calendar"
-            title="Calendario completo"
-            description="Todos los partidos de la temporada, de Hall of Fame a playoffs"
-          />
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Más</h2>
-        <div className="card-grid">
-          <ActionCard
-            to="/request-access"
-            icon="ticket"
-            title="Acceso a otros módulos"
-            description="Playoffs, cuando este disponible"
-          />
-          <ActionCard to="/teams" icon="football" title="Equipos" description="Catálogo completo de la NFL" />
-          <ActionCard to="/profile" icon="user" title="Mi perfil" description="Edita tu nombre visible" />
+      <div className={`${styles.section} ${styles.sectionDelayed}`}>
+        <h2 className={styles.sectionTitle}>Explorar</h2>
+        <div className={styles.exploreLinks}>
+          <Link to="/teams" className={styles.exploreLink}>
+            <Icon name="football" size={15} /> Equipos
+          </Link>
+          <Link to="/request-access" className={styles.exploreLink}>
+            <Icon name="lock" size={15} /> Acceso a otros módulos
+          </Link>
         </div>
       </div>
     </section>

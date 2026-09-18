@@ -44,6 +44,8 @@ type Quiniela = 'weekly' | 'survivor'
 const SURVIVOR_LIVES: SurvivorLife[] = [1, 2, 3]
 /** Segmentos de temporada validos por quiniela — mismo criterio que ya filtraba el <select> de semana. */
 const WEEKLY_SEGMENTS: WeekType[] = ['hof', 'pretemporada', 'regular']
+/** "Por semana" > Pickem semanal: nadie hizo picks en HOF ni pretemporada, así que esas semanas no aportan nada para navegar picks. */
+const WEEKLY_BROWSE_SEGMENTS: WeekType[] = ['regular']
 const SURVIVOR_SEGMENTS: WeekType[] = ['regular']
 
 function weekLabel(week: Week | undefined): string {
@@ -482,7 +484,7 @@ export function AdminUserPicksPage() {
           <WeekSelector
             activeWeekId={selectedWeekId}
             onSelect={setSelectedWeekId}
-            allowedSegments={quiniela === 'weekly' ? WEEKLY_SEGMENTS : SURVIVOR_SEGMENTS}
+            allowedSegments={quiniela === 'weekly' ? WEEKLY_BROWSE_SEGMENTS : SURVIVOR_SEGMENTS}
           />
 
           {!selectedWeekId && <p className="text-body-sm text-muted">Elige una semana para ver los picks.</p>}

@@ -12,9 +12,9 @@ import type { NavItem } from '@/presentation/components/AppShell/NavBar'
 
 const BASE_NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Inicio', icon: 'home' },
-  { to: '/calendario', label: 'Calendario', icon: 'calendar' },
-  { to: '/teams', label: 'Equipos', icon: 'football' },
   { to: '/pickem', label: 'Pickem', icon: 'trophy' },
+  { to: '/survivor', label: 'Survivor', icon: 'heart' },
+  { to: '/calendario', label: 'Calendario', icon: 'calendar' },
   { to: '/profile', label: 'Perfil', icon: 'user' },
 ]
 
