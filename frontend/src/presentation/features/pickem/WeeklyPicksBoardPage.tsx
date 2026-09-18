@@ -16,8 +16,9 @@ import { downloadWeeklyPicksMatrixPdf } from './weeklyPicksMatrix/weeklyPicksMat
 import type { WeekType } from '@/core/entities/catalog'
 import styles from './WeeklyPicksBoardPage.module.css'
 
-/** Playoffs queda fuera (modulo todavia no disponible, ver PickemHubPage), mismo filtro que AdminUserPicksPage. */
-const ALLOWED_SEGMENTS: WeekType[] = ['hof', 'pretemporada', 'regular']
+/** Playoffs queda fuera (modulo todavia no disponible, ver PickemHubPage). Nadie hizo picks en HOF ni
+ * pretemporada — mismo filtro que AdminUserPicksPage. */
+const ALLOWED_SEGMENTS: WeekType[] = ['regular']
 
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')

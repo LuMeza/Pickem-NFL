@@ -9,7 +9,7 @@ import { useNow } from '@/presentation/hooks/useNow'
 import { isWeeklyPickLocked, weeklyPickGroupDeadline } from '@/core/rules/weeklyPickGroupDeadline'
 import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
 import { formatLivePeriod } from '@/core/rules/formatLivePeriod'
-import type { Game } from '@/core/entities/catalog'
+import type { Game, WeekType } from '@/core/entities/catalog'
 import type { GameResult } from '@/core/entities/gameResult'
 import type { WeeklyPickValue } from '@/core/ports/WeeklyPickRepository'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
@@ -23,6 +23,9 @@ import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/Loading
 import styles from './GamesPage.module.css'
 
 const URGENT_THRESHOLD_MS = 2 * 60 * 60 * 1000
+/** Nadie hizo picks en HOF ni pretemporada — esta pantalla es "Tu pick de la semana" de
+ * Pickem semanal, no el calendario completo (ver CalendarPage, que sí muestra todo). */
+const ALLOWED_SEGMENTS: WeekType[] = ['regular', 'playoffs']
 
 function outcomeLabel(result: GameResult, game: Game, teamName: (id: string) => string): string {
   if (result.outcome === 'tie') return 'Empate'
@@ -300,7 +303,7 @@ export function GamesPage() {
         <Icon name="football" size={13} /> Pickem semanal
       </span>
       <h1 className="text-display-lg">Tu pick de la semana</h1>
-      <WeekSelector activeWeekId={weekId} />
+      <WeekSelector activeWeekId={weekId} allowedSegments={ALLOWED_SEGMENTS} />
 
       {isPlayoffsWeek && (
         <p className="text-body-sm text-muted">El pickem semanal no aplica a semanas de playoffs.</p>
