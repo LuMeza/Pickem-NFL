@@ -367,7 +367,12 @@ export function AdminUserPicksPage() {
     list.push(pick)
     userWeeklyByWeek.set(pick.weekId, list)
   })
-  const userWeeklyWeeksOrdered = orderedWeeks.filter((week) => userWeeklyByWeek.has(week.id))
+  /** Se filtra a semanas de temporada regular: HOF y pretemporada nunca tuvieron
+   * picks reales de ningún usuario, así que solo agregaban filas de "Sin pick"
+   * sin información útil al histórico de "Por usuario". */
+  const userWeeklyWeeksOrdered = orderedWeeks.filter(
+    (week) => week.type === 'regular' && userWeeklyByWeek.has(week.id),
+  )
 
   const userSurvivorByWeek = new Map((userSurvivorPicks ?? []).map((pick) => [pick.weekId, pick]))
   /** A diferencia del histórico de weekly (que solo muestra semanas con pick), acá hacen falta
