@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type {
   AdminPaymentsRepository,
   AdminSurvivorPaymentRow,
+  AdminSurvivorPickExceptionRow,
   AdminSurvivorWithdrawalRow,
   AdminWeeklyPaymentRow,
 } from '@/core/ports/AdminPaymentsRepository'
@@ -95,6 +96,37 @@ export class SupabaseAdminPaymentsRepository implements AdminPaymentsRepository 
     const { error } = await this.client
       .from('survivor_withdrawals')
       .upsert({ group_id: groupId, user_id: userId, withdrawn }, { onConflict: 'group_id,user_id' })
+    if (error) throw error
+  }
+
+  async listSurvivorPickExceptions(groupId: string, userId: string): Promise<AdminSurvivorPickExceptionRow[]> {
+    const { data, error } = await this.client
+      .from('survivor_pick_exceptions')
+      .select('week_id')
+      .eq('group_id', groupId)
+      .eq('user_id', userId)
+    if (error) throw error
+
+    return ((data ?? []) as { week_id: string }[]).map((row) => ({ weekId: row.week_id }))
+  }
+
+  async grantSurvivorPickException(groupId: string, userId: string, weekId: string): Promise<void> {
+    const { error } = await this.client
+      .from('survivor_pick_exceptions')
+      .upsert(
+        { group_id: groupId, user_id: userId, week_id: weekId },
+        { onConflict: 'group_id,user_id,week_id' },
+      )
+    if (error) throw error
+  }
+
+  async revokeSurvivorPickException(groupId: string, userId: string, weekId: string): Promise<void> {
+    const { error } = await this.client
+      .from('survivor_pick_exceptions')
+      .delete()
+      .eq('group_id', groupId)
+      .eq('user_id', userId)
+      .eq('week_id', weekId)
     if (error) throw error
   }
 }

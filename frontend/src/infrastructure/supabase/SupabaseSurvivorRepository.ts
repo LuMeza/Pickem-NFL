@@ -78,4 +78,16 @@ export class SupabaseSurvivorRepository implements SurvivorRepository {
     if (error) throw error
     return (data as number | null) ?? null
   }
+
+  async hasActivePickException(groupId: string, userId: string, weekId: string): Promise<boolean> {
+    const { data, error } = await this.client
+      .from('survivor_pick_exceptions')
+      .select('week_id')
+      .eq('group_id', groupId)
+      .eq('user_id', userId)
+      .eq('week_id', weekId)
+      .maybeSingle()
+    if (error) throw error
+    return data !== null
+  }
 }

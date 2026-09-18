@@ -23,4 +23,6 @@ export interface SurvivorRepository {
   recalculate(groupId: string): Promise<void>
   /** Número de la semana regular actualmente abierta, o null si ya se resolvieron todas (design.md decision 8). */
   getCurrentWeekNumber(): Promise<number | null>
+  /** True si el usuario tiene una excepción de pick activa (habilitada por el admin) para esa semana — ver survivor-acceso-excepcional-pick. */
+  hasActivePickException(groupId: string, userId: string, weekId: string): Promise<boolean>
 }

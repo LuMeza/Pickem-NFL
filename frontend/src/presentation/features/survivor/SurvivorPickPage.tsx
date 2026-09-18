@@ -6,6 +6,7 @@ import { useListMySurvivorPicks } from '@/presentation/hooks/useListMySurvivorPi
 import { useSaveSurvivorPick } from '@/presentation/hooks/useSaveSurvivorPick'
 import { useListSurvivorGroupState } from '@/presentation/hooks/useListSurvivorGroupState'
 import { useGetSurvivorCurrentWeek } from '@/presentation/hooks/useGetSurvivorCurrentWeek'
+import { useGetSurvivorPickException } from '@/presentation/hooks/useGetSurvivorPickException'
 import { useCountdown } from '@/presentation/hooks/useCountdown'
 import { isWeekAccessLocked } from '@/core/rules/isWeekAccessLocked'
 import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
@@ -46,11 +47,18 @@ export function SurvivorPickPage() {
   const { data: groupState, run: loadGroupState } = useListSurvivorGroupState()
   const { status: saveStatus, error: saveError, run: savePick } = useSaveSurvivorPick()
   const { data: currentWeekNumber, run: loadCurrentWeekNumber } = useGetSurvivorCurrentWeek()
+  const { data: hasPickException, run: loadPickException } = useGetSurvivorPickException()
   const [search, setSearch] = useState('')
 
   useEffect(() => {
     loadCurrentWeekNumber()
   }, [loadCurrentWeekNumber])
+
+  useEffect(() => {
+    if (group && profile && weekId) {
+      loadPickException({ groupId: group.id, userId: profile.userId, weekId })
+    }
+  }, [group, profile, weekId, loadPickException])
 
   useEffect(() => {
     if (weekId) loadGames({ weekId })
@@ -81,10 +89,14 @@ export function SurvivorPickPage() {
   // temprano (el primer partido), no partido por partido — evita elegir un
   // equipo de un partido tardio despues de ver resultados de partidos
   // anteriores de la misma semana. Mismo criterio que weekly_access.
-  const pickWindowClosed = isWeekAccessLocked(games ?? [], new Date())
+  const isWeekPastKickoff = isWeekAccessLocked(games ?? [], new Date())
+  // El admin puede habilitar puntualmente el pick de una semana ya cerrada
+  // (ver survivor-acceso-excepcional-pick) — mientras esa excepcion siga
+  // activa, para este usuario la seleccion no cuenta como cerrada.
+  const pickWindowClosed = isWeekPastKickoff && !hasPickException
   const pickDeadline =
     games && games.length > 0 ? new Date(Math.min(...games.map((game) => game.kickoffAt.getTime()))) : null
-  const showDeadlineCountdown = !currentPick && !pickWindowClosed && pickDeadline !== null
+  const showDeadlineCountdown = !currentPick && !isWeekPastKickoff && pickDeadline !== null
   const deadlineLabel = useCountdown(showDeadlineCountdown ? pickDeadline : null)
 
   async function handlePick(teamId: string) {
@@ -92,6 +104,7 @@ export function SurvivorPickPage() {
     try {
       await savePick({ groupId: group.id, userId: profile.userId, weekId: weekId!, teamId })
       loadMyPicks({ groupId: group.id, userId: profile.userId })
+      loadPickException({ groupId: group.id, userId: profile.userId, weekId: weekId! })
     } catch {
       // el error queda reflejado via saveError, ver render mas abajo
     }
@@ -157,6 +170,15 @@ export function SurvivorPickPage() {
                 <p>
                   Te quedan <strong>{deadlineLabel}</strong> antes de que empiece el primer partido.
                 </p>
+              </div>
+            </div>
+          )}
+          {isWeekPastKickoff && hasPickException && !currentPick && (
+            <div className={styles.deadlineBanner} role="status">
+              <Icon name="check" size={14} className={styles.deadlineIcon} />
+              <div className={styles.deadlineText}>
+                <p>El administrador te habilitó el pick de esta semana aunque ya cerró.</p>
+                <p>Elige tu equipo — el acceso se cierra apenas lo hagas.</p>
               </div>
             </div>
           )}

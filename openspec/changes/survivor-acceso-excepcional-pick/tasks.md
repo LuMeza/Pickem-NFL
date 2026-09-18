@@ -1,105 +1,98 @@
 ## 1. Base de datos
 
-- [ ] 1.1 Nueva migración: tabla `public.survivor_pick_exceptions` (`group_id`,
+- [x] 1.1 Nueva migración: tabla `public.survivor_pick_exceptions` (`group_id`,
       `user_id`, `week_id` como primary key compuesta, `granted_by uuid`
       referencia a `profiles`, `granted_at timestamptz default now()`), con
       `on delete cascade` en las referencias a `groups`/`profiles`/`weeks`.
-- [ ] 1.2 RLS de `survivor_pick_exceptions`: policy `for all` admin-only
+      (`granted_by` usa `default auth.uid()`, así el frontend no necesita
+      pasarlo.)
+- [x] 1.2 RLS de `survivor_pick_exceptions`: policy `for all` admin-only
       (`using`/`with check public.is_platform_admin(auth.uid())`, mismo
       patrón que `survivor_withdrawals`) + policy `for select` adicional
       `using (user_id = auth.uid())` para que el propio usuario lea si tiene
       una excepción activa.
-- [ ] 1.3 `create or replace function public.can_pick_survivor_team(...)`:
+- [x] 1.3 `create or replace function public.can_pick_survivor_team(...)`:
       agregar la condición de bypass de horario descrita en design.md
       (decisión 4), sin tocar el resto de los `exists`/`not exists`
       existentes (eliminado, retirado, equipo válido de la semana).
-- [ ] 1.4 Trigger `survivor_picks_consume_pick_exception` (`after insert or
+- [x] 1.4 Trigger `survivor_picks_consume_pick_exception` (`after insert or
       update on public.survivor_picks`) que borra la fila de
       `survivor_pick_exceptions` que matchee `group_id/user_id/week_id` del
       pick recién guardado.
 - [ ] 1.5 Verificar en Supabase local/staging: insertar una excepción a mano,
       confirmar que un pick con horario ya cerrado pasa la RLS, y que tras
-      guardarlo la fila de la excepción desaparece sola.
+      guardarlo la fila de la excepción desaparece sola. **Pendiente** — no
+      hay entorno de Supabase disponible en esta sesión para migrar y probar
+      contra una base real; correr `supabase db push` (o el flujo de deploy
+      que use el proyecto) y validar el flujo manualmente.
 
-## 2. Core — entidades, puerto y casos de uso
+## 2. Core — puerto y casos de uso
 
-- [ ] 2.1 Agregar tipo `SurvivorPickException` (o similar) en
-      `core/entities/survivor.ts` si hace falta representarlo en el dominio
-      (weekId, grantedAt).
-- [ ] 2.2 Extender `core/ports/SurvivorRepository.ts` con un método para que
-      el propio usuario consulte si tiene una excepción activa para
-      `group_id/user_id/week_id` (usado por `SurvivorPickPage`).
-- [ ] 2.3 Extender `core/ports/AdminPicksRepository.ts` con los métodos admin:
-      listar excepciones activas de un usuario (todas las semanas), otorgar
-      una excepción y revocarla.
-- [ ] 2.4 Nuevo caso de uso `core/use-cases/grantSurvivorPickException.ts` y
-      `core/use-cases/revokeSurvivorPickException.ts` (delegan directo al
-      repositorio, sin lógica extra — mismo patrón que
-      `setAdminSurvivorWithdrawal.ts`, pero sin necesidad de recalcular
-      estado porque esto no toca `survivor_state`).
-- [ ] 2.5 Nuevo caso de uso `core/use-cases/listAdminSurvivorPickExceptionsForUser.ts`.
-- [ ] 2.6 Extender (o crear) el caso de uso que ya consulta la semana de pick
-      del jugador para incluir si tiene excepción activa, si conviene
-      resolverlo ahí en vez de en la pantalla.
+- [x] 2.1 No hizo falta un tipo de entidad nuevo en `core/entities/survivor.ts`:
+      el único dato que viaja es `weekId`, ya cubierto por
+      `AdminSurvivorPickExceptionRow` en el puerto.
+- [x] 2.2 `core/ports/SurvivorRepository.ts`: agregado `hasActivePickException(groupId, userId, weekId)`.
+- [x] 2.3 Los métodos admin (listar/otorgar/revocar) se agregaron a
+      `core/ports/AdminPaymentsRepository.ts` en vez de `AdminPicksRepository.ts`:
+      la escritura es upsert/delete directo admin-only por RLS (igual que
+      `setSurvivorWithdrawal`), no una función security definer como el resto
+      de `AdminPicksRepository` — mismo criterio que ya separa esos dos
+      puertos en el resto del código.
+- [x] 2.4 `core/use-cases/grantSurvivorPickException.ts` y
+      `core/use-cases/revokeSurvivorPickException.ts`.
+- [x] 2.5 `core/use-cases/listAdminSurvivorPickExceptions.ts`.
+- [x] 2.6 Caso de uso propio `core/use-cases/getSurvivorPickException.ts` (no
+      se extendió `getSurvivorCurrentWeek` — son datos independientes).
 
 ## 3. Infraestructura (Supabase)
 
-- [ ] 3.1 `infrastructure/supabase/SupabaseSurvivorRepository.ts`: implementar
-      la consulta de excepción activa propia (select directo a
-      `survivor_pick_exceptions` filtrado por `group_id/user_id/week_id`,
-      cubierto por la policy de select propia).
-- [ ] 3.2 `infrastructure/supabase/SupabaseAdminPaymentsRepository.ts` (o el
-      archivo que implemente `AdminPicksRepository`, verificar cuál es):
-      implementar listar/otorgar/revocar excepciones (`upsert`/`delete`
-      directos a `survivor_pick_exceptions`, sin RPC — mismo patrón que
-      `setSurvivorWithdrawal`).
+- [x] 3.1 `SupabaseSurvivorRepository.ts`: `hasActivePickException` vía select directo a `survivor_pick_exceptions`.
+- [x] 3.2 `SupabaseAdminPaymentsRepository.ts`: `listSurvivorPickExceptions`/`grantSurvivorPickException`/`revokeSurvivorPickException` (upsert/delete directos, sin RPC).
 
 ## 4. Hooks de presentación
 
-- [ ] 4.1 `presentation/hooks/useGrantSurvivorPickException.ts` y
-      `useRevokeSurvivorPickException.ts` (mismo patrón que
-      `useSetAdminSurvivorWithdrawal.ts`).
-- [ ] 4.2 `presentation/hooks/useListAdminSurvivorPickExceptionsForUser.ts`.
-- [ ] 4.3 Hook (o extensión de uno existente) para que `SurvivorPickPage`
-      consulte su propia excepción activa para la semana que está viendo.
+- [x] 4.1 `useGrantSurvivorPickException.ts` y `useRevokeSurvivorPickException.ts`.
+- [x] 4.2 `useListAdminSurvivorPickExceptions.ts`.
+- [x] 4.3 `useGetSurvivorPickException.ts`, usado por `SurvivorPickPage`.
 
 ## 5. Panel admin — `AdminUserPicksPage.tsx`
 
-- [ ] 5.1 En modo "Por usuario", sección Survivor: cambiar
-      `userSurvivorWeeksOrdered` para incluir todas las semanas regulares del
-      catálogo (mismo filtro que `SURVIVOR_SEGMENTS`), no solo las que ya
-      tienen pick registrado.
-- [ ] 5.2 Cargar las excepciones activas del usuario seleccionado
-      (`useListAdminSurvivorPickExceptionsForUser`) cuando cambia
-      `selectedUserId`, igual que ya se cargan sus picks.
-- [ ] 5.3 Por cada semana sin pick cuyo horario ya cerró
-      (`isWeekAccessLocked` sobre los juegos de esa semana), mostrar botón
-      "Habilitar pick" si no hay excepción activa, o "Revocar acceso" si ya
-      la hay. Semanas sin pick pero todavía abiertas no muestran botón.
-- [ ] 5.4 Recargar la lista de excepciones (y opcionalmente los picks del
-      usuario) después de otorgar/revocar.
+- [x] 5.1 La sección Survivor de "Por usuario" ahora itera
+      `survivorWeeksForUser` (todas las semanas regulares con partidos
+      cargados), no solo las que ya tienen pick.
+- [x] 5.2 Se cargan las excepciones activas del usuario seleccionado al
+      cambiar `selectedUserId`, junto con sus picks.
+- [x] 5.3 Columna "Acceso" nueva: semana sin pick y cerrada muestra el pill
+      "Habilitar pick" / "Acceso habilitado" (reutiliza el mismo componente
+      visual que "Pagó/Falta" y "Retirado/Activo"); semana abierta muestra
+      "Abierta" sin botón; semana con pick muestra "—".
+- [x] 5.4 Se recarga la lista de excepciones después de otorgar/revocar.
+- [x] Rediseño adicional (pedido por el cliente): "Pickem semanal" y
+      "Survivor" ahora son dos tarjetas `glass-surface` separadas, cada una
+      con su propio encabezado tipo `kicker` (ícono + nombre del módulo) y un
+      dato resumen en mono ("X semanas con pick" / "X/Y con pick").
 
 ## 6. Pantalla de pick — `SurvivorPickPage.tsx`
 
-- [ ] 6.1 Consultar si el usuario tiene una excepción activa para `weekId`.
-- [ ] 6.2 Si hay excepción activa, ignorar `pickWindowClosed` al calcular qué
-      mostrar (pero seguir respetando `isEliminated`/`usedTeamIds` sin
-      cambios) y reemplazar el mensaje de "Ya cerró la selección" por un
-      aviso de acceso excepcional habilitado por el administrador (seguir los
-      tokens de `doc/design-system.md`, mismo estilo que el banner de
-      `isRevivalWindow`).
-- [ ] 6.3 Al guardar el pick exitosamente, no hace falta borrar la excepción
-      a mano en el frontend — la borra el trigger de base de datos — pero sí
-      refrescar cualquier estado local que dependiera de ella si aplica.
+- [x] 6.1 Consulta si el usuario tiene una excepción activa para `weekId` al
+      entrar y al cambiar de semana.
+- [x] 6.2 Con excepción activa, `pickWindowClosed` se calcula en `false`
+      (separado de `isWeekPastKickoff`, que sigue gobernando el countdown);
+      se agregó un banner nuevo (mismo estilo `deadlineBanner` que el de
+      `isRevivalWindow`) avisando el acceso excepcional.
+- [x] 6.3 Se refresca la excepción tras guardar el pick con éxito.
 
 ## 7. Verificación
 
-- [ ] 7.1 Tests unitarios de las reglas de `core` que se hayan tocado (si se
-      agregó lógica más allá de pasar parámetros al repositorio).
-- [ ] 7.2 Probar manualmente el flujo completo en un grupo de prueba: usuario
-      sin pick de una semana cerrada → admin otorga excepción → usuario ve el
-      aviso y puede elegir equipo → la excepción desaparece sola → el admin
-      ya no puede revocarla porque no existe.
-- [ ] 7.3 Probar revocación manual antes de que el usuario elija equipo.
+- [x] 7.1 No se agregó lógica nueva en `core/rules` (se reutilizó
+      `isWeekAccessLocked` tal cual) — no hacían falta tests unitarios
+      nuevos. Sí se corrió toda la suite existente (`vitest run`, 49/49) más
+      `tsc -b`, `oxlint` y `depcruise` sobre los archivos tocados: todo pasa.
+- [ ] 7.2 Probar manualmente el flujo completo en un grupo real, una vez
+      aplicada la migración. **Pendiente** — requiere un entorno de Supabase
+      desplegado.
+- [ ] 7.3 Probar revocación manual antes de que el usuario elija equipo. **Pendiente**, mismo motivo que 7.2.
 - [ ] 7.4 Confirmar que la excepción no permite saltarse "no repetir equipo"
-      ni elegir estando eliminado o retirado.
+      ni elegir estando eliminado o retirado. **Pendiente**, mismo motivo —
+      la condición ya está en la función SQL sin tocar el resto de sus
+      chequeos, pero falta la prueba end-to-end contra una base real.

@@ -12,6 +12,10 @@ import { useListAdminSurvivorPayments } from '@/presentation/hooks/useListAdminS
 import { useSetAdminSurvivorPayment } from '@/presentation/hooks/useSetAdminSurvivorPayment'
 import { useListAdminSurvivorWithdrawals } from '@/presentation/hooks/useListAdminSurvivorWithdrawals'
 import { useSetAdminSurvivorWithdrawal } from '@/presentation/hooks/useSetAdminSurvivorWithdrawal'
+import { useListAdminSurvivorPickExceptions } from '@/presentation/hooks/useListAdminSurvivorPickExceptions'
+import { useGrantSurvivorPickException } from '@/presentation/hooks/useGrantSurvivorPickException'
+import { useRevokeSurvivorPickException } from '@/presentation/hooks/useRevokeSurvivorPickException'
+import { isWeekAccessLocked } from '@/core/rules/isWeekAccessLocked'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
@@ -144,6 +148,12 @@ export function AdminUserPicksPage() {
     run: loadSurvivorWithdrawals,
   } = useListAdminSurvivorWithdrawals()
   const { run: setSurvivorWithdrawal } = useSetAdminSurvivorWithdrawal()
+  const {
+    data: survivorPickExceptions,
+    run: loadSurvivorPickExceptions,
+  } = useListAdminSurvivorPickExceptions()
+  const { run: grantSurvivorPickException } = useGrantSurvivorPickException()
+  const { run: revokeSurvivorPickException } = useRevokeSurvivorPickException()
 
   useEffect(() => {
     if (group) loadMembers({ groupId: group.id })
@@ -173,7 +183,19 @@ export function AdminUserPicksPage() {
     if (!group || mode !== 'porUsuario' || !selectedUserId) return
     loadUserWeekly({ groupId: group.id, userId: selectedUserId })
     loadUserSurvivor({ groupId: group.id, userId: selectedUserId })
-  }, [group, mode, selectedUserId, loadUserWeekly, loadUserSurvivor])
+    loadSurvivorPickExceptions({ groupId: group.id, userId: selectedUserId })
+  }, [group, mode, selectedUserId, loadUserWeekly, loadUserSurvivor, loadSurvivorPickExceptions])
+
+  /** Otorga o revoca, para la semana puntual, el acceso excepcional de pick de Survivor (ver survivor-acceso-excepcional-pick). */
+  async function handleToggleSurvivorPickException(weekId: string, hasException: boolean) {
+    if (!group || !selectedUserId) return
+    if (hasException) {
+      await revokeSurvivorPickException({ groupId: group.id, userId: selectedUserId, weekId })
+    } else {
+      await grantSurvivorPickException({ groupId: group.id, userId: selectedUserId, weekId })
+    }
+    loadSurvivorPickExceptions({ groupId: group.id, userId: selectedUserId })
+  }
 
   const reloadSurvivorPayments = () => {
     if (group) loadSurvivorPayments({ groupId: group.id })
@@ -238,6 +260,21 @@ export function AdminUserPicksPage() {
         onClick={onToggle}
       >
         {paid && <Icon name="check" size={11} />}
+      </button>
+    )
+  }
+
+  /** Pill de acceso excepcional de pick — mismo estilo que renderPaidPill: "off" invita a habilitarlo, "on" deja revocarlo. */
+  function renderExceptionPill(hasException: boolean, onToggle: () => void) {
+    return (
+      <button
+        type="button"
+        aria-pressed={hasException}
+        className={`${styles.paidPill} ${hasException ? styles.paidPillOn : styles.paidPillOff}`}
+        onClick={onToggle}
+      >
+        {hasException && <Icon name="check" size={12} />}
+        {hasException ? 'Acceso habilitado' : 'Habilitar pick'}
       </button>
     )
   }
@@ -330,7 +367,18 @@ export function AdminUserPicksPage() {
   const userWeeklyWeeksOrdered = orderedWeeks.filter((week) => userWeeklyByWeek.has(week.id))
 
   const userSurvivorByWeek = new Map((userSurvivorPicks ?? []).map((pick) => [pick.weekId, pick]))
-  const userSurvivorWeeksOrdered = orderedWeeks.filter((week) => userSurvivorByWeek.has(week.id))
+  /** A diferencia del histórico de weekly (que solo muestra semanas con pick), acá hacen falta
+   * TODAS las semanas regulares ya en juego — el admin necesita ver también las que no tienen
+   * pick para poder habilitarle un acceso excepcional (ver survivor-acceso-excepcional-pick). */
+  const survivorWeeksForUser = orderedWeeks.filter(
+    (week) => week.type === 'regular' && (games ?? []).some((game) => game.weekId === week.id),
+  )
+  const survivorExceptionWeekIds = new Set((survivorPickExceptions ?? []).map((row) => row.weekId))
+
+  function isSurvivorWeekClosed(weekId: string): boolean {
+    const weekGames = (games ?? []).filter((game) => game.weekId === weekId)
+    return isWeekAccessLocked(weekGames, new Date())
+  }
 
   const selectedWeek = weeks?.find((week) => week.id === selectedWeekId)
 
@@ -566,28 +614,97 @@ export function AdminUserPicksPage() {
 
           {selectedUserId && (
             <>
-              <h2 className="text-display-sm">Pickem semanal</h2>
-              {userWeeklyStatus === 'pending' && <LoadingSpinner variant="inline" />}
-              {userWeeklyStatus === 'error' && <p role="alert">No se pudo cargar el histórico.</p>}
-              {userWeeklyWeeksOrdered.length === 0 && userWeeklyStatus === 'success' && (
-                <EmptyState message="No hay partidos registrados para este usuario." />
-              )}
-              {userWeeklyWeeksOrdered.map((week) => (
-                <div key={week.id} className={styles.weekBlock}>
-                  <span className={styles.weekTitle}>{weekLabel(week)}</span>
-                  <div className={`${styles.tableScroll} glass-surface`}>
+              <div className={`${styles.moduleSection} glass-surface`}>
+                <div className={styles.moduleSectionHeader}>
+                  <span className="kicker">
+                    <Icon name="football" size={12} /> Pickem semanal
+                  </span>
+                  <span className={styles.moduleSectionStat}>
+                    {userWeeklyWeeksOrdered.length} semana{userWeeklyWeeksOrdered.length === 1 ? '' : 's'} con pick
+                  </span>
+                </div>
+                {userWeeklyStatus === 'pending' && <LoadingSpinner variant="inline" />}
+                {userWeeklyStatus === 'error' && <p role="alert">No se pudo cargar el histórico.</p>}
+                {userWeeklyWeeksOrdered.length === 0 && userWeeklyStatus === 'success' && (
+                  <EmptyState message="No hay partidos registrados para este usuario." />
+                )}
+                {userWeeklyWeeksOrdered.map((week) => (
+                  <div key={week.id} className={styles.weekBlock}>
+                    <span className={styles.weekTitle}>{weekLabel(week)}</span>
+                    <div className={styles.tableScroll}>
+                      <table className={styles.simpleTable}>
+                        <tbody>
+                          {userWeeklyByWeek.get(week.id)?.map((pick) => {
+                            const game = gameById.get(pick.gameId)
+                            const status = pickStatus(pick.pick, pick.outcome)
+                            return (
+                              <tr key={pick.gameId}>
+                                <td>
+                                  <MatchupDisplay game={game} teamName={teamName} />
+                                </td>
+                                <td data-status={status}>
+                                  <TeamPick pick={pick.pick} game={game} teamName={teamName} />
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className={`${styles.moduleSection} glass-surface`}>
+                <div className={styles.moduleSectionHeader}>
+                  <span className="kicker">
+                    <Icon name="heart" size={12} /> Survivor
+                  </span>
+                  <span className={styles.moduleSectionStat}>
+                    {survivorWeeksForUser.filter((week) => userSurvivorByWeek.has(week.id)).length}/
+                    {survivorWeeksForUser.length} con pick
+                  </span>
+                </div>
+                {userSurvivorStatus === 'pending' && <LoadingSpinner variant="inline" />}
+                {userSurvivorStatus === 'error' && <p role="alert">No se pudo cargar el histórico.</p>}
+                {survivorWeeksForUser.length === 0 && userSurvivorStatus === 'success' && (
+                  <EmptyState message="Todavía no hay semanas de survivor en juego." />
+                )}
+                {survivorWeeksForUser.length > 0 && (
+                  <div className={styles.tableScroll}>
                     <table className={styles.simpleTable}>
+                      <thead>
+                        <tr>
+                          <th>Semana</th>
+                          <th>Pick</th>
+                          <th>Acceso</th>
+                        </tr>
+                      </thead>
                       <tbody>
-                        {userWeeklyByWeek.get(week.id)?.map((pick) => {
-                          const game = gameById.get(pick.gameId)
-                          const status = pickStatus(pick.pick, pick.outcome)
+                        {survivorWeeksForUser.map((week) => {
+                          const pick = userSurvivorByWeek.get(week.id)
+                          const hasPick = Boolean(pick?.teamId)
+                          const weekClosed = !hasPick && isSurvivorWeekClosed(week.id)
+                          const hasException = survivorExceptionWeekIds.has(week.id)
                           return (
-                            <tr key={pick.gameId}>
-                              <td>
-                                <MatchupDisplay game={game} teamName={teamName} />
+                            <tr key={week.id}>
+                              <td className="text-muted">{weekLabel(week)}</td>
+                              <td data-status={hasPick ? 'pending' : 'noPick'}>
+                                <span className={styles.teamPick}>
+                                  {pick?.teamId && <TeamBadge teamId={pick.teamId} size="sm" />}
+                                  {pick?.teamId ? teamName(pick.teamId) : 'Sin pick'}
+                                </span>
                               </td>
-                              <td data-status={status}>
-                                <TeamPick pick={pick.pick} game={game} teamName={teamName} />
+                              <td>
+                                {weekClosed ? (
+                                  renderExceptionPill(hasException, () =>
+                                    handleToggleSurvivorPickException(week.id, hasException),
+                                  )
+                                ) : (
+                                  <span className={`text-muted ${styles.notApplicable}`}>
+                                    {hasPick ? '—' : 'Abierta'}
+                                  </span>
+                                )}
                               </td>
                             </tr>
                           )
@@ -595,37 +712,8 @@ export function AdminUserPicksPage() {
                       </tbody>
                     </table>
                   </div>
-                </div>
-              ))}
-
-              <h2 className="text-display-sm">Survivor</h2>
-              {userSurvivorStatus === 'pending' && <LoadingSpinner variant="inline" />}
-              {userSurvivorStatus === 'error' && <p role="alert">No se pudo cargar el histórico.</p>}
-              {userSurvivorWeeksOrdered.length === 0 && userSurvivorStatus === 'success' && (
-                <EmptyState message="No hay semanas de survivor registradas para este usuario." />
-              )}
-              {userSurvivorWeeksOrdered.length > 0 && (
-                <div className={`${styles.tableScroll} glass-surface`}>
-                  <table className={styles.simpleTable}>
-                    <tbody>
-                      {userSurvivorWeeksOrdered.map((week) => {
-                        const pick = userSurvivorByWeek.get(week.id)
-                        return (
-                          <tr key={week.id}>
-                            <td className="text-muted">{weekLabel(week)}</td>
-                            <td data-status={pick?.teamId ? 'pending' : 'noPick'}>
-                              <span className={styles.teamPick}>
-                                {pick?.teamId && <TeamBadge teamId={pick.teamId} size="sm" />}
-                                {pick?.teamId ? teamName(pick.teamId) : 'Sin pick'}
-                              </span>
-                            </td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                )}
+              </div>
             </>
           )}
         </>

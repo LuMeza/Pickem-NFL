@@ -153,8 +153,44 @@ td[data-status='noPick'] {
   color: var(--text-muted);
 }
 
+/* Tarjeta por módulo (Pickem semanal / Survivor) en "Por usuario" — antes ambas
+   listas vivían sueltas una debajo de la otra con solo un <h2> de separación,
+   sin jerarquía real entre los dos juegos. */
+.moduleSection {
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.moduleSection:first-of-type {
+  margin-top: 16px;
+}
+
+.moduleSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.moduleSectionHeader :global(.kicker) {
+  margin-bottom: 0;
+}
+
+.moduleSectionStat {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 .weekBlock {
   margin-top: 20px;
+}
+
+.weekBlock:first-of-type {
+  margin-top: 12px;
 }
 
 .paymentsSummary {
