@@ -100,6 +100,9 @@ export function AdminUserPicksPage() {
   const [quiniela, setQuiniela] = useState<Quiniela>('weekly')
   const [selectedWeekId, setSelectedWeekId] = useState('')
   const [selectedUserId, setSelectedUserId] = useState('')
+  /** Antes se mostraban ambos módulos apilados en la misma pantalla — con temporada completa
+   * eso era una tabla de 18 semanas de scroll antes de llegar a Survivor. */
+  const [userQuiniela, setUserQuiniela] = useState<Quiniela>('weekly')
   const [downloadingPdf, setDownloadingPdf] = useState(false)
   const [paymentsQuiniela, setPaymentsQuiniela] = useState<Quiniela>('weekly')
   const [paymentsWeekId, setPaymentsWeekId] = useState('')
@@ -614,6 +617,24 @@ export function AdminUserPicksPage() {
 
           {selectedUserId && (
             <>
+              <div className={styles.userQuinielaToggle}>
+                <button
+                  type="button"
+                  className={userQuiniela === 'weekly' ? '' : 'button-secondary'}
+                  onClick={() => setUserQuiniela('weekly')}
+                >
+                  <Icon name="football" size={14} /> Pickem semanal
+                </button>
+                <button
+                  type="button"
+                  className={userQuiniela === 'survivor' ? '' : 'button-secondary'}
+                  onClick={() => setUserQuiniela('survivor')}
+                >
+                  <Icon name="heart" size={14} /> Survivor
+                </button>
+              </div>
+
+              {userQuiniela === 'weekly' && (
               <div className={`${styles.moduleSection} glass-surface`}>
                 <div className={styles.moduleSectionHeader}>
                   <span className="kicker">
@@ -654,7 +675,9 @@ export function AdminUserPicksPage() {
                   </div>
                 ))}
               </div>
+              )}
 
+              {userQuiniela === 'survivor' && (
               <div className={`${styles.moduleSection} glass-surface`}>
                 <div className={styles.moduleSectionHeader}>
                   <span className="kicker">
@@ -714,6 +737,7 @@ export function AdminUserPicksPage() {
                   </div>
                 )}
               </div>
+              )}
             </>
           )}
         </>

@@ -153,6 +153,25 @@ td[data-status='noPick'] {
   color: var(--text-muted);
 }
 
+/* Selector de módulo dentro de "Por usuario" — antes se mostraban Pickem
+   semanal y Survivor apilados en la misma pantalla (con temporada completa,
+   ~18 semanas de tablas de scroll antes de llegar a Survivor). Mismo lenguaje
+   que .modeToggle pero con ícono por módulo, para que conecte visualmente con
+   el kicker de la tarjeta que abre. */
+.userQuinielaToggle {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.userQuinielaToggle button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
 /* Tarjeta por módulo (Pickem semanal / Survivor) en "Por usuario" — antes ambas
    listas vivían sueltas una debajo de la otra con solo un <h2> de separación,
    sin jerarquía real entre los dos juegos. */
