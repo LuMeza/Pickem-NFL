@@ -1,0 +1,124 @@
+.hero {
+  --tone: var(--accent-lime);
+  --tone-bg: rgba(200, 255, 61, 0.08);
+  margin: 16px 0 0;
+  padding: 16px;
+  border-color: color-mix(in srgb, var(--tone) 45%, transparent);
+  background: linear-gradient(180deg, var(--tone-bg), transparent 70%), var(--glass-bg);
+  box-shadow: inset 4px 0 0 var(--tone);
+}
+
+.hero[data-kind='revive'] {
+  --tone: var(--accent-gold);
+  --tone-bg: rgba(242, 183, 5, 0.1);
+}
+
+.hero[data-kind='out'] {
+  --tone: var(--danger);
+  --tone-bg: rgba(255, 84, 104, 0.08);
+}
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.headline {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(34px, 9vw, 52px);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--tone);
+}
+
+.rail {
+  display: flex;
+  gap: 6px;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 64px;
+  padding: 8px 6px 6px;
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+
+.slotLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.slot[data-slot='current'] {
+  opacity: 1;
+  color: var(--tone);
+  border-color: var(--tone);
+  background: var(--tone-bg);
+}
+
+.slot[data-slot='spare'] {
+  opacity: 1;
+  color: var(--text-primary);
+  border-style: dashed;
+}
+
+.slot[data-slot='lost'] {
+  opacity: 1;
+  color: var(--danger);
+  border-color: rgba(255, 84, 104, 0.4);
+  text-decoration: line-through;
+}
+
+.slot[data-slot='lost'] svg {
+  opacity: 0.6;
+}
+
+.action {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--glass-border);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.action p {
+  margin: 0;
+}
+
+.action p + p {
+  margin-top: 4px;
+  color: var(--text-muted);
+}
+
+.action strong {
+  font-family: var(--font-mono);
+  color: var(--tone);
+}

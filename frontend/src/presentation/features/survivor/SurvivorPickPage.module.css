@@ -175,3 +175,12 @@
   width: 72px;
   flex-shrink: 0;
 }
+
+/* Equipos ya usados: además de atenuarlos, se aclara el logo para que los oscuros (Jets, Ravens) no se pierdan en el fondo. */
+.teamOption:disabled {
+  opacity: 0.6;
+}
+
+.teamOption:disabled img {
+  filter: grayscale(1) brightness(1.7);
+}

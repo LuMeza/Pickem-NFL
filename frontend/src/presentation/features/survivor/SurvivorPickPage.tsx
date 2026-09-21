@@ -17,7 +17,8 @@ import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStat
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import type { Game } from '@/core/entities/catalog'
 import { weekLabel } from '@/presentation/features/pickem/weekLabel'
-import { SurvivorLifeIndicator } from './SurvivorLifeIndicator'
+import { SurvivorStatusHero, type SurvivorHeroKind } from './SurvivorStatusHero'
+import { SurvivorHowItWorks } from './SurvivorHowItWorks'
 import styles from './SurvivorPickPage.module.css'
 
 interface TeamOption {
@@ -79,6 +80,14 @@ export function SurvivorPickPage() {
   const myState = groupState?.find((participant) => participant.userId === profile?.userId)
   const isEliminated = myState?.status === 'eliminated'
   const isRevivalWindow = isEliminated && myState?.revivalDeadlineWeekId === weekId
+  const heroKind: SurvivorHeroKind | null = !myState
+    ? null
+    : myState.status === 'alive'
+      ? 'alive'
+      : myState.revivalDeadlineWeekId
+        ? 'revive'
+        : 'out'
+  const reviveWeekNumber = weeks?.find((w) => w.id === myState?.revivalDeadlineWeekId)?.number ?? null
   const isWeekLocked =
     isRegularWeek && currentWeekNumber != null && (activeWeek?.number ?? 0) > currentWeekNumber
 
@@ -123,15 +132,48 @@ export function SurvivorPickPage() {
         <Icon name="football" size={13} /> Survivor
       </span>
       <h1 className="text-display-lg">Tu equipo semanal</h1>
-      <p className="text-body-sm text-muted">
-        Elige un equipo distinto cada semana. Si pierde o empata quedas eliminado, pero tienes la semana siguiente
-        para revivir eligiendo otro equipo a tiempo — hasta agotar tus vidas extra.
-      </p>
-      {myState && (
-        <p className="text-body-sm">
-          Tu estado: <SurvivorLifeIndicator currentLife={myState.currentLife} />
-        </p>
+      <p className="text-body-sm text-muted">Elige un equipo distinto cada semana y sobrevive lo más que puedas.</p>
+      {heroKind && myState && (
+        <SurvivorStatusHero kind={heroKind} currentLife={myState.currentLife}>
+          {heroKind === 'alive' && currentPick && (
+            <p>
+              Tu pick de esta semana: <strong>{teamName(currentPick.teamId)}</strong>.
+            </p>
+          )}
+          {heroKind === 'alive' && !currentPick && !isWeekLocked && (
+            <>
+              <p>Elige tu equipo de esta semana.</p>
+              {deadlineLabel && (
+                <p>
+                  Te quedan <strong>{deadlineLabel}</strong> antes del primer partido.
+                </p>
+              )}
+            </>
+          )}
+          {heroKind === 'alive' && !currentPick && isWeekLocked && (
+            <p>Esta semana se abre cuando se defina tu partido de la semana anterior.</p>
+          )}
+          {heroKind === 'revive' && (
+            <>
+              <p>
+                Perdiste tu vida {myState.currentLife}, pero puedes seguir: elige un equipo en la semana{' '}
+                {reviveWeekNumber ?? 'siguiente'} y usarás una vida extra.
+              </p>
+              <p>
+                {deadlineLabel ? (
+                  <>
+                    Te quedan <strong>{deadlineLabel}</strong>; si no eliges antes del primer partido, quedas fuera.
+                  </>
+                ) : (
+                  'Si no eliges antes del primer partido, quedas fuera.'
+                )}
+              </p>
+            </>
+          )}
+          {heroKind === 'out' && <p>Ya no puedes elegir equipo esta temporada, pero sigue el juego en la tabla del grupo.</p>}
+        </SurvivorStatusHero>
       )}
+      <SurvivorHowItWorks defaultOpen={(myPicks ?? []).length === 0} />
       <p className="text-body-sm">
         <Link to="/survivor/tabla">Ver estado de todos los jugadores</Link>
       </p>
@@ -156,26 +198,6 @@ export function SurvivorPickPage() {
 
       {isRegularWeek && !isWeekLocked && (!isEliminated || isRevivalWindow) && (
         <>
-          {isRevivalWindow && !currentPick && (
-            <div className={styles.deadlineBanner} role="status">
-              <Icon name="calendar" size={14} className={styles.deadlineIcon} />
-              <div className={styles.deadlineText}>
-                <p>Perdiste la semana pasada, pero todavía tienes una vida extra.</p>
-                <p>Elige un equipo antes de que empiece el primer partido o quedarás eliminado.</p>
-              </div>
-            </div>
-          )}
-          {deadlineLabel && (
-            <div className={styles.deadlineBanner} role="status">
-              <Icon name="calendar" size={14} className={styles.deadlineIcon} />
-              <div className={styles.deadlineText}>
-                <p>Todavía no elegiste equipo esta semana.</p>
-                <p>
-                  Te quedan <strong>{deadlineLabel}</strong> antes de que empiece el primer partido.
-                </p>
-              </div>
-            </div>
-          )}
           {isWeekPastKickoff && hasPickException && !currentPick && (
             <div className={styles.deadlineBanner} role="status">
               <Icon name="check" size={14} className={styles.deadlineIcon} />

@@ -84,6 +84,8 @@ export function HomePage() {
     return survivorRoster.find((participant) => participant.userId === profile.userId) ?? null
   }, [profile, survivorRoster])
 
+  const survivorReviveWeekNumber = weeks?.find((week) => week.id === survivorParticipant?.revivalDeadlineWeekId)?.number
+
   const pendingPicksCount = useMemo(() => {
     if (!activeWeek || activeWeek.type === 'playoffs' || !weekGames || !weeklyPicks) return null
     const now = new Date()
@@ -155,10 +157,20 @@ export function HomePage() {
               !survivorParticipant
                 ? 'Aún no juegas'
                 : survivorParticipant.status === 'alive'
-                  ? `Vivo · ${survivorParticipant.currentLife} vida${survivorParticipant.currentLife > 1 ? 's' : ''}`
-                  : 'Eliminado'
+                  ? `Vivo · vida ${survivorParticipant.currentLife} de 3`
+                  : survivorParticipant.revivalDeadlineWeekId
+                    ? 'Puedes revivir'
+                    : 'Eliminado'
             }
-            detail={survivorParticipant ? undefined : 'Elige tu equipo de la semana'}
+            detail={
+              !survivorParticipant
+                ? 'Elige tu equipo de la semana'
+                : survivorParticipant.status === 'alive'
+                  ? 'Revisa tu pick de la semana'
+                  : survivorParticipant.revivalDeadlineWeekId
+                    ? `Elige equipo en la semana ${survivorReviveWeekNumber ?? 'siguiente'} antes del primer partido`
+                    : 'Sigue la tabla del grupo'
+            }
           />
 
           {showPicksTile && activeWeek && (

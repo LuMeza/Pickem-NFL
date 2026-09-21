@@ -117,8 +117,9 @@ export class SupabaseAuthRepository implements AuthRepository {
 
   async getCurrentUserId(): Promise<string | null> {
     const { data, error } = await this.client.auth.getUser()
-    if (error) throw error
-    return data.user?.id ?? null
+    // Sin sesión no es un fallo: simplemente no hay usuario (antes saltaba "Auth session missing!" al abrir el login).
+    if (error && error.name !== 'AuthSessionMissingError') throw error
+    return data?.user?.id ?? null
   }
 
   async mustChangePassword(): Promise<boolean> {

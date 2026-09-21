@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListSurvivorGroupState } from '@/presentation/hooks/useListSurvivorGroupState'
 import { Icon } from '@/presentation/components/Icon/Icon'
@@ -44,6 +44,46 @@ export function SurvivorStandingsPage() {
     .sort((a, b) => (a.finalRank ?? 0) - (b.finalRank ?? 0))
 
   const sortedRoster = sortRoster(roster ?? [])
+  const alive = sortedRoster.filter((participant) => participant.status === 'alive')
+  const reviving = sortedRoster.filter(
+    (participant) => participant.status === 'eliminated' && participant.revivalDeadlineWeekId != null,
+  )
+  const out = sortedRoster.filter(
+    (participant) => participant.status === 'eliminated' && participant.revivalDeadlineWeekId == null,
+  )
+
+  function RosterGroup({
+    title,
+    caption,
+    tone,
+    participants,
+    renderStatus,
+  }: {
+    title: string
+    caption: string
+    tone: 'alive' | 'revive' | 'out'
+    participants: SurvivorParticipant[]
+    renderStatus: (participant: SurvivorParticipant) => ReactNode
+  }) {
+    if (participants.length === 0) return null
+    const pillClass = { alive: styles.statusAlive, revive: styles.statusRevive, out: styles.statusEliminated }[tone]
+    return (
+      <div className={styles.group}>
+        <h2 className={styles.groupTitle}>
+          {title} <span className={styles.groupCount}>{participants.length}</span>
+        </h2>
+        <p className={styles.groupCaption}>{caption}</p>
+        <ul className={styles.list}>
+          {participants.map((participant) => (
+            <li key={participant.userId} className={`${styles.row} glass-surface`}>
+              <span className={styles.name}>{participant.displayName}</span>
+              <span className={`${styles.statusPill} ${pillClass}`}>{renderStatus(participant)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
 
   return (
     <section>
@@ -66,23 +106,37 @@ export function SurvivorStandingsPage() {
         </div>
       )}
 
-      <ul className={styles.list}>
-        {sortedRoster.map((participant) => (
-          <li key={participant.userId} className={`${styles.row} glass-surface`}>
-            <span className={styles.name}>{participant.displayName}</span>
-            {participant.status === 'alive' && (
-              <span className={`${styles.statusPill} ${styles.statusAlive}`}>
-                Vivo · <SurvivorLifeIndicator currentLife={participant.currentLife} />
-              </span>
-            )}
-            {participant.status === 'eliminated' && (
-              <span className={`${styles.statusPill} ${styles.statusEliminated}`}>
-                Eliminado · {weekNumberLabel(participant.eliminatedWeekId)}
-              </span>
-            )}
-          </li>
-        ))}
-      </ul>
+      {roster && roster.length > 0 && (
+        <p className="text-body-sm text-muted">
+          {alive.length} en juego · {reviving.length} pueden revivir · {out.length} eliminados
+        </p>
+      )}
+
+      <RosterGroup
+        title="Vivos"
+        caption="Su equipo ganó cada semana (o ya revivieron)."
+        tone="alive"
+        participants={alive}
+        renderStatus={(participant) => (
+          <>
+            Vivo · <SurvivorLifeIndicator currentLife={participant.currentLife} />
+          </>
+        )}
+      />
+      <RosterGroup
+        title="Pueden revivir"
+        caption="Perdieron, pero les queda una vida extra: si eligen equipo a tiempo en su semana, vuelven."
+        tone="revive"
+        participants={reviving}
+        renderStatus={(participant) => <>Elige en {weekNumberLabel(participant.revivalDeadlineWeekId)}</>}
+      />
+      <RosterGroup
+        title="Eliminados"
+        caption="Ya no pueden volver esta temporada."
+        tone="out"
+        participants={out}
+        renderStatus={(participant) => <>Fuera · {weekNumberLabel(participant.eliminatedWeekId)}</>}
+      />
     </section>
   )
 }
