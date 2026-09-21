@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
 import { useListMySurvivorPicks } from '@/presentation/hooks/useListMySurvivorPicks'
@@ -132,6 +132,9 @@ export function SurvivorPickPage() {
           Tu estado: <SurvivorLifeIndicator currentLife={myState.currentLife} />
         </p>
       )}
+      <p className="text-body-sm">
+        <Link to="/survivor/tabla">Ver estado de todos los jugadores</Link>
+      </p>
       <WeekSelector
         activeWeekId={weekId}
         linkTo={(id) => `/survivor/semana/${id}`}

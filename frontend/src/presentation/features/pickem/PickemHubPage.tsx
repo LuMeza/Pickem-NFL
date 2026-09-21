@@ -25,6 +25,12 @@ export function PickemHubPage() {
           description="Elige tu equipo de la semana, sin repetir en toda la temporada"
         />
         <ActionCard
+          to="/survivor/tabla"
+          icon="heart"
+          title="Estado de Survivor"
+          description="Quién sigue vivo, quién ya fue eliminado y el podio"
+        />
+        <ActionCard
           to="/pickem/picks"
           icon="users"
           title="Picks de todos"
