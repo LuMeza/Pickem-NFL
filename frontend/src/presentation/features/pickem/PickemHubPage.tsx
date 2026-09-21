@@ -34,7 +34,7 @@ export function PickemHubPage() {
           to="/pickem/picks"
           icon="users"
           title="Picks de todos"
-          description="Compará tus picks con los de los demás, una vez que se bloquea la semana"
+          description="Compara tus picks con los de los demás, una vez que se bloquea la semana"
         />
         <ActionCard
           to="/playoffs"

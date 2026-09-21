@@ -15,7 +15,7 @@ export function AdminSurvivorPage() {
       <h1 className="text-display-lg">Recalcular Survivor</h1>
       <p className="text-body-sm text-muted">
         El estado de Survivor (vidas, eliminaciones, podio) se recalcula solo cada vez que se carga un resultado o
-        alguien registra un pick — a mano o vía la sincronización con ESPN. Usá este botón como plan B si el
+        alguien registra un pick — a mano o vía la sincronización con ESPN. Usa este botón como plan B si el
         recálculo automático no corrió.
       </p>
       <p className="text-body-sm text-muted">
