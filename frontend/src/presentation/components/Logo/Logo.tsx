@@ -5,7 +5,7 @@ export interface LogoProps {
   className?: string
 }
 
-/** Isotipo de Pickem NFL: balon con degradado lime->dorado y costuras (misma elipse que Icon "football"). */
+/** Isotipo de Pickem NFL: balon con degradado plateado->azul y costuras (misma elipse que Icon "football"). */
 export function Logo({ size = 28, className }: LogoProps) {
   const gradientId = useId()
 
@@ -13,8 +13,8 @@ export function Logo({ size = 28, className }: LogoProps) {
     <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden="true">
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="var(--accent-gold)" />
-          <stop offset="100%" stopColor="var(--accent-lime)" />
+          <stop offset="0%" stopColor="var(--accent-silver)" />
+          <stop offset="100%" stopColor="var(--accent-blue)" />
         </linearGradient>
       </defs>
       <ellipse cx="12" cy="12" rx="9" ry="6" transform="rotate(-40 12 12)" fill={`url(#${gradientId})`} />

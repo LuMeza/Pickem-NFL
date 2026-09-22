@@ -94,8 +94,8 @@
 
 .optionButton:not(:disabled):hover,
 .optionButton:not(:disabled):focus-visible {
-  border-color: rgba(200, 255, 61, 0.4);
-  background: rgba(200, 255, 61, 0.06);
+  border-color: rgba(61, 139, 255, 0.4);
+  background: rgba(61, 139, 255, 0.06);
 }
 
 /* Pick elegido: resaltado directo en el boton, sin voltear la carta — se
@@ -103,8 +103,8 @@
    producto: voltear solo para "confirmar" agregaba fricción sin payoff). */
 .optionButton[data-selected='true'],
 .tripleOption[data-selected='true'] {
-  border-color: var(--picked-accent, var(--accent-lime));
-  background: color-mix(in srgb, var(--picked-accent, var(--accent-lime)) 12%, transparent);
+  border-color: var(--picked-accent, var(--accent-blue));
+  background: color-mix(in srgb, var(--picked-accent, var(--accent-blue)) 12%, transparent);
 }
 .optionButton[data-selected='true'][data-urgent='true'],
 .tripleOption[data-selected='true'][data-urgent='true'] {
@@ -117,7 +117,7 @@
   top: 6px;
   right: 6px;
   display: flex;
-  color: var(--picked-accent, var(--accent-lime));
+  color: var(--picked-accent, var(--accent-blue));
 }
 .optionButton[data-urgent='true'] .selectedBadge {
   color: var(--danger);
@@ -180,14 +180,14 @@
    pick) para distinguirla visualmente de "Tu pick", que se tiñe segun
    acierto/fallo. */
 .resultRow:first-child .resultRowValue {
-  color: var(--accent-gold);
+  color: var(--accent-silver);
 }
 .resultRow:first-child .resultRowCaption {
-  color: var(--accent-gold);
+  color: var(--accent-silver);
 }
 
 .resultRow[data-correct='true'] .resultRowValue {
-  color: var(--accent-lime);
+  color: var(--accent-blue);
 }
 .resultRow[data-correct='false'] .resultRowValue {
   color: var(--danger);
@@ -200,7 +200,7 @@
   font-size: 20px;
 }
 .resultCorrect {
-  color: var(--accent-lime);
+  color: var(--accent-blue);
 }
 .resultIncorrect {
   color: var(--danger);
@@ -235,8 +235,8 @@
 
 .tripleOption:not(:disabled):hover,
 .tripleOption:not(:disabled):focus-visible {
-  border-color: rgba(200, 255, 61, 0.4);
-  background: rgba(200, 255, 61, 0.06);
+  border-color: rgba(61, 139, 255, 0.4);
+  background: rgba(61, 139, 255, 0.06);
 }
 
 .tripleOption:nth-child(2) {
@@ -255,7 +255,7 @@
 }
 
 .tripleOption[data-selected='true'] {
-  color: var(--picked-accent, var(--accent-lime));
+  color: var(--picked-accent, var(--accent-blue));
 }
 .tripleOption[data-selected='true'][data-urgent='true'] {
   color: var(--danger);

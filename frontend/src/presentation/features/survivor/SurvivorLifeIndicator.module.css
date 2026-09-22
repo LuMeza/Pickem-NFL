@@ -15,11 +15,11 @@
 }
 
 .toneSafe {
-  color: var(--accent-lime);
+  color: var(--accent-blue);
 }
 
 .toneWarning {
-  color: var(--accent-gold);
+  color: var(--accent-silver);
 }
 
 .toneCritical {

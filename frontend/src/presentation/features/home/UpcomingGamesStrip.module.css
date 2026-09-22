@@ -41,7 +41,7 @@
 }
 
 /* Barra superior con los colores de marca de cada equipo — reemplaza el
-   lima/dorado genérico de .featured (ActionCard) por algo propio del partido. */
+   azul/plateado genérico de .featured (ActionCard) por algo propio del partido. */
 .card::before {
   content: '';
   position: absolute;

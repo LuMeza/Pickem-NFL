@@ -49,7 +49,7 @@
 }
 
 .segmentTabActive {
-  background: var(--accent-lime);
+  background: var(--accent-blue);
   color: var(--bg-base);
   font-weight: 700;
 }
@@ -81,8 +81,8 @@
 
 .stepButton:hover,
 .stepButton:focus-visible {
-  border-color: rgba(200, 255, 61, 0.4);
-  color: var(--accent-lime);
+  border-color: rgba(61, 139, 255, 0.4);
+  color: var(--accent-blue);
 }
 
 .stepButtonDisabled {
@@ -108,7 +108,7 @@
 
 .currentWeekButton:hover,
 .currentWeekButton:focus-visible {
-  border-color: rgba(200, 255, 61, 0.4);
+  border-color: rgba(61, 139, 255, 0.4);
 }
 
 .picker {
@@ -145,13 +145,13 @@
 .pickerChip:hover,
 .pickerChip:focus-visible {
   color: var(--text-primary);
-  border-color: rgba(200, 255, 61, 0.3);
+  border-color: rgba(61, 139, 255, 0.3);
 }
 
 .pickerChipActive {
-  background: rgba(200, 255, 61, 0.12);
-  border-color: rgba(200, 255, 61, 0.4);
-  color: var(--accent-lime);
+  background: rgba(61, 139, 255, 0.12);
+  border-color: rgba(61, 139, 255, 0.4);
+  color: var(--accent-blue);
 }
 
 .pickerChipDisabled {

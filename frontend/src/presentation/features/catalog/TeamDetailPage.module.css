@@ -127,8 +127,8 @@
 }
 
 .tabActive {
-  color: var(--accent-lime);
-  border-bottom-color: var(--accent-lime);
+  color: var(--accent-blue);
+  border-bottom-color: var(--accent-blue);
 }
 
 .gameSection {
@@ -160,7 +160,7 @@
 /* Barra de acento a la izquierda: escaneo instantaneo de la temporada sin
    tener que leer cada tarjeta (ganó/perdió/empate). */
 .gameCardWin {
-  border-left-color: var(--accent-lime);
+  border-left-color: var(--accent-blue);
 }
 .gameCardLoss {
   border-left-color: var(--danger);
@@ -217,7 +217,7 @@
 }
 
 .outcomeWin {
-  color: var(--accent-lime);
+  color: var(--accent-blue);
 }
 .outcomeLoss {
   color: var(--danger);
@@ -297,7 +297,7 @@
 
 .glossaryItem dt {
   font-family: var(--font-mono);
-  color: var(--accent-lime);
+  color: var(--accent-blue);
   min-width: 32px;
 }
 
@@ -334,8 +334,8 @@
 
 .unitChipActive {
   color: var(--bg-base);
-  background: var(--accent-lime);
-  border-color: var(--accent-lime);
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
 }
 
 /* Chips de disponibilidad: color por tono via --chip-tone (inline style,
@@ -343,7 +343,7 @@
    que ya usa el badge de PlayerCard (--status-questionable/--status-injured).
    Inactivo: solo el punto lleva color, para no competir visualmente con los
    chips de unidad. Activo: fondo/borde tintados, igual criterio que
-   unitChipActive pero con el color del tono en vez de --accent-lime fijo. */
+   unitChipActive pero con el color del tono en vez de --accent-blue fijo. */
 .availabilityChip {
   display: inline-flex;
   align-items: center;

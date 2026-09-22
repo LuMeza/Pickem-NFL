@@ -12,7 +12,7 @@ export interface LoadingSpinnerProps {
 
 /**
  * Animación de carga con forma de balon (misma elipse que el icono
- * "football") — sin texto visible. Un tramo con gradiente lime->dorado
+ * "football") — sin texto visible. Un tramo con gradiente plateado->azul
  * recorre el contorno del balon en loop, sobre una pista tenue fija.
  */
 export function LoadingSpinner({ variant = 'page', label = 'Cargando' }: LoadingSpinnerProps) {
@@ -23,8 +23,8 @@ export function LoadingSpinner({ variant = 'page', label = 'Cargando' }: Loading
       <svg viewBox="0 0 24 24" className={styles.spinner} aria-hidden="true">
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="var(--accent-gold)" />
-            <stop offset="100%" stopColor="var(--accent-lime)" />
+            <stop offset="0%" stopColor="var(--accent-silver)" />
+            <stop offset="100%" stopColor="var(--accent-blue)" />
           </linearGradient>
         </defs>
         <ellipse className={styles.track} cx="12" cy="12" rx="9" ry="6" transform="rotate(-40 12 12)" />

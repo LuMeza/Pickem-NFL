@@ -10,7 +10,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  border-color: var(--accent-gold);
+  border-color: var(--accent-silver);
 }
 
 .podiumRank {
@@ -18,7 +18,7 @@
   text-transform: uppercase;
   letter-spacing: 0.02em;
   font-size: 16px;
-  color: var(--accent-gold);
+  color: var(--accent-silver);
   width: 96px;
   flex-shrink: 0;
 }
@@ -66,9 +66,9 @@
 }
 
 .statusAlive {
-  color: var(--accent-lime);
-  background: rgba(200, 255, 61, 0.12);
-  border: 1px solid rgba(200, 255, 61, 0.25);
+  color: var(--accent-blue);
+  background: rgba(61, 139, 255, 0.12);
+  border: 1px solid rgba(61, 139, 255, 0.25);
 }
 
 .statusEliminated {
@@ -78,9 +78,9 @@
 }
 
 .statusPending {
-  color: var(--accent-gold);
-  background: rgba(242, 183, 5, 0.12);
-  border: 1px solid rgba(242, 183, 5, 0.25);
+  color: var(--accent-silver);
+  background: rgba(165, 172, 175, 0.12);
+  border: 1px solid rgba(165, 172, 175, 0.25);
 }
 
 .group {
@@ -116,7 +116,7 @@
 }
 
 .statusRevive {
-  color: var(--accent-gold);
-  background: rgba(242, 183, 5, 0.12);
-  border: 1px solid rgba(242, 183, 5, 0.3);
+  color: var(--accent-silver);
+  background: rgba(165, 172, 175, 0.12);
+  border: 1px solid rgba(165, 172, 175, 0.3);
 }

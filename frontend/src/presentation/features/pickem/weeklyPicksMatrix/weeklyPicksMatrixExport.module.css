@@ -51,7 +51,7 @@
 }
 
 .pickCell[data-status='correct'] {
-  background: rgba(200, 255, 61, 0.12);
+  background: rgba(61, 139, 255, 0.12);
 }
 
 .pickCell[data-status='incorrect'] {
@@ -92,9 +92,9 @@
 }
 
 .table tbody tr[data-winner='true'] {
-  background: rgba(242, 183, 5, 0.12);
+  background: rgba(165, 172, 175, 0.12);
 }
 .table tbody tr[data-winner='true'] td {
-  color: var(--accent-gold);
+  color: var(--accent-silver);
   font-weight: 700;
 }

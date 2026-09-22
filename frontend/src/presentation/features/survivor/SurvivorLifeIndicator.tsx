@@ -13,7 +13,7 @@ const LIFE_TONE: Record<number, string> = {
  * La vida es secuencial, no acumulable — nunca hay "3 vidas juntas" (a
  * diferencia de un contador de vidas extra tipo videojuego clasico). Un
  * único corazon representa la vida vigente, con color que escala de riesgo
- * (verde -> dorado -> rojo, con pulso en la última) según currentLife; el
+ * (azul -> plateado -> rojo, con pulso en la última) según currentLife; el
  * track de puntos marca en que intento estas, no cuantas vidas "tienes".
  */
 export function SurvivorLifeIndicator({ currentLife }: { currentLife: number }) {

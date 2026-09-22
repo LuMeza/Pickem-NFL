@@ -52,7 +52,7 @@ export function UserFormModal({
                 ? 'Usuario creado. Le enviamos la contraseña provisional por correo. Guárdala también por las dudas (no se muestra de nuevo):'
                 : 'Usuario creado, pero no se pudo enviar el correo. Entrega esta contraseña provisional fuera de la plataforma (no se muestra de nuevo):'}
             </p>
-            <p className="text-mono-md" style={{ color: 'var(--accent-lime)' }}>
+            <p className="text-mono-md" style={{ color: 'var(--accent-blue)' }}>
               {createdResult.provisionalPassword}
             </p>
             <button type="button" onClick={onClose}>

@@ -49,7 +49,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--accent-gold), var(--accent-lime));
+  background: linear-gradient(90deg, var(--accent-silver), var(--accent-blue));
 }
 
 .standingsHeroKicker {
@@ -60,7 +60,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-size: 11px;
-  color: var(--accent-gold);
+  color: var(--accent-silver);
 }
 
 .standingsHeroBody {
@@ -100,7 +100,7 @@
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 15px;
-  color: var(--accent-gold);
+  color: var(--accent-silver);
 }
 
 /* Barra de desempeño pasivo — deliberadamente más chata y sin icono que las
@@ -181,6 +181,6 @@
 
 .exploreLink:hover,
 .exploreLink:focus-visible {
-  color: var(--accent-lime);
-  border-color: rgba(200, 255, 61, 0.35);
+  color: var(--accent-blue);
+  border-color: rgba(61, 139, 255, 0.35);
 }

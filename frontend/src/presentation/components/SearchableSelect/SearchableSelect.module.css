@@ -18,7 +18,7 @@
 }
 
 .searchBox:focus-within {
-  border-color: var(--accent-lime);
+  border-color: var(--accent-blue);
 }
 
 .searchBox svg {
@@ -31,7 +31,7 @@
 
 .searchBox:focus-within svg {
   opacity: 1;
-  color: var(--accent-lime);
+  color: var(--accent-blue);
 }
 
 .searchBox input {
@@ -84,8 +84,8 @@
 }
 
 .optionActive {
-  color: var(--accent-lime);
-  background: rgba(200, 255, 61, 0.1);
+  color: var(--accent-blue);
+  background: rgba(61, 139, 255, 0.1);
 }
 
 .empty {

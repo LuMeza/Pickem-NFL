@@ -290,7 +290,7 @@ export function AdminUsersPage() {
                     ? `Le enviamos una nueva contraseña provisional a ${userToResend.email}. Guárdala también por las dudas (no se muestra de nuevo):`
                     : 'No se pudo enviar el correo. Entrega esta contraseña provisional fuera de la plataforma (no se muestra de nuevo):'}
                 </p>
-                <p className="text-mono-md" style={{ color: 'var(--accent-lime)' }}>
+                <p className="text-mono-md" style={{ color: 'var(--accent-blue)' }}>
                   {resendResult.provisionalPassword}
                 </p>
                 <button type="button" onClick={closeResendModal}>

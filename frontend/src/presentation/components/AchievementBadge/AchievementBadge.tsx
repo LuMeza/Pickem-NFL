@@ -9,7 +9,7 @@ export interface AchievementBadgeProps {
 
 /**
  * Badge de logro del perfil (mismo patron que TeamBadge: icono + color por
- * estado). Desbloqueado en `--accent-gold` (reservado por
+ * estado). Desbloqueado en `--accent-silver` (reservado por
  * doc/design-system.md exclusivamente para logros/ranking de perfil),
  * atenuado y con candado cuando todavía no se obtuvo.
  */

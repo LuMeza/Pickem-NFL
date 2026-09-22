@@ -10,11 +10,12 @@
   --bg-surface: #141b23;
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-bg: rgba(20, 27, 35, 0.55);
-  --accent-lime: #c8ff3d;
-  --accent-gold: #f2b705;
+  --accent-blue: #3d8bff;
+  --accent-blue-bright: #6fa8ff;
+  --accent-silver: #a5acaf;
   --danger: #ff5468;
-  /* Disponibilidad de jugador (plantilla) — separados de --accent-lime y
-     --accent-gold (muy saturados, pensados para acentos puntuales) porque
+  /* Disponibilidad de jugador (plantilla) — separados de --accent-blue y
+     --accent-silver (muy saturados, pensados para acentos puntuales) porque
      estos se repiten como texto/badge en cada card. */
   --status-active: #34d399;
   --status-questionable: #fbbf24;
@@ -60,8 +61,8 @@ body {
   /* Glow de fondo (energia "carta de juego", ver doc/design-system.md
      inspiración onetouch.football) — sutil, fijo, no compite con el contenido. */
   background-image:
-    radial-gradient(600px circle at 15% -10%, rgba(200, 255, 61, 0.13), transparent 60%),
-    radial-gradient(500px circle at 100% 10%, rgba(242, 183, 5, 0.11), transparent 55%);
+    radial-gradient(600px circle at 15% -10%, rgba(61, 139, 255, 0.13), transparent 60%),
+    radial-gradient(500px circle at 100% 10%, rgba(165, 172, 175, 0.11), transparent 55%);
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
@@ -129,7 +130,7 @@ body {
     0 4px 12px -6px rgba(0, 0, 0, 0.5);
 }
 
-/* Modificador para tarjetas clickeables/enlaces — hover con lift + glow lime. */
+/* Modificador para tarjetas clickeables/enlaces — hover con lift + glow azul. */
 .glass-interactive {
   cursor: pointer;
   transition:
@@ -140,27 +141,27 @@ body {
 .glass-interactive:hover,
 .glass-interactive:focus-visible {
   transform: translateY(-3px);
-  border-color: rgba(200, 255, 61, 0.4);
+  border-color: rgba(61, 139, 255, 0.4);
   box-shadow:
     0 1px 0 0 rgba(255, 255, 255, 0.07) inset,
     0 20px 40px -16px rgba(0, 0, 0, 0.7),
-    0 0 0 1px rgba(200, 255, 61, 0.12),
-    0 0 24px -4px rgba(200, 255, 61, 0.18);
+    0 0 0 1px rgba(61, 139, 255, 0.12),
+    0 0 24px -4px rgba(61, 139, 255, 0.18);
 }
 
-/* Foco de teclado visible (tarea 5.3) — outline lime 2px en toda la app. */
+/* Foco de teclado visible (tarea 5.3) — outline azul 2px en toda la app. */
 :focus-visible {
-  outline: 2px solid var(--accent-lime);
+  outline: 2px solid var(--accent-blue);
   outline-offset: 2px;
 }
 
 a {
-  color: var(--accent-lime);
+  color: var(--accent-blue);
   text-decoration: none;
 }
 a:hover,
 a:focus-visible {
-  color: var(--accent-gold);
+  color: var(--accent-blue-bright);
 }
 
 button,
@@ -186,7 +187,7 @@ textarea {
 button {
   min-height: var(--touch-target-min);
   padding: 0 16px;
-  background: var(--accent-lime);
+  background: var(--accent-blue);
   color: var(--bg-base);
   border: none;
   border-radius: 8px;
@@ -219,7 +220,7 @@ select {
 /* Checkbox propio (la regla de arriba es para inputs de texto — un checkbox
    heredandola se vuelve una caja de 44px con el tilde nativo perdido
    adentro). appearance:none + check dibujado a mano en vez del control del
-   SO, para que combine con el resto de la UI (glass oscuro + acento lime). */
+   SO, para que combine con el resto de la UI (glass oscuro + acento azul). */
 input[type='checkbox'] {
   appearance: none;
   -webkit-appearance: none;
@@ -249,8 +250,8 @@ input[type='checkbox']::before {
   transition: transform 100ms ease-out;
 }
 input[type='checkbox']:checked {
-  background: var(--accent-lime);
-  border-color: var(--accent-lime);
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
 }
 input[type='checkbox']:checked::before {
   transform: scale(1);
@@ -275,7 +276,7 @@ label {
 
 /* Pantallas fuera del AppShell (login, cambio de contraseña obligatorio):
    tarjeta centrada sobre una "cancha" de noche — reflectores de estadio
-   (blanco frio, no lime: --accent-lime se reserva para accion primaria, ver
+   (blanco frio, no azul: --accent-blue se reserva para accion primaria, ver
    §1 del design-system — un glow decorativo lo diluye) cayendo desde las
    esquinas superiores, mas lineas de yarda. Coherente con Cancha Nocturna
    (ver propuesta de rediseno). */
@@ -315,7 +316,7 @@ label {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--accent-lime), var(--accent-gold));
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-silver));
 }
 .auth-kicker,
 .kicker {
@@ -326,9 +327,9 @@ label {
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent-lime);
-  background: rgba(200, 255, 61, 0.1);
-  border: 1px solid rgba(200, 255, 61, 0.25);
+  color: var(--accent-blue);
+  background: rgba(61, 139, 255, 0.1);
+  border: 1px solid rgba(61, 139, 255, 0.25);
   border-radius: 999px;
   padding: 5px 12px 5px 10px;
   margin-bottom: 16px;

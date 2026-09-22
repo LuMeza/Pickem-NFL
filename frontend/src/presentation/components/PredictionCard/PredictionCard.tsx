@@ -27,9 +27,9 @@ interface PredictionCardCommonProps {
   correct?: boolean
   /** Opcion que gano el partido (id de `options`). Solo relevante si status === 'closed'. */
   outcomeOptionId?: string | null
-  /** Anillo dorado (>24h) vs rojo (<2h) al cierre, solo si status === 'picked'. */
+  /** Anillo plateado (>24h) vs rojo (<2h) al cierre, solo si status === 'picked'. */
   urgent?: boolean
-  /** Color de marca del equipo elegido (hex) — tiñe el resaltado y el reverso en vez del lima genérico. */
+  /** Color de marca del equipo elegido (hex) — tiñe el resaltado y el reverso en vez del azul genérico. */
   pickedAccent?: string
   onSelect?: (optionId: string) => void
 }

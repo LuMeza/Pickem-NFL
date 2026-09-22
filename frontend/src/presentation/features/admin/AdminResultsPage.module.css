@@ -50,8 +50,8 @@
 }
 
 .outcomeOptionActive {
-  border-color: var(--accent-lime);
-  color: var(--accent-lime);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
 }
 
 .scoreRow {

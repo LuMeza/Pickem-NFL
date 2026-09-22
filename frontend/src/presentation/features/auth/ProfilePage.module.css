@@ -14,7 +14,7 @@
   height: 60px;
   padding: 2px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-lime), var(--accent-gold));
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-silver));
 }
 
 .avatar {
@@ -61,8 +61,8 @@
 }
 
 .editNameButton:hover {
-  color: var(--accent-lime);
-  border-color: var(--accent-lime);
+  color: var(--accent-blue);
+  border-color: var(--accent-blue);
 }
 
 .nameForm {
@@ -85,7 +85,7 @@
 
 .savedHint {
   margin-top: 2px;
-  color: var(--accent-lime);
+  color: var(--accent-blue);
 }
 
 .heroEmail {
@@ -111,7 +111,7 @@
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   font-size: 28px;
-  color: var(--accent-gold);
+  color: var(--accent-silver);
 }
 
 .statLabel {
@@ -141,7 +141,7 @@
 }
 
 .sectionIcon {
-  color: var(--accent-gold);
+  color: var(--accent-silver);
 }
 
 .achievementsGrid {

@@ -32,11 +32,11 @@
 }
 .badgeSolicitado {
   color: var(--bg-base);
-  background: var(--accent-gold);
+  background: var(--accent-silver);
 }
 .badgeAprobado {
   color: var(--bg-base);
-  background: var(--accent-lime);
+  background: var(--accent-blue);
 }
 .badgeRechazado {
   color: var(--text-primary);

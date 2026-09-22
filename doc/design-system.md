@@ -8,21 +8,24 @@
 
 ## 1. Paleta de color
 
+**Inspiración NFL:** azul y plateado en vez del verde lima/dorado original — misma energía de "carta de juego" nocturna, con identidad más ligada a la liga (azul de marcador, plateado de casco/trofeo).
+
 | Token | Hex | Uso |
 |---|---|---|
 | `--bg-base` | `#0B0F14` | Fondo general de la app (negro azulado, no negro puro) |
 | `--bg-surface` | `#141B23` | Superficie de tarjetas/paneles antes de aplicar glass |
 | `--glass-border` | `rgba(255,255,255,0.08)` | Borde de tarjetas glassmorphism |
-| `--accent-lime` | `#C8FF3D` | Acción primaria, aciertos, "vivo" en survivor |
-| `--accent-gold` | `#F2B705` | Podio, leyendas del grupo, rachas, badges de logro |
+| `--accent-blue` | `#3D8BFF` | Acción primaria, aciertos, "vivo" en survivor |
+| `--accent-blue-bright` | `#6FA8FF` | Tinte de hover/focus sobre elementos en `--accent-blue` (links) |
+| `--accent-silver` | `#A5ACAF` | Podio, leyendas del grupo, rachas, badges de logro |
 | `--danger` | `#FF5468` | Eliminado, pick perdido, alertas de cierre |
 | `--text-primary` | `#F4F6F8` | Texto principal |
 | `--text-muted` | `#8A97A6` | Texto secundario, metadatos, timestamps |
 
 Reglas de uso:
-- **Lime** es la única acción "positiva" del sistema — reservarlo para: botón de confirmar pick, check de acierto, estado "vivo". No usarlo decorativamente o pierde peso.
-- **Dorado** es exclusivo de logros/ranking (podio, MVP de la semana, insignias de perfil) — nunca para botones de acción, así el usuario aprende a distinguir "esto es un logro" de "esto es una acción".
-- Nunca usar rojo y dorado juntos en el mismo componente (ambigüedad alerta vs. logro).
+- **Azul** es la única acción "positiva" del sistema — reservarlo para: botón de confirmar pick, check de acierto, estado "vivo". No usarlo decorativamente o pierde peso.
+- **Plateado** es exclusivo de logros/ranking (podio, MVP de la semana, insignias de perfil) — nunca para botones de acción, así el usuario aprende a distinguir "esto es un logro" de "esto es una acción".
+- Evitar rojo y plateado juntos en el mismo componente cuando ambos indiquen estado (alerta vs. logro) — menos ambiguo que la combinación rojo/dorado anterior porque el plateado es neutro, pero sigue sin ser una paleta de "semáforo" clara.
 - Superficies glass: `background: rgba(20,27,35,0.55)`, `backdrop-filter: blur(16px)`, borde 1px `--glass-border`. Usar con moderación — solo en tarjetas de pick y navegación flotante, no en toda la interfaz o se vuelve ruido visual en tablas largas.
 
 ---
@@ -74,9 +77,9 @@ Esto es lo que hace que la app se sienta como "quiniela de cartas" en vez de un 
 Cada partido de la semana se muestra como una **carta física**, no una fila de tabla:
 
 - Estado **sin elegir**: carta glass, escudos de ambos equipos enfrentados al centro, línea VS en Bebas Neue. Los dos escudos son botones grandes (mínimo 44px táctil).
-- Al tocar un equipo, **la carta hace flip** (rotateY, 300ms, ease-out) y revela el reverso: el equipo elegido en grande con borde `--accent-lime`, sello tipo "PICK CONFIRMADO" en dorado si faltan >24h, o en rojo si el cierre es inminente (<2h).
+- Al tocar un equipo, **la carta hace flip** (rotateY, 300ms, ease-out) y revela el reverso: el equipo elegido en grande con borde `--accent-blue`, sello tipo "PICK CONFIRMADO" en plateado si faltan >24h, o en rojo si el cierre es inminente (<2h).
 - Empate (solo Playoffs, opción "diferencia <6 pts"): la carta tiene un tercer estado central, sin flip completo — se ilumina el borde superior en vez de rotar.
-- Cartas ya cerradas (partido jugado): pierden el glow, bajan opacidad al 70%, y muestran un check lime (acierto) o X roja (fallo) sobre el pick guardado — nunca se regeneran ni se pueden re-tocar.
+- Cartas ya cerradas (partido jugado): pierden el glow, bajan opacidad al 70%, y muestran un check azul (acierto) o X roja (fallo) sobre el pick guardado — nunca se regeneran ni se pueden re-tocar.
 
 Esto reemplaza cualquier tentación de usar dropdowns o radios: la metáfora de carta hace el pick memorable y evita errores de doble-click accidental (el flip requiere confirmación visual antes de comprometerse).
 
@@ -91,7 +94,7 @@ Esto reemplaza cualquier tentación de usar dropdowns o radios: la metáfora de 
 - **Nunca** mostrar símbolos de moneda, "$", ni la palabra "pozo" en ningún estado — ni siquiera en placeholder o copy de error. Ver §8.
 
 **Módulo 2 — Survivor**
-- Vista de "racha" tipo timeline horizontal scrolleable: una ficha circular por semana jugada, verde lime si sobrevivió, roja si cayó, dorada con un ícono de corazón si usó vida extra esa semana.
+- Vista de "racha" tipo timeline horizontal scrolleable: una ficha circular por semana jugada, azul si sobrevivió, roja si cayó, plateada con un ícono de corazón si usó vida extra esa semana.
 - Selector de equipo de la semana: mismo patrón de carta que en Quiniela, pero con un estado adicional "ya usado" — el escudo aparece atenuado y no clickeable, con tooltip "Ya usaste a [Equipo] en la semana X".
 - Podio de 3 lugares en dorado/plata/bronce (usar tonos dorado/gris/cobre de la paleta extendida, no colores genéricos de medalla) al cerrarse el módulo.
 
@@ -101,7 +104,7 @@ Esto reemplaza cualquier tentación de usar dropdowns o radios: la metáfora de 
 
 **Tablas de posiciones (todos los módulos)**
 - Tabla, no cartas — aquí la densidad de datos gana sobre el motivo de juego. Fuente mono para posición y aciertos, Inter para nombres.
-- Fila del usuario actual siempre fija/resaltada con borde izquierdo lime, incluso si tiene que "pegarse" al hacer scroll en tablas de 40+ participantes.
+- Fila del usuario actual siempre fija/resaltada con borde izquierdo azul, incluso si tiene que "pegarse" al hacer scroll en tablas de 40+ participantes.
 - Empates: mostrar ambas filas con el mismo número de posición y un conector visual (llave `⎬`) en vez de reordenar arbitrariamente — refleja que el sistema no aplica desempate.
 
 **Perfil**
@@ -124,7 +127,7 @@ Adaptación directa de la marquesina "LEGENDS OF THE GAME" del sitio de inspirac
 
 Tono de la interfaz: directo, sin disculpas, en español neutro/casual coherente con cómo habla el grupo.
 
-- **Sin acceso a Quiniela Semanal:** "Todavía no tienes acceso a este módulo. Pídele al administrador que lo active." — con botón "Solicitar acceso" en lime.
+- **Sin acceso a Quiniela Semanal:** "Todavía no tienes acceso a este módulo. Pídele al administrador que lo active." — con botón "Solicitar acceso" en azul.
 - **Semana cerrada sin picks:** "No registraste predicciones esta semana." — tono neutro, sin culpa, sin emoji de tristeza.
 - **Grupo sin miembros aún:** "Invita a tu grupo con el link para empezar a llenar la tabla." + botón para copiar link.
 - **Error de carga de resultados:** "No pudimos actualizar los resultados. Intenta de nuevo." — nunca "oops" ni lenguaje infantil.
@@ -154,5 +157,5 @@ Derivado directamente de la sección 7 del README: esta app **no procesa pagos n
 
 - Contraste mínimo AA en texto sobre glass — verificar `--text-muted` sobre `--bg-surface` con blur, que suele bajar contraste real.
 - Objetivo táctil mínimo 44×44px en escudos de equipo dentro de las cartas.
-- Foco de teclado visible (outline lime 2px) en toda la navegación — el flip de carta debe poder activarse con Enter/Space, no solo con click/tap.
+- Foco de teclado visible (outline azul 2px) en toda la navegación — el flip de carta debe poder activarse con Enter/Space, no solo con click/tap.
 - El ticker nunca es la única fuente de una alerta crítica (cierre de semana) — siempre debe estar duplicada en el header con cuenta regresiva.

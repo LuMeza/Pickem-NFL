@@ -11,8 +11,8 @@
   padding: 40px 44px 28px;
   background-color: var(--bg-base);
   background-image:
-    radial-gradient(500px circle at 10% -10%, rgba(200, 255, 61, 0.1), transparent 60%),
-    radial-gradient(420px circle at 100% 0%, rgba(242, 183, 5, 0.09), transparent 55%);
+    radial-gradient(500px circle at 10% -10%, rgba(61, 139, 255, 0.1), transparent 60%),
+    radial-gradient(420px circle at 100% 0%, rgba(165, 172, 175, 0.09), transparent 55%);
   background-repeat: no-repeat;
   color: var(--text-primary);
   font-family: var(--font-body);
@@ -24,7 +24,7 @@
   left: 0;
   right: 0;
   height: 6px;
-  background: linear-gradient(90deg, var(--accent-lime), var(--accent-gold));
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-silver));
 }
 
 .pageHeader {
@@ -40,7 +40,7 @@
   font-size: 13px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent-lime);
+  color: var(--accent-blue);
   margin-bottom: 14px;
 }
 
@@ -75,7 +75,7 @@
   text-transform: uppercase;
   letter-spacing: 0.02em;
   font-size: 22px;
-  color: var(--accent-gold);
+  color: var(--accent-silver);
   margin: 0;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--glass-border);
@@ -165,7 +165,7 @@
 
 .rowScoreFinal {
   font-size: 15px;
-  color: var(--accent-lime);
+  color: var(--accent-blue);
 }
 
 .rowCompact .rowScore {

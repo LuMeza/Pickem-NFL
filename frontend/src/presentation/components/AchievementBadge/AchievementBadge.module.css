@@ -21,12 +21,12 @@
 
 .unlocked .icon {
   color: var(--bg-base);
-  background: var(--accent-gold);
-  box-shadow: 0 0 16px -2px rgba(242, 183, 5, 0.5);
+  background: var(--accent-silver);
+  box-shadow: 0 0 16px -2px rgba(165, 172, 175, 0.5);
 }
 
 .unlocked .title {
-  color: var(--accent-gold);
+  color: var(--accent-silver);
 }
 
 .locked {

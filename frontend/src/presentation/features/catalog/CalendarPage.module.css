@@ -50,11 +50,11 @@
   border-radius: 50%;
   flex-shrink: 0;
 }
-.dotGold {
-  background: var(--accent-gold);
+.dotSilver {
+  background: var(--accent-silver);
 }
-.dotLime {
-  background: var(--accent-lime);
+.dotBlue {
+  background: var(--accent-blue);
 }
 .dotMuted {
   background: var(--text-muted);
@@ -112,7 +112,7 @@
 }
 .weekCard:hover {
   transform: translateY(-2px);
-  border-color: rgba(200, 255, 61, 0.3);
+  border-color: rgba(61, 139, 255, 0.3);
 }
 
 .weekCardDownload {
@@ -207,7 +207,7 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
   font-size: 9px;
-  color: var(--accent-lime);
+  color: var(--accent-blue);
 }
 
 /* Grid de chips en vez de una fila por partido: deja ver toda la semana sin

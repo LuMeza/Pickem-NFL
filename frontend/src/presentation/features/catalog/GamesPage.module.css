@@ -95,9 +95,9 @@
 }
 
 .resultDone {
-  color: var(--accent-lime);
-  background: rgba(200, 255, 61, 0.12);
-  border: 1px solid rgba(200, 255, 61, 0.25);
+  color: var(--accent-blue);
+  background: rgba(61, 139, 255, 0.12);
+  border: 1px solid rgba(61, 139, 255, 0.25);
 }
 
 /* Scorebug: marcador grande tipo transmision, solo aparece cuando hay algo

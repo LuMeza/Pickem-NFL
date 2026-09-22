@@ -32,10 +32,10 @@ const SEGMENT_LABEL: Record<WeekType, string> = {
 }
 
 const SEGMENT_ACCENT: Record<WeekType, string> = {
-  hof: styles.dotGold ?? '',
+  hof: styles.dotSilver ?? '',
   pretemporada: styles.dotMuted ?? '',
-  regular: styles.dotLime ?? '',
-  playoffs: styles.dotGold ?? '',
+  regular: styles.dotBlue ?? '',
+  playoffs: styles.dotSilver ?? '',
 }
 
 function formatDayLabel(date: Date): string {
