@@ -28,8 +28,6 @@ const STANDINGS_SEGMENTS: WeekType[] = ['regular', 'playoffs']
 
 /** A partir de esta racha de aciertos consecutivos se prende el fuego al lado del nombre. */
 const FIRE_STREAK_THRESHOLD = 3
-/** En el pedestal, mostrar como mucho estos avatares superpuestos antes de resumir en "+N". */
-const MAX_PODIUM_AVATARS = 3
 /**
  * Si el top 3 por nivel de puntaje junta mas gente que esto (comun en
  * semanas con pocos partidos, donde empatan muchos), el podio deja de tener
@@ -85,33 +83,24 @@ function PodiumSlot({ tier, rank }: { tier?: Tier; rank: 1 | 2 | 3 }) {
   if (!tier) return <div className={styles.podiumEmpty} aria-hidden="true" />
 
   const rankClass = rank === 1 ? styles.podiumFirst : rank === 2 ? styles.podiumSecond : styles.podiumThird
-  const shown = tier.rows.slice(0, MAX_PODIUM_AVATARS)
-  const extra = tier.rows.length - shown.length
 
   return (
     <div className={`${styles.podiumSlot} ${rankClass}`}>
-      <div className={styles.podiumAvatars}>
-        {shown.map((row) => (
-          <span key={row.userId} className={styles.podiumAvatar} title={row.displayName}>
-            {initials(row.displayName)}
-          </span>
-        ))}
-        {extra > 0 && <span className={styles.podiumAvatarExtra}>+{extra}</span>}
-      </div>
-      <div className={styles.podiumNames}>
-        {shown.map((row) => (
-          <span key={row.userId} className={styles.podiumNameLine}>
-            {row.displayName}
-          </span>
-        ))}
-        {extra > 0 && <span className={styles.podiumNameMore}>+{extra} más</span>}
-      </div>
       <div className={styles.podiumBlock}>
         <span className={styles.podiumRankLabel}>
           {rank === 1 && <Icon name="trophy" size={12} />}
           {PODIUM_RANK_LABEL[rank]}
         </span>
         <span className={styles.podiumScore}>{tier.rows[0]!.correctCount}</span>
+        <span className={styles.podiumScoreLabel}>aciertos</span>
+        <ul className={styles.podiumMembers}>
+          {tier.rows.map((row) => (
+            <li key={row.userId} className={styles.podiumMember}>
+              <span className={styles.podiumAvatar}>{initials(row.displayName)}</span>
+              <span className={styles.podiumName}>{row.displayName}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   )
@@ -147,28 +136,34 @@ function StandingsList({ rows }: { rows: StandingRow[] }) {
     <>
       {showPodium && <Podium tiers={podiumTiers} />}
       {listTiers.length > 0 && (
-        <ul className={`${styles.list} glass-surface`}>
-          {listTiers.flatMap((tier) =>
-            tier.rows.map((row) => {
-              const onFire = row.currentStreak >= FIRE_STREAK_THRESHOLD
-              return (
-                <li key={row.userId} className={styles.row}>
-                  <span className={styles.position}>{tier.position}°</span>
-                  <span className={styles.avatarWrap}>
-                    <span className={styles.avatar}>{initials(row.displayName)}</span>
-                    {onFire && (
-                      <span className={styles.fireBadge} title={`${row.currentStreak} aciertos seguidos`}>
-                        🔥{row.currentStreak}
-                      </span>
-                    )}
-                  </span>
-                  <span className={styles.nameText}>{row.displayName}</span>
-                  <span className={styles.count}>{row.correctCount}</span>
-                </li>
-              )
-            }),
-          )}
-        </ul>
+        <ol className={styles.tiers}>
+          {listTiers.map((tier) => (
+            <li key={tier.position} className={`${styles.tier} glass-surface`}>
+              <div className={styles.tierHead}>
+                <span className={styles.tierPosition}>{tier.position}°</span>
+                <span className={styles.tierScore}>
+                  <strong>{tier.rows[0]!.correctCount}</strong> aciertos
+                </span>
+              </div>
+              <ul className={styles.members}>
+                {tier.rows.map((row) => {
+                  const onFire = row.currentStreak >= FIRE_STREAK_THRESHOLD
+                  return (
+                    <li key={row.userId} className={styles.member}>
+                      <span className={styles.avatar}>{initials(row.displayName)}</span>
+                      <span className={styles.nameText}>{row.displayName}</span>
+                      {onFire && (
+                        <span className={styles.fireBadge} title={`${row.currentStreak} aciertos seguidos`}>
+                          🔥{row.currentStreak}
+                        </span>
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            </li>
+          ))}
+        </ol>
       )}
     </>
   )
