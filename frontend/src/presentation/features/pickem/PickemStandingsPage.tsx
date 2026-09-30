@@ -111,7 +111,7 @@ function Podium({ tiers }: { tiers: Tier[] }) {
   if (tiers.length === 0) return null
   const [first, second, third] = tiers
   return (
-    <div className={`${styles.podiumPanel} glass-surface`}>
+    <div className={styles.podiumPanel}>
       <div className={styles.podium}>
         <PodiumSlot tier={second} rank={2} />
         <PodiumSlot tier={first} rank={1} />
@@ -136,9 +136,9 @@ function StandingsList({ rows }: { rows: StandingRow[] }) {
     <>
       {showPodium && <Podium tiers={podiumTiers} />}
       {listTiers.length > 0 && (
-        <ol className={styles.tiers}>
+        <ol className={`${styles.tiers} glass-surface`}>
           {listTiers.map((tier) => (
-            <li key={tier.position} className={`${styles.tier} glass-surface`}>
+            <li key={tier.position} className={styles.tier}>
               <div className={styles.tierHead}>
                 <span className={styles.tierPosition}>{tier.position}°</span>
                 <span className={styles.tierScore}>

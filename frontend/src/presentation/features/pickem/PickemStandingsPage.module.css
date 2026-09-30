@@ -19,18 +19,14 @@
 /* ---------- Podio (top 3 por nivel de puntaje) ---------- */
 
 .podiumPanel {
-  padding: 24px 16px 0;
   margin-bottom: 16px;
-  overflow: hidden;
 }
 
 .podium {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: end;
-  gap: 8px;
-  max-width: 640px;
-  margin: 0 auto;
+  align-items: stretch;
+  gap: 10px;
 }
 
 .podiumEmpty {
@@ -49,8 +45,8 @@
   width: 100%;
   padding: 14px 8px 16px;
   border: 1px solid var(--glass-border);
-  border-bottom: none;
-  border-radius: 12px 12px 0 0;
+  border-top: 3px solid currentColor;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.04);
 }
 
@@ -131,22 +127,23 @@
   overflow-wrap: anywhere;
 }
 
+.podiumFirst .podiumScore {
+  font-size: 56px;
+}
+
 .podiumFirst .podiumBlock {
-  min-height: 210px;
   color: var(--accent-silver);
   background: linear-gradient(180deg, rgba(165, 172, 175, 0.24), rgba(165, 172, 175, 0.04));
   border-color: rgba(165, 172, 175, 0.45);
 }
 
 .podiumSecond .podiumBlock {
-  min-height: 176px;
   color: #cbd5e1;
   background: linear-gradient(180deg, rgba(203, 213, 225, 0.18), rgba(203, 213, 225, 0.03));
   border-color: rgba(203, 213, 225, 0.35);
 }
 
 .podiumThird .podiumBlock {
-  min-height: 150px;
   color: #d97706;
   background: linear-gradient(180deg, rgba(217, 119, 6, 0.2), rgba(217, 119, 6, 0.04));
   border-color: rgba(217, 119, 6, 0.35);
@@ -158,23 +155,25 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  overflow: hidden;
 }
 
 .tier {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 14px 16px;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--glass-border);
+}
+.tier:last-child {
+  border-bottom: none;
 }
 
 @media (min-width: 768px) {
   .tier {
     flex-direction: row;
-    align-items: flex-start;
-    gap: 24px;
+    align-items: center;
+    gap: 16px;
   }
 }
 
@@ -189,13 +188,13 @@
   .tierHead {
     flex-direction: column;
     gap: 2px;
-    width: 96px;
+    width: 88px;
   }
 }
 
 .tierPosition {
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: 22px;
   line-height: 1;
   letter-spacing: 0.02em;
 }
@@ -218,8 +217,8 @@
   flex: 1;
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 10px 16px;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px 16px;
 }
 
 .member {
@@ -233,20 +232,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
   border-radius: 999px;
   background: rgba(61, 139, 255, 0.1);
   border: 1px solid rgba(61, 139, 255, 0.18);
   color: var(--accent-blue);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
 }
 
 .nameText {
   min-width: 0;
+  font-size: 14px;
   overflow-wrap: anywhere;
 }
 
