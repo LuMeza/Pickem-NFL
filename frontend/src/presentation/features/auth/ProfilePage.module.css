@@ -1,17 +1,44 @@
-.hero {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px;
-  padding: 24px;
+/* Tarjeta de jugador (izquierda) + vitrina de logros (derecha en escritorio). */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
   margin-top: 16px;
-  max-width: 640px;
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 22px;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 26px 28px;
+  }
+}
+
+/* ---------- Identidad ---------- */
+
+.identity {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 16px;
 }
 
 .avatarRing {
   flex-shrink: 0;
-  width: 60px;
-  height: 60px;
+  width: 68px;
+  height: 68px;
   padding: 2px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--accent-blue), var(--accent-silver));
@@ -25,21 +52,30 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 28px;
+  letter-spacing: 0.03em;
   color: var(--text-primary);
   background: var(--bg-surface);
 }
 
-.heroBody {
+.identityBody {
+  flex: 1;
   min-width: 0;
 }
 
-.heroName {
+.name {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin: 0;
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.nameText {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -50,10 +86,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  padding: 0;
+  width: 28px;
+  height: 28px;
   min-height: 0;
+  padding: 0;
   border: 1px solid var(--glass-border);
   border-radius: 50%;
   background: transparent;
@@ -83,80 +119,140 @@
   padding: 4px 14px;
 }
 
-.savedHint {
-  margin-top: 2px;
-  color: var(--accent-blue);
-}
-
-.heroEmail {
+.email {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.statsRow {
-  display: flex;
-  gap: 24px;
-  margin-left: auto;
+.savedHint {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--accent-blue);
+}
+
+.passwordLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* En móvil va en su propia línea bajo la identidad: al lado le quitaba espacio al nombre. */
+@media (max-width: 639px) {
+  .passwordLink {
+    flex-basis: 100%;
+    padding-left: 84px;
+  }
+}
+
+.passwordLink:hover,
+.passwordLink:focus-visible {
+  color: var(--accent-blue);
+}
+
+/* ---------- Estadísticas ---------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+@media (min-width: 640px) {
+  .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .stat {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+  gap: 4px;
+  padding: 14px 4px 14px 14px;
+  min-width: 0;
 }
 
-.statValue {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  font-size: 28px;
-  color: var(--accent-silver);
+.stat + .stat {
+  border-left: 1px solid var(--glass-border);
+}
+
+/* En 2 columnas, la 3a tarjeta abre fila nueva: sin borde izquierdo y con borde arriba. */
+@media (max-width: 639px) {
+  .stat:nth-child(odd) {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .stat:nth-child(n + 3) {
+    border-top: 1px solid var(--glass-border);
+  }
+}
+
+@media (min-width: 640px) {
+  .stat:first-child {
+    padding-left: 0;
+  }
 }
 
 .statLabel {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 11px;
   color: var(--text-muted);
 }
 
-.statsEmpty {
-  margin-left: auto;
-  max-width: 220px;
+.statValue {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
 }
 
-.trendCard {
-  max-width: 640px;
-  padding: 20px 24px 16px;
-  margin-top: 16px;
+.statDetail {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.sectionTitle {
+.pendingHint {
+  margin: -8px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ---------- Temporada ---------- */
+
+.season {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 32px;
-}
-
-.sectionIcon {
-  color: var(--accent-silver);
-}
-
-.achievementsGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  flex-direction: column;
   gap: 12px;
-  margin-top: 16px;
 }
-@media (min-width: 768px) {
-  .achievementsGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+
+.seasonTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
-@media (min-width: 1024px) {
-  .achievementsGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+
+.side {
+  min-width: 0;
 }

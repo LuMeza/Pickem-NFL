@@ -5,6 +5,7 @@ import type {
   AchievementScope,
   ProfilePickemSummary,
   ProfileWeeklyTrendPoint,
+  UnlockedAchievement,
 } from '@/core/entities/achievement'
 
 interface AchievementRow {
@@ -20,12 +21,12 @@ interface ProfilePickemSummaryRow {
   total_picks_made: number | string
 }
 
-interface ProfileWeeklyTrendRow {
-  week_sort_order: number
-  week_type: 'pretemporada' | 'regular' | 'playoffs'
-  week_number: number
-  total_correct: number | string
-  total_picked: number | string
+interface SeasonPickRow {
+  pick: string
+  games: {
+    outcome: string | null
+    weeks: { sort_order: number; type: ProfileWeeklyTrendPoint['weekType'] | 'hof'; number: number }
+  }
 }
 
 export class SupabaseAchievementsRepository implements AchievementsRepository {
@@ -49,10 +50,16 @@ export class SupabaseAchievementsRepository implements AchievementsRepository {
     }))
   }
 
-  async listMyUnlockedAchievementIds(): Promise<string[]> {
-    const { data, error } = await this.client.from('user_achievements').select('achievement_id')
+  async listUnlockedAchievements(userId: string): Promise<UnlockedAchievement[]> {
+    const { data, error } = await this.client
+      .from('user_achievements')
+      .select('achievement_id, unlocked_at')
+      .eq('user_id', userId)
     if (error) throw error
-    return (data ?? []).map((row: { achievement_id: string }) => row.achievement_id)
+    return (data ?? []).map((row: { achievement_id: string; unlocked_at: string }) => ({
+      achievementId: row.achievement_id,
+      unlockedAt: new Date(row.unlocked_at),
+    }))
   }
 
   async getProfilePickemSummary(userId: string): Promise<ProfilePickemSummary> {
@@ -66,17 +73,34 @@ export class SupabaseAchievementsRepository implements AchievementsRepository {
     }
   }
 
+  /**
+   * Se arma en cliente desde los picks propios (RLS: cada quien lee los
+   * suyos) en vez de la RPC profile_pickem_weekly_trend, que corta a las
+   * últimas 6 semanas — el riel de temporada del perfil necesita todas.
+   * Mismo criterio que la RPC: solo semanas con al menos un resultado.
+   */
   async getProfileWeeklyTrend(userId: string): Promise<ProfileWeeklyTrendPoint[]> {
-    const { data, error } = await this.client.rpc('profile_pickem_weekly_trend', { p_user_id: userId })
+    const { data, error } = await this.client
+      .from('weekly_picks')
+      .select('pick, games!inner(outcome, weeks!inner(sort_order, type, number))')
+      .eq('user_id', userId)
     if (error) throw error
-    return ((data ?? []) as ProfileWeeklyTrendRow[])
-      .map((row) => ({
-        weekSortOrder: row.week_sort_order,
-        weekType: row.week_type,
-        weekNumber: row.week_number,
-        totalCorrect: Number(row.total_correct),
-        totalPicked: Number(row.total_picked),
-      }))
-      .sort((a, b) => a.weekSortOrder - b.weekSortOrder)
+
+    const byWeek = new Map<number, ProfileWeeklyTrendPoint>()
+    for (const row of (data ?? []) as unknown as SeasonPickRow[]) {
+      const week = row.games.weeks
+      if (week.type === 'hof' || row.games.outcome === null) continue
+      const point = byWeek.get(week.sort_order) ?? {
+        weekSortOrder: week.sort_order,
+        weekType: week.type,
+        weekNumber: week.number,
+        totalCorrect: 0,
+        totalPicked: 0,
+      }
+      point.totalPicked += 1
+      if (row.pick === row.games.outcome) point.totalCorrect += 1
+      byWeek.set(week.sort_order, point)
+    }
+    return [...byWeek.values()].sort((a, b) => a.weekSortOrder - b.weekSortOrder)
   }
 }

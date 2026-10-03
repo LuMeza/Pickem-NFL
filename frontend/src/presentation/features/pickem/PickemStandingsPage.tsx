@@ -12,6 +12,7 @@ import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import { isPlayoffsStarted } from '@/core/rules/isPlayoffsStarted'
+import { getInitials } from '@/core/rules/getInitials'
 import { resolveTiedRanking } from '@/core/rules/resolveTiedRanking'
 import type { StandingRow } from '@/core/entities/standings'
 import type { WeekType } from '@/core/entities/catalog'
@@ -43,13 +44,6 @@ interface Tier {
 }
 
 /** Iniciales para el avatar — primera letra del nombre y del apellido (o las dos primeras si no hay apellido). */
-function initials(displayName: string): string {
-  const parts = displayName.trim().split(/\s+/).filter(Boolean)
-  if (parts.length === 0) return '?'
-  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase()
-  return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase()
-}
-
 /** Aplana los niveles de empate en filas planas para el PDF, marcando ganador(es) al primer nivel. */
 function buildStandingsExportRows(rows: StandingRow[]): StandingsExportRow[] {
   return groupIntoTiers(rows).flatMap((tier) =>
@@ -98,7 +92,7 @@ function PodiumSlot({ tier, rank }: { tier?: Tier; rank: 1 | 2 | 3 }) {
         <ul className={styles.podiumMembers}>
           {tier.rows.map((row) => (
             <li key={row.userId} className={styles.podiumMember}>
-              <span className={styles.podiumAvatar}>{initials(row.displayName)}</span>
+              <span className={styles.podiumAvatar}>{getInitials(row.displayName)}</span>
               <span className={styles.podiumName}>{row.displayName}</span>
             </li>
           ))}
@@ -153,7 +147,7 @@ function StandingsList({ rows }: { rows: StandingRow[] }) {
                   const onFire = row.currentStreak >= FIRE_STREAK_THRESHOLD
                   return (
                     <li key={row.userId} className={styles.member}>
-                      <span className={styles.avatar}>{initials(row.displayName)}</span>
+                      <span className={styles.avatar}>{getInitials(row.displayName)}</span>
                       <span className={styles.nameText}>{row.displayName}</span>
                       {onFire && (
                         <span className={styles.fireBadge} title={`${row.currentStreak} aciertos seguidos`}>

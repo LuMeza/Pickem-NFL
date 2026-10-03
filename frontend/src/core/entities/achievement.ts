@@ -9,6 +9,13 @@ export interface Achievement {
 
 export interface ProfileAchievement extends Achievement {
   unlocked: boolean
+  /** Cuándo se desbloqueó (el más antiguo si se ganó en varios grupos); null si sigue bloqueado. */
+  unlockedAt: Date | null
+}
+
+export interface UnlockedAchievement {
+  achievementId: string
+  unlockedAt: Date
 }
 
 export interface ProfilePickemSummary {

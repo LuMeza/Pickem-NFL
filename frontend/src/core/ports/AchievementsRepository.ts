@@ -1,4 +1,9 @@
-import type { Achievement, ProfilePickemSummary, ProfileWeeklyTrendPoint } from '@/core/entities/achievement'
+import type {
+  Achievement,
+  ProfilePickemSummary,
+  ProfileWeeklyTrendPoint,
+  UnlockedAchievement,
+} from '@/core/entities/achievement'
 
 /**
  * Catálogo de logros y su desbloqueo por usuario — ver
@@ -10,10 +15,14 @@ import type { Achievement, ProfilePickemSummary, ProfileWeeklyTrendPoint } from 
  */
 export interface AchievementsRepository {
   listCatalog(): Promise<Achievement[]>
-  /** Ids de logros ya desbloqueados por el usuario actual (RLS: solo propios). */
-  listMyUnlockedAchievementIds(): Promise<string[]>
+  /**
+   * Logros desbloqueados de `userId`. Hay que filtrar explícito: la RLS deja
+   * a un admin leer las filas de todos, así que sin filtro su perfil mostraba
+   * los logros de todo el grupo como propios.
+   */
+  listUnlockedAchievements(userId: string): Promise<UnlockedAchievement[]>
   /** Aciertos totales/partidos con resultado, transversal a todos los grupos del usuario. Solo propio o admin. */
   getProfilePickemSummary(userId: string): Promise<ProfilePickemSummary>
-  /** Aciertos por semana (ultimas semanas con datos), para el grafico de tendencia del perfil. Solo propio o admin. */
+  /** Aciertos por semana (todas las semanas con resultado), para el riel de temporada del perfil. */
   getProfileWeeklyTrend(userId: string): Promise<ProfileWeeklyTrendPoint[]>
 }

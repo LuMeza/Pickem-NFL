@@ -1,0 +1,152 @@
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* En móvil la temporada completa no cabe: se desliza, como el riel del calendario. */
+.track {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.segment {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.segment + .segment {
+  padding-left: 14px;
+  border-left: 1px solid var(--glass-border);
+}
+
+.segmentLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.cells {
+  display: flex;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 22px;
+  border-radius: 4px;
+}
+
+.cell:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+.swatch,
+.legendSwatch {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  border: 1px dashed rgb(var(--overlay-rgb) / 0.22);
+}
+
+/* Escala en un solo tono (azul de la marca): nivel 0 es "jugada, cero
+   aciertos" — sólido gris, distinto de "sin jugar" (punteado). */
+[data-level] > .swatch,
+.legendSwatch[data-level] {
+  border: none;
+}
+
+[data-level='0'] > .swatch,
+.legendSwatch[data-level='0'] {
+  background: rgb(var(--overlay-rgb) / 0.12);
+}
+
+[data-level='1'] > .swatch,
+.legendSwatch[data-level='1'] {
+  background: color-mix(in srgb, var(--accent-blue) 28%, transparent);
+}
+
+[data-level='2'] > .swatch,
+.legendSwatch[data-level='2'] {
+  background: color-mix(in srgb, var(--accent-blue) 52%, transparent);
+}
+
+[data-level='3'] > .swatch,
+.legendSwatch[data-level='3'] {
+  background: color-mix(in srgb, var(--accent-blue) 76%, transparent);
+}
+
+[data-level='4'] > .swatch,
+.legendSwatch[data-level='4'] {
+  background: var(--accent-blue);
+}
+
+.cell[data-current='true'] > .swatch {
+  box-shadow:
+    0 0 0 2px var(--bg-surface),
+    0 0 0 3px var(--text-primary);
+}
+
+.weekNumber {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.cell[data-current='true'] > .weekNumber {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.legendSwatch {
+  width: 11px;
+  border-radius: 3px;
+}
+
+.legendEmpty {
+  margin-left: 10px;
+}
+
+@media (min-width: 1024px) {
+  /* En escritorio cabe completa: las celdas se estiran a todo el ancho. */
+  .track {
+    overflow: visible;
+  }
+
+  .segment[data-type='regular'] {
+    flex: 1;
+  }
+
+  .segment[data-type='regular'] .cell {
+    flex: 1;
+    width: auto;
+    max-width: 30px;
+  }
+}
