@@ -1,0 +1,403 @@
+/* Hoja de picks en formato quiniela (Local · E · Visitante). El color de
+   cada equipo solo aparece cuando hay pick: la hoja vacía es neutra y se
+   va pintando a medida que eliges. */
+
+/* ---------- Tira de avance ---------- */
+
+.progress {
+  position: sticky;
+  /* Justo debajo del header de la app (53px en móvil, 57px desde tablet). */
+  top: 52px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 10px 12px 12px;
+  border-radius: 12px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+}
+
+@media (min-width: 768px) {
+  .progress {
+    top: 56px;
+  }
+}
+
+.progressText {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.progressCount {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.progressCount strong {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--text-primary);
+  margin-right: 2px;
+}
+
+.progressDeadline {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.progressDeadline[data-urgent='true'] {
+  color: var(--danger);
+}
+
+.segments {
+  display: flex;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.segments li {
+  flex: 1;
+  display: flex;
+}
+
+/* Hit area de 24px de alto para tocarlo cómodo, aunque la barra visible mide 8px. */
+.segment {
+  flex: 1;
+  min-width: 0;
+  min-height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  position: relative;
+}
+
+.segment::before {
+  content: '';
+  position: absolute;
+  inset: 8px 0;
+  border-radius: 3px;
+  border: 1px dashed rgb(var(--overlay-rgb) / 0.28);
+  transition: background-color 160ms ease;
+}
+
+.segment[data-filled='true']::before {
+  border: none;
+  background: var(--segment-color);
+  box-shadow: inset 0 0 0 1px rgb(var(--overlay-rgb) / 0.12);
+}
+
+:global(:root[data-theme='light']) .segment[data-filled='true']::before {
+  background: var(--segment-color-light, var(--segment-color));
+}
+
+.segment[data-locked='true'][data-filled='false']::before {
+  border-style: solid;
+  border-color: transparent;
+  background: rgb(var(--overlay-rgb) / 0.08);
+}
+
+.segment[data-correct='false']::before {
+  opacity: 0.35;
+}
+
+.segment:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 1px;
+  border-radius: 3px;
+}
+
+/* ---------- Renglón ---------- */
+
+.rowWrap {
+  /* Que el partido no quede tapado por header + tira al llegar desde un segmento. */
+  scroll-margin-top: 150px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  min-height: 64px;
+  border-radius: 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+}
+
+.side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 64px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: 400;
+  text-align: left;
+  position: relative;
+  transition:
+    background-color 160ms ease,
+    opacity 160ms ease;
+}
+
+.side[data-side='away'] {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.side:not(:disabled):hover {
+  background: rgb(var(--overlay-rgb) / 0.05);
+}
+
+.side:focus-visible,
+.tie:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: -2px;
+}
+
+/* El lado elegido se tiñe con el color del equipo, desde el borde exterior
+   hacia el centro, con una franja sólida en la orilla. */
+.side[data-selected='true'] {
+  background: linear-gradient(
+    var(--fade-dir, 90deg),
+    color-mix(in srgb, var(--team-primary) 30%, transparent),
+    color-mix(in srgb, var(--team-primary) 6%, transparent)
+  );
+}
+
+.side[data-side='away'][data-selected='true'] {
+  --fade-dir: 270deg;
+}
+
+.side[data-selected='true']::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--team-accent);
+}
+
+.side[data-side='home']::before {
+  left: 0;
+}
+
+.side[data-side='away']::before {
+  right: 0;
+}
+
+/* Con un pick hecho, el otro lado se apaga para que el renglón se lea solo. */
+.row[data-picked='true'] .side[data-selected='false'] .teamText,
+.row[data-picked='true'] .side[data-selected='false'] > :first-child {
+  opacity: 0.5;
+}
+
+.teamText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  transition: opacity 160ms ease;
+}
+
+.side[data-side='away'] .teamText {
+  align-items: flex-end;
+}
+
+.abbr {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 0.03em;
+}
+
+.side[data-side='away'] .abbr {
+  flex-direction: row-reverse;
+}
+
+.side[data-selected='true'] .abbr {
+  color: var(--team-accent);
+}
+
+:global(:root[data-theme='light']) .side[data-selected='true'] .abbr {
+  color: var(--team-primary);
+}
+
+.nick {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ---------- Centro: E / marcador / en vivo ---------- */
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Ancho fijo: E, marcador y "en vivo" alinean la columna central entre renglones. */
+  width: 68px;
+  border-left: 1px solid var(--glass-border);
+  border-right: 1px solid var(--glass-border);
+}
+
+.tie {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  min-height: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.tie:not(:disabled):hover {
+  color: var(--text-primary);
+  border-color: rgb(var(--overlay-rgb) / 0.3);
+}
+
+.tie[data-selected='true'] {
+  background: var(--accent-silver);
+  border-color: var(--accent-silver);
+  color: var(--bg-base);
+}
+
+.tie:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.row[data-state='locked'] .side:disabled,
+.row[data-state='live'] .side:disabled,
+.row[data-state='final'] .side:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.row[data-state='locked'][data-picked='false'] .side {
+  opacity: 0.55;
+}
+
+.score {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* En un final el perdedor se apaga; el ganador queda a todo color. */
+.row[data-state='final'] .side[data-won='false'] .abbr {
+  color: var(--text-muted);
+}
+
+.row[data-state='final'] .side[data-won='false'] > :first-child {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+/* En un final manda el resultado, no el pick: el ganador nunca se apaga
+   aunque no lo hayas elegido. */
+.row[data-state='final'][data-picked='true'] .side[data-won='true'] .teamText,
+.row[data-state='final'][data-picked='true'] .side[data-won='true'] > :first-child {
+  opacity: 1;
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--danger);
+  white-space: nowrap;
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.resultMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--bg-base);
+  background: var(--danger);
+}
+
+.resultMark[data-correct='true'] {
+  background: var(--status-active);
+}
+
+.rowError {
+  margin: 6px 4px 0;
+  color: var(--danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side,
+  .teamText,
+  .segment::before {
+    transition: none;
+  }
+
+  .liveDot {
+    animation: none;
+  }
+}

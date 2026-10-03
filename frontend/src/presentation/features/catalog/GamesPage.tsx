@@ -6,32 +6,22 @@ import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGa
 import { useListWeeklyPicksForWeek } from '@/presentation/hooks/useListWeeklyPicksForWeek'
 import { useSaveWeeklyPick } from '@/presentation/hooks/useSaveWeeklyPick'
 import { useNow } from '@/presentation/hooks/useNow'
-import { isWeeklyPickLocked, weeklyPickGroupDeadline } from '@/core/rules/weeklyPickGroupDeadline'
+import { isWeeklyPickLocked } from '@/core/rules/weeklyPickGroupDeadline'
 import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
-import { formatLivePeriod } from '@/core/rules/formatLivePeriod'
 import type { Game, WeekType } from '@/core/entities/catalog'
-import type { GameResult } from '@/core/entities/gameResult'
 import type { WeeklyPickValue } from '@/core/ports/WeeklyPickRepository'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
-import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
-import { getReadableAccent } from '@/presentation/components/TeamBadge/teamColors'
 import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
-import { PredictionCard, type PredictionCardStatus } from '@/presentation/components/PredictionCard/PredictionCard'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
+import { PickRow, type GamePickView } from './pickSheet/PickRow'
+import { PickProgress } from './pickSheet/PickProgress'
 import styles from './GamesPage.module.css'
 
-const URGENT_THRESHOLD_MS = 2 * 60 * 60 * 1000
 /** Nadie hizo picks en HOF ni pretemporada — esta pantalla es "Tu pick de la semana" de
  * Pickem semanal, no el calendario completo (ver CalendarPage, que sí muestra todo). */
 const ALLOWED_SEGMENTS: WeekType[] = ['regular', 'playoffs']
-
-function outcomeLabel(result: GameResult, game: Game, teamName: (id: string) => string): string {
-  if (result.outcome === 'tie') return 'Empate'
-  const winnerId = result.outcome === 'home' ? game.homeTeamId : game.awayTeamId
-  return teamName(winnerId)
-}
 
 interface DayGroup {
   key: string
@@ -61,150 +51,45 @@ function groupGamesByDay(games: Game[]): DayGroup[] {
     .sort((a, b) => a.date.getTime() - b.date.getTime())
 }
 
-function GameProposal({
-  game,
-  teamName,
-  nowMs,
-  canPredict,
-  weekGames,
-  pickedValue,
-  result,
-  saveFailed,
-  onPick,
-}: {
-  game: Game
-  teamName: (id: string) => string
-  nowMs: number
-  canPredict: boolean
-  weekGames: Game[]
-  pickedValue: WeeklyPickValue | null
-  result: GameResult | null
-  saveFailed: boolean
-  onPick: (gameId: string, pick: WeeklyPickValue) => void
-}) {
-  const liveStatus = getGameLiveStatus(game, result, new Date(nowMs))
-  const hasResult = liveStatus === 'final'
-  const isLive = liveStatus === 'live'
-  const bucketLocked = isWeeklyPickLocked(weekGames, game, new Date(nowMs))
-  const locked = bucketLocked || !canPredict
+interface KickoffSlot {
+  key: string
+  label: string
+  views: GamePickView[]
+}
 
-  let status: PredictionCardStatus
-  let correct: boolean | undefined
-  if (hasResult && result) {
-    if (pickedValue) {
-      status = 'closed'
-      correct = pickedValue === result.outcome
-    } else {
-      status = 'locked'
-    }
-  } else if (locked) {
-    status = 'locked'
-  } else if (pickedValue) {
-    status = 'picked'
-  } else {
-    status = 'unpicked'
+/** Dentro de un día, agrupa por hora de kickoff para no repetir la hora en cada renglón. */
+function groupByKickoff(views: GamePickView[]): KickoffSlot[] {
+  const slots: KickoffSlot[] = []
+  for (const view of views) {
+    const key = String(view.game.kickoffAt.getTime())
+    const last = slots[slots.length - 1]
+    if (last && last.key === key) last.views.push(view)
+    else
+      slots.push({
+        key,
+        label: view.game.kickoffAt.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+        views: [view],
+      })
   }
-  const groupDeadline = weeklyPickGroupDeadline(weekGames, game.kickoffAt)
-  const urgent =
-    status === 'picked' && groupDeadline !== null && groupDeadline.getTime() - nowMs < URGENT_THRESHOLD_MS
-  const pickedAccent =
-    pickedValue === 'home'
-      ? getReadableAccent(game.homeTeamId)
-      : pickedValue === 'away'
-        ? getReadableAccent(game.awayTeamId)
-        : undefined
-
-  const kickoffLabel = game.kickoffAt.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
-  const statusLabel = hasResult
-    ? `Final · ${outcomeLabel(result!, game, teamName)}`
-    : isLive
-      ? 'En vivo'
-      : bucketLocked
-        ? 'Cerrado'
-        : 'Abierto'
-  const pillClass = hasResult ? styles.resultDone : isLive ? styles.resultLive : styles.resultPending
-
-  return (
-    <div className={styles.gameSlot}>
-      <div className={styles.gameMetaRow}>
-        <span className={styles.kickoffTime}>{kickoffLabel}</span>
-        <span className={`${styles.statusPill} ${pillClass}`}>
-          {isLive && <span className={styles.liveDot} aria-hidden="true" />}
-          {statusLabel}
-        </span>
-      </div>
-      {hasResult && result && (
-        <div className={styles.scoreboard}>
-          <span className={styles.scoreboardTeam}>{game.homeTeamId}</span>
-          <span className={styles.scoreboardValue}>
-            {result.homeScore}&nbsp;–&nbsp;{result.awayScore}
-          </span>
-          <span className={styles.scoreboardTeam}>{game.awayTeamId}</span>
-        </div>
-      )}
-      {!hasResult && isLive && (
-        <div className={styles.scoreboard}>
-          <span className={styles.liveDot} aria-hidden="true" />
-          <span className={`${styles.scoreboardValue} ${styles.scoreboardLive}`}>
-            {formatLivePeriod(game.livePeriod) ?? 'En vivo'}
-          </span>
-        </div>
-      )}
-      <PredictionCard
-        variant="triple"
-        status={status}
-        selectedOptionId={pickedValue}
-        correct={correct}
-        outcomeOptionId={result?.outcome ?? null}
-        urgent={urgent}
-        pickedAccent={pickedAccent}
-        onSelect={(optionId) => onPick(game.id, optionId as WeeklyPickValue)}
-        options={[
-          {
-            id: 'home',
-            label: teamName(game.homeTeamId),
-            logo: <TeamBadge teamId={game.homeTeamId} size="md" />,
-          },
-          { id: 'tie', label: 'Empate' },
-          {
-            id: 'away',
-            label: teamName(game.awayTeamId),
-            logo: <TeamBadge teamId={game.awayTeamId} size="md" />,
-          },
-        ]}
-      />
-      {saveFailed && (
-        <p className={`${styles.pickError} text-body-sm`} role="alert">
-          No se pudo guardar tu pick. Intenta de nuevo.
-        </p>
-      )}
-    </div>
-  )
+  return slots
 }
 
 function DayGroupSection({
   group,
+  viewsByGame,
   teamName,
-  nowMs,
-  canPredict,
-  weekGames,
-  picks,
-  resultsByGame,
   failedGameId,
   onPick,
 }: {
   group: DayGroup
+  viewsByGame: Map<string, GamePickView>
   teamName: (id: string) => string
-  nowMs: number
-  canPredict: boolean
-  weekGames: Game[]
-  picks: Record<string, WeeklyPickValue>
-  resultsByGame: Map<string, GameResult>
   failedGameId: string | null
   onPick: (gameId: string, pick: WeeklyPickValue) => void
 }) {
   const dayName = capitalize(group.date.toLocaleDateString('es-MX', { weekday: 'long' }))
   const dayDate = group.date.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })
+  const slots = groupByKickoff(group.games.map((game) => viewsByGame.get(game.id)!))
 
   return (
     <div className={styles.dayGroup}>
@@ -215,22 +100,22 @@ function DayGroupSection({
           {group.games.length} {group.games.length === 1 ? 'partido' : 'partidos'}
         </span>
       </div>
-      <div className="games-grid">
-        {group.games.map((game) => (
-          <GameProposal
-            key={game.id}
-            game={game}
-            teamName={teamName}
-            nowMs={nowMs}
-            canPredict={canPredict}
-            weekGames={weekGames}
-            pickedValue={picks[game.id] ?? null}
-            result={resultsByGame.get(game.id) ?? null}
-            saveFailed={failedGameId === game.id}
-            onPick={onPick}
-          />
-        ))}
-      </div>
+      {slots.map((slot) => (
+        <div key={slot.key} className={styles.slot}>
+          <span className={styles.kickoffTime}>{slot.label}</span>
+          <div className={styles.rows}>
+            {slot.views.map((view) => (
+              <PickRow
+                key={view.game.id}
+                view={view}
+                teamName={teamName}
+                saveFailed={failedGameId === view.game.id}
+                onPick={onPick}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
@@ -296,6 +181,25 @@ export function GamesPage() {
   if (!weekId) return null
 
   const dayGroups = games ? groupGamesByDay(games) : []
+  const now = new Date(nowMs)
+  const orderedViews: GamePickView[] = dayGroups.flatMap((day) =>
+    day.games.map((game) => {
+      const pickedValue = picks[game.id] ?? null
+      const result = resultsByGame.get(game.id) ?? null
+      const liveStatus = getGameLiveStatus(game, result, now)
+      const isFinal = liveStatus === 'final' && result !== null
+      return {
+        game,
+        pickedValue,
+        result,
+        isFinal,
+        isLive: liveStatus === 'live',
+        locked: !canPredict || isWeeklyPickLocked(weekGames, game, now),
+        correct: isFinal && pickedValue ? pickedValue === result.outcome : null,
+      }
+    }),
+  )
+  const viewsByGame = new Map(orderedViews.map((view) => [view.game.id, view]))
 
   return (
     <section>
@@ -312,17 +216,16 @@ export function GamesPage() {
       {status === 'pending' && <LoadingSpinner variant="inline" label="Cargando partidos" />}
       {error && <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />}
       {games && games.length === 0 && <EmptyState message="Esta semana todavía no tiene partidos cargados." />}
+      {orderedViews.length > 0 && canPredict && (
+        <PickProgress views={orderedViews} weekGames={weekGames} nowMs={nowMs} />
+      )}
       <div className={styles.agenda}>
         {dayGroups.map((group) => (
           <DayGroupSection
             key={group.key}
             group={group}
+            viewsByGame={viewsByGame}
             teamName={teamName}
-            nowMs={nowMs}
-            canPredict={canPredict}
-            weekGames={weekGames}
-            picks={picks}
-            resultsByGame={resultsByGame}
             failedGameId={failedGameId}
             onPick={handlePick}
           />
