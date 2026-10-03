@@ -145,25 +145,40 @@ function GameTile({
     (status === 'final' || status === 'live') && result && result.homeScore !== null && result.awayScore !== null
       ? { home: result.homeScore, away: result.awayScore }
       : null
-  const homeWon = status === 'final' && score ? score.home > score.away : null
+  // null mientras no hay final; 'tie' para que un empate no marque a nadie como perdedor.
+  const winner =
+    status === 'final' && score
+      ? score.home > score.away
+        ? 'home'
+        : score.away > score.home
+          ? 'away'
+          : 'tie'
+      : null
   const title = score
     ? `${teamName(game.homeTeamId)} ${score.home} - ${score.away} ${teamName(game.awayTeamId)}`
     : `${teamName(game.homeTeamId)} vs ${teamName(game.awayTeamId)}`
 
   return (
     <li className={`${styles.gameTile} ${status === 'live' ? styles.gameTileLive : ''}`} title={title}>
-      <span className={`${styles.gameSide} ${homeWon === false ? styles.gameSideLost : ''}`}>
+      <span className={`${styles.gameSide} ${winner === 'away' ? styles.gameSideLost : ''}`}>
         <TeamBadge teamId={game.homeTeamId} size="xs" />
         <span className={styles.gameAbbr}>{game.homeTeamId}</span>
       </span>
       <span className={styles.gameCenter}>
         {score ? (
+          // Como en un marcador de TV: puntaje del ganador fuerte, el del perdedor
+          // apagado y una flecha hacia el lado ganador (mismo lenguaje que PickRow).
           <span className={styles.gameScore}>
-            {score.home}&#8211;{score.away}
+            {winner === 'home' && <span className={`${styles.winCaret} ${styles.winCaretHome}`}>◂</span>}
+            <span className={winner === 'away' ? styles.scoreLost : undefined}>{score.home}</span>
+            <span className={styles.scoreDash}>&#8211;</span>
+            <span className={winner === 'home' ? styles.scoreLost : undefined}>{score.away}</span>
+            {winner === 'away' && <span className={`${styles.winCaret} ${styles.winCaretAway}`}>▸</span>}
           </span>
         ) : (
           <span className={styles.gameVs}>vs</span>
         )}
+        {winner && <span className={styles.gameFinal}>{winner === 'tie' ? 'Empate' : 'Final'}</span>}
         {status === 'live' && (
           <span className={styles.gameLive}>
             <span className={styles.liveDot} aria-hidden="true" />
@@ -171,7 +186,7 @@ function GameTile({
           </span>
         )}
       </span>
-      <span className={`${styles.gameSide} ${styles.gameSideAway} ${homeWon === true ? styles.gameSideLost : ''}`}>
+      <span className={`${styles.gameSide} ${styles.gameSideAway} ${winner === 'home' ? styles.gameSideLost : ''}`}>
         <span className={styles.gameAbbr}>{game.awayTeamId}</span>
         <TeamBadge teamId={game.awayTeamId} size="xs" />
       </span>
