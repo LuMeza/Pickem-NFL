@@ -13,6 +13,19 @@
       crossorigin="anonymous"
     />
     <title>Pickem NFL</title>
+    <!-- Fija el tema antes del primer pintado para no parpadear (ver useTheme). -->
+    <script>
+      (function () {
+        var theme
+        try {
+          theme = localStorage.getItem('pickem-theme')
+        } catch (e) {}
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        }
+        document.documentElement.dataset.theme = theme
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

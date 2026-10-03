@@ -13,7 +13,7 @@
   background: var(--bg-surface);
   border: 1px solid rgba(61, 139, 255, 0.3);
   border-radius: 12px;
-  box-shadow: 0 14px 32px -16px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 14px 32px -16px rgb(var(--shadow-rgb) / calc(0.65 * var(--shadow-strength)));
   font-size: 14px;
   animation: slideUp 0.2s ease-out;
 }

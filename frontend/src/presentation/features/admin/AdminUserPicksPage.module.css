@@ -126,7 +126,7 @@
 }
 
 .simpleTable tbody tr:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgb(var(--overlay-rgb) / 0.03);
 }
 
 .teamPick {
@@ -247,7 +247,7 @@ td[data-status='noPick'] {
 }
 .paidPillOff:hover {
   color: var(--text-primary);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgb(var(--overlay-rgb) / 0.2);
 }
 
 .paidPillOn {

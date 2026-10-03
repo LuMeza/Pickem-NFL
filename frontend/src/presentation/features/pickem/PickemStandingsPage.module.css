@@ -47,7 +47,7 @@
   border: 1px solid var(--glass-border);
   border-top: 3px solid currentColor;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgb(var(--overlay-rgb) / 0.04);
 }
 
 .podiumRankLabel {
@@ -112,7 +112,7 @@
   flex-shrink: 0;
   border-radius: 999px;
   border: 1.5px solid currentColor;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(var(--overlay-rgb) / 0.05);
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 700;
@@ -147,6 +147,17 @@
   color: #d97706;
   background: linear-gradient(180deg, rgba(217, 119, 6, 0.2), rgba(217, 119, 6, 0.04));
   border-color: rgba(217, 119, 6, 0.35);
+}
+
+/* Plata clara y bronce no alcanzan contraste sobre fondo blanco. */
+:global(:root[data-theme='light']) .podiumSecond .podiumBlock {
+  color: #64748b;
+  background: linear-gradient(180deg, rgba(100, 116, 139, 0.16), rgba(100, 116, 139, 0.03));
+  border-color: rgba(100, 116, 139, 0.35);
+}
+
+:global(:root[data-theme='light']) .podiumThird .podiumBlock {
+  color: #b45309;
 }
 
 /* ---------- Lista por nivel de puntaje (del 4to nivel en adelante) ---------- */

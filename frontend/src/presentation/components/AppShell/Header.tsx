@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useCountdown } from '@/presentation/hooks/useCountdown'
+import { useTheme } from '@/presentation/hooks/useTheme'
 import { Logo } from '@/presentation/components/Logo/Logo'
+import { Icon } from '@/presentation/components/Icon/Icon'
 import styles from './Header.module.css'
 
 export interface HeaderProps {
@@ -17,6 +19,8 @@ export interface HeaderProps {
  */
 export function Header({ groupName, weekLabel, countdownTo, onSignOut }: HeaderProps) {
   const countdownLabel = useCountdown(countdownTo ?? null)
+  const { theme, toggleTheme } = useTheme()
+  const nextThemeLabel = theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'
 
   return (
     <header className={styles.header}>
@@ -35,11 +39,22 @@ export function Header({ groupName, weekLabel, countdownTo, onSignOut }: HeaderP
           {countdownLabel}
         </span>
       )}
-      {onSignOut && (
-        <button type="button" className={`button-secondary ${styles.signOut}`} onClick={onSignOut}>
-          Salir
+      <div className={styles.actions}>
+        <button
+          type="button"
+          className={`button-secondary ${styles.themeToggle}`}
+          onClick={toggleTheme}
+          aria-label={nextThemeLabel}
+          title={nextThemeLabel}
+        >
+          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} />
         </button>
-      )}
+        {onSignOut && (
+          <button type="button" className={`button-secondary ${styles.signOut}`} onClick={onSignOut}>
+            Salir
+          </button>
+        )}
+      </div>
     </header>
   )
 }

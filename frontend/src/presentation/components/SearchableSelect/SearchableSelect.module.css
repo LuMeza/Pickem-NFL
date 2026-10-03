@@ -80,7 +80,7 @@
 
 .option:hover,
 .option:focus-visible {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgb(var(--overlay-rgb) / 0.06);
 }
 
 .optionActive {

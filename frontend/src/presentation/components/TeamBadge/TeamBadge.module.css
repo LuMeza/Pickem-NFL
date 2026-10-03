@@ -6,7 +6,7 @@
   font-family: var(--font-display);
   letter-spacing: 0.02em;
   flex-shrink: 0;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 2px rgb(var(--overlay-rgb) / 0.12);
 }
 
 .xs {
@@ -42,7 +42,7 @@
    Semi-transparente en vez de solido para que no se sienta como un cuadro
    blanco pegado encima de la tarjeta oscura. */
 .logoBadge {
-  background: rgba(244, 246, 248, 0.2);
+  background: var(--logo-backing);
   padding: 6px;
   box-shadow: none;
 }

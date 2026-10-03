@@ -27,7 +27,7 @@
   overflow-x: auto;
   padding: 4px 2px 10px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  scrollbar-color: rgb(var(--overlay-rgb) / 0.12) transparent;
 }
 
 .railSegment {
@@ -63,7 +63,7 @@
   padding: 0 8px 4px;
   border-radius: 6px;
   border: 1px solid var(--glass-border);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgb(var(--overlay-rgb) / 0.02);
   font-family: var(--font-display);
   font-size: 18px;
   letter-spacing: 0.02em;
@@ -80,11 +80,11 @@
   bottom: 5px;
   height: 3px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgb(var(--overlay-rgb) / 0.08);
 }
 .railCell:hover {
   color: var(--text-primary);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgb(var(--overlay-rgb) / 0.2);
 }
 .railCell:focus-visible {
   outline: 2px solid var(--accent-blue-bright);
@@ -159,7 +159,7 @@
   box-shadow: 0 0 6px rgba(61, 139, 255, 0.7);
 }
 .legendUpcoming {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgb(var(--overlay-rgb) / 0.18);
 }
 
 /* ---------- Semana enfocada ---------- */
@@ -243,7 +243,7 @@
   padding: 0;
   border-radius: 10px;
   border: 1px solid var(--glass-border);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgb(var(--overlay-rgb) / 0.03);
   color: var(--text-primary);
   font-size: 12px;
 }
@@ -377,7 +377,7 @@
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid var(--glass-border);
-  background: rgba(255, 255, 255, 0.025);
+  background: rgb(var(--overlay-rgb) / 0.025);
 }
 
 .gameTileLive {
