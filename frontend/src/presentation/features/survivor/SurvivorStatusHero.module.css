@@ -119,6 +119,6 @@
 }
 
 .action strong {
-  font-family: var(--font-mono);
+  font-weight: 700;
   color: var(--tone);
 }

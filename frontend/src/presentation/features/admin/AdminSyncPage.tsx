@@ -1,7 +1,6 @@
 import { useSyncWithEspn } from '@/presentation/hooks/useSyncWithEspn'
 import { useSyncEspnRoster } from '@/presentation/hooks/useSyncEspnRoster'
 import { useSession } from '@/presentation/hooks/SessionContext'
-import { Icon } from '@/presentation/components/Icon/Icon'
 import styles from './AdminSyncPage.module.css'
 
 /** Tarea 3.3 (integracion-resultados-espn): sincronización bajo demanda de calendario + resultados desde ESPN. */
@@ -22,9 +21,6 @@ export function AdminSyncPage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="refresh" size={13} /> Integración ESPN
-      </span>
       <h1 className="text-display-lg">Sincronizar con ESPN</h1>
       <p className="text-body-sm text-muted">
         Importa el calendario de la temporada y actualiza resultados desde el scoreboard público de ESPN. Nunca

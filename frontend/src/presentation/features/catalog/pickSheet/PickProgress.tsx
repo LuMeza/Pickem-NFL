@@ -28,7 +28,7 @@ function segmentLabel(view: GamePickView): string {
 }
 
 /** Próximo cierre de un partido que todavía acepta picks, o null si ya cerró todo. */
-function nextDeadline(views: GamePickView[], weekGames: Game[], nowMs: number): Date | null {
+export function nextDeadline(views: GamePickView[], weekGames: Game[], nowMs: number): Date | null {
   const open = views
     .filter((view) => !view.locked)
     .map((view) => weeklyPickGroupDeadline(weekGames, view.game.kickoffAt))
@@ -37,7 +37,7 @@ function nextDeadline(views: GamePickView[], weekGames: Game[], nowMs: number): 
   return new Date(Math.min(...open.map((deadline) => deadline.getTime())))
 }
 
-function formatDeadline(date: Date): string {
+export function formatDeadline(date: Date): string {
   const day = date.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric' }).replace('.', '')
   const time = date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
   return `${day} · ${time}`
@@ -75,26 +75,43 @@ export function PickProgress({
           {deadline ? `Cierra ${formatDeadline(deadline)}` : 'Semana cerrada'}
         </span>
       </div>
-      <ol className={styles.segments}>
-        {views.map((view) => {
-          const style = segmentStyle(view)
-          return (
-            <li key={view.game.id}>
+      <PickSegments views={views} onSelect={scrollToGame} />
+    </div>
+  )
+}
+
+/**
+ * Solo la tira de segmentos. Con `onSelect` cada segmento es un botón (hoja
+ * de picks); sin él son decorativos, para usarla dentro de un link (Inicio).
+ */
+export function PickSegments({ views, onSelect }: { views: GamePickView[]; onSelect?: (gameId: string) => void }) {
+  return (
+    <ol className={styles.segments} aria-hidden={onSelect ? undefined : true}>
+      {views.map((view) => {
+        const style = segmentStyle(view)
+        const common = {
+          className: styles.segment,
+          'data-filled': style !== undefined,
+          'data-locked': view.locked,
+          'data-correct': view.correct ?? undefined,
+          style,
+        }
+        return (
+          <li key={view.game.id}>
+            {onSelect ? (
               <button
                 type="button"
-                className={styles.segment}
-                data-filled={style !== undefined}
-                data-locked={view.locked}
-                data-correct={view.correct ?? undefined}
-                style={style}
+                {...common}
                 aria-label={segmentLabel(view)}
                 title={segmentLabel(view)}
-                onClick={() => scrollToGame(view.game.id)}
+                onClick={() => onSelect(view.game.id)}
               />
-            </li>
-          )
-        })}
-      </ol>
-    </div>
+            ) : (
+              <span {...common} />
+            )}
+          </li>
+        )
+      })}
+    </ol>
   )
 }

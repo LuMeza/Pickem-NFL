@@ -1,15 +1,14 @@
 import { ActionCard } from '@/presentation/components/ActionCard/ActionCard'
-import { Icon } from '@/presentation/components/Icon/Icon'
 
-/** Landing del tab "Pickem" del nav — agrupa los modos de juego (reemplaza al acceso directo a /weeks). */
+/**
+ * Landing del tab "Pickem" del nav: solo lo de Pickem (picks, tabla, picks del
+ * grupo). Survivor no se repite aquí — tiene su propio tab en el nav.
+ */
 export function PickemHubPage() {
   return (
     <section>
-      <span className="kicker">
-        <Icon name="trophy" size={13} /> Modos de juego
-      </span>
       <h1 className="text-display-lg">Pickem</h1>
-      <p className="text-body-sm text-muted">Elige con qué modo quieres jugar esta semana.</p>
+      <p className="text-body-sm text-muted">Tus picks de la semana, la tabla y los picks del grupo.</p>
       <div className="card-grid">
         <ActionCard
           to="/weeks"
@@ -19,16 +18,10 @@ export function PickemHubPage() {
           featured
         />
         <ActionCard
-          to="/survivor"
-          icon="football"
-          title="Survivor"
-          description="Elige tu equipo de la semana, sin repetir en toda la temporada"
-        />
-        <ActionCard
-          to="/survivor/tabla"
-          icon="heart"
-          title="Estado de Survivor"
-          description="Quién sigue vivo, quién ya fue eliminado y el podio"
+          to="/pickem/tabla"
+          icon="trophy"
+          title="Tabla de posiciones"
+          description="Quién va arriba esta semana y en la temporada"
         />
         <ActionCard
           to="/pickem/picks"

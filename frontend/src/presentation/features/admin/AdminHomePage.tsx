@@ -51,9 +51,6 @@ const SECTIONS: AdminSection[] = [
 export function AdminHomePage() {
   return (
     <section>
-      <span className="kicker">
-        <Icon name="gear" size={13} /> Solo administradores
-      </span>
       <h1 className="text-display-lg">Panel de administrador</h1>
       <p className="text-body-sm text-muted">Elige una sección para gestionar el grupo.</p>
 

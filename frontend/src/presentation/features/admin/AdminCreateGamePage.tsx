@@ -79,9 +79,6 @@ export function AdminCreateGamePage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="calendar" size={13} /> Calendario
-      </span>
       <h1 className="text-display-lg">Partidos</h1>
       <p className="text-body-sm text-muted">Elige una semana para ver sus partidos y cargar el calendario.</p>
 

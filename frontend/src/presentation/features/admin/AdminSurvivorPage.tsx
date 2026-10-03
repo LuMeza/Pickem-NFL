@@ -1,6 +1,5 @@
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useRecalculateSurvivorState } from '@/presentation/hooks/useRecalculateSurvivorState'
-import { Icon } from '@/presentation/components/Icon/Icon'
 
 /** Panel admin, plan B (modulo-survivor design.md decision 4): el recalculo corre solo al cargarse un resultado o un pick; este boton lo dispara a mano por si eso no paso. */
 export function AdminSurvivorPage() {
@@ -9,9 +8,6 @@ export function AdminSurvivorPage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="refresh" size={13} /> Survivor
-      </span>
       <h1 className="text-display-lg">Recalcular Survivor</h1>
       <p className="text-body-sm text-muted">
         El estado de Survivor (vidas, eliminaciones, podio) se recalcula solo cada vez que se carga un resultado o

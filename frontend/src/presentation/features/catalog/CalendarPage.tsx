@@ -166,19 +166,18 @@ function GameTile({
       </span>
       <span className={styles.gameCenter}>
         {score ? (
-          // Como en un marcador de TV: puntaje del ganador fuerte, el del perdedor
-          // apagado y una flecha hacia el lado ganador (mismo lenguaje que PickRow).
+          // Puntaje del ganador fuerte y el del perdedor apagado; junto con el logo
+          // en gris del perdedor basta (en mosaicos tan chicos, flecha y "Final"
+          // eran ruido repetido en cada partido).
           <span className={styles.gameScore}>
-            {winner === 'home' && <span className={`${styles.winCaret} ${styles.winCaretHome}`}>◂</span>}
             <span className={winner === 'away' ? styles.scoreLost : undefined}>{score.home}</span>
             <span className={styles.scoreDash}>&#8211;</span>
             <span className={winner === 'home' ? styles.scoreLost : undefined}>{score.away}</span>
-            {winner === 'away' && <span className={`${styles.winCaret} ${styles.winCaretAway}`}>▸</span>}
           </span>
         ) : (
           <span className={styles.gameVs}>vs</span>
         )}
-        {winner && <span className={styles.gameFinal}>{winner === 'tie' ? 'Empate' : 'Final'}</span>}
+        {winner === 'tie' && <span className={styles.gameFinal}>Empate</span>}
         {status === 'live' && (
           <span className={styles.gameLive}>
             <span className={styles.liveDot} aria-hidden="true" />
@@ -548,9 +547,6 @@ export function CalendarPage() {
     <section>
       <div className={styles.pageHeader}>
         <div>
-          <span className="kicker">
-            <Icon name="calendar" size={13} /> Temporada completa
-          </span>
           <h1 className="text-display-lg">Calendario</h1>
           <p className="text-body-sm text-muted">Elige una semana en la temporada para ver sus partidos.</p>
         </div>

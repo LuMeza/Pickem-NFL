@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListModuleAccessRequests } from '@/presentation/hooks/useListModuleAccessRequests'
 import { useResolveModuleAccessRequest } from '@/presentation/hooks/useResolveModuleAccessRequest'
-import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import styles from './ModuleAccessRequestsPage.module.css'
 
@@ -38,9 +37,6 @@ export function ModuleAccessRequestsPage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="ticket" size={13} /> Aprobaciones
-      </span>
       <h1 className="text-display-lg">Solicitudes de acceso</h1>
       {status === 'pending' && <LoadingSpinner variant="inline" />}
       {error && <p role="alert">No se pudieron cargar las solicitudes.</p>}

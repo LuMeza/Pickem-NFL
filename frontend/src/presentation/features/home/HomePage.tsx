@@ -14,9 +14,9 @@ import { useGetProfileStats } from '@/presentation/hooks/useGetProfileStats'
 import { useListUserAchievements } from '@/presentation/hooks/useListUserAchievements'
 import { pickDefaultWeek } from '@/core/rules/pickDefaultWeek'
 import { resolveTiedRanking } from '@/core/rules/resolveTiedRanking'
-import { isWeeklyPickLocked } from '@/core/rules/weeklyPickGroupDeadline'
-import { weekLabel } from '@/presentation/features/pickem/weekLabel'
 import { UpcomingGamesStrip } from './UpcomingGamesStrip'
+import { PicksHero } from './PicksHero'
+import { useNow } from '@/presentation/hooks/useNow'
 import styles from './HomePage.module.css'
 
 /**
@@ -39,6 +39,7 @@ export function HomePage() {
   const { data: weeklyPicks, run: loadWeeklyPicks } = useListWeeklyPicksForWeek()
   const { status: statsStatus, data: stats, run: loadStats } = useGetProfileStats()
   const { status: achievementsStatus, data: achievements, run: loadAchievements } = useListUserAchievements()
+  const nowMs = useNow()
 
   useEffect(() => {
     loadStats()
@@ -86,12 +87,6 @@ export function HomePage() {
 
   const survivorReviveWeekNumber = weeks?.find((week) => week.id === survivorParticipant?.revivalDeadlineWeekId)?.number
 
-  const pendingPicksCount = useMemo(() => {
-    if (!activeWeek || activeWeek.type === 'playoffs' || !weekGames || !weeklyPicks) return null
-    const now = new Date()
-    return weekGames.filter((game) => !isWeeklyPickLocked(weekGames, game, now) && !(game.id in weeklyPicks)).length
-  }, [activeWeek, weekGames, weeklyPicks])
-
   const showPicksTile = activeWeek != null && activeWeek.type !== 'playoffs'
 
   const hasPicked = stats != null && stats.totalPicked > 0
@@ -102,13 +97,15 @@ export function HomePage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="football" size={13} /> Temporada regular
-      </span>
       <h1 className="text-display-lg">{profile ? `Hola, ${profile.displayName}` : 'Pickem NFL'}</h1>
       <p className="text-body-sm text-muted">Tu semana arranca aquí.</p>
 
-      {canViewTables !== false && (
+      {showPicksTile && activeWeek && weekGames && weeklyPicks && weekGames.length > 0 && (
+        <PicksHero week={activeWeek} games={weekGames} picks={weeklyPicks} nowMs={nowMs} />
+      )}
+
+      {/* Un admin no aparece en el ranking: la tarjeta solo le diría "No participas". */}
+      {canViewTables !== false && !(isPlatformAdmin && !standingPosition) && (
         <Link
           to={activeWeek ? `/pickem/tabla/${activeWeek.id}` : '/pickem/tabla'}
           className={`${styles.standingsHero} glass-surface glass-interactive`}
@@ -147,7 +144,7 @@ export function HomePage() {
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Esta semana</h2>
-        <div className="card-grid">
+        <div className={styles.weekRow}>
           <StatTile
             to={survivorParticipant ? '/survivor/tabla' : '/survivor'}
             icon="heart"
@@ -172,54 +169,42 @@ export function HomePage() {
                     : 'Sigue la tabla del grupo'
             }
           />
-
-          {showPicksTile && activeWeek && (
-            <StatTile
-              to={`/weeks/${activeWeek.id}/games`}
-              icon="ticket"
-              kicker={weekLabel(activeWeek)}
-              loading={pendingPicksCount == null}
-              value={pendingPicksCount === 0 ? '¡Al día!' : `${pendingPicksCount} sin pick`}
-              urgent={pendingPicksCount != null && pendingPicksCount > 0}
-            />
-          )}
+          <Link to="/profile" className={`${styles.performanceBar} glass-surface glass-interactive`}>
+            <span className={styles.performanceStat}>
+              <span className={styles.performanceKicker}>Efectividad</span>
+              {statsStatus === 'idle' || statsStatus === 'pending' ? (
+                <LoadingSpinner variant="inline" />
+              ) : (
+                <>
+                  <span className={styles.performanceValue}>
+                    {hasPicked && accuracy != null ? `${accuracy}%` : hasPicksPendingResult ? 'Pendiente' : 'Sin picks aún'}
+                  </span>
+                  <span className={styles.performanceDetail}>
+                    {hasPicked && stats
+                      ? `${stats.totalCorrect}/${stats.totalPicked} aciertos`
+                      : hasPicksPendingResult
+                        ? 'Esperando resultados'
+                        : 'Haz tu primer pick'}
+                  </span>
+                </>
+              )}
+            </span>
+            <span className={styles.performanceDivider} aria-hidden="true" />
+            <span className={styles.performanceStat}>
+              <span className={styles.performanceKicker}>Logros</span>
+              {achievementsStatus === 'idle' || achievementsStatus === 'pending' ? (
+                <LoadingSpinner variant="inline" />
+              ) : (
+                <>
+                  <span className={styles.performanceValue}>
+                    {achievements ? `${unlockedAchievements} de ${achievements.length}` : 'Sin datos aún'}
+                  </span>
+                  <span className={styles.performanceDetail}>Desbloqueados</span>
+                </>
+              )}
+            </span>
+          </Link>
         </div>
-
-        <Link to="/profile" className={`${styles.performanceBar} glass-surface glass-interactive`}>
-          <span className={styles.performanceStat}>
-            <span className={styles.performanceKicker}>Efectividad</span>
-            {statsStatus === 'idle' || statsStatus === 'pending' ? (
-              <LoadingSpinner variant="inline" />
-            ) : (
-              <>
-                <span className={styles.performanceValue}>
-                  {hasPicked && accuracy != null ? `${accuracy}%` : hasPicksPendingResult ? 'Pendiente' : 'Sin picks aún'}
-                </span>
-                <span className={styles.performanceDetail}>
-                  {hasPicked && stats
-                    ? `${stats.totalCorrect}/${stats.totalPicked} aciertos`
-                    : hasPicksPendingResult
-                      ? 'Esperando resultados'
-                      : 'Haz tu primer pick'}
-                </span>
-              </>
-            )}
-          </span>
-          <span className={styles.performanceDivider} aria-hidden="true" />
-          <span className={styles.performanceStat}>
-            <span className={styles.performanceKicker}>Logros</span>
-            {achievementsStatus === 'idle' || achievementsStatus === 'pending' ? (
-              <LoadingSpinner variant="inline" />
-            ) : (
-              <>
-                <span className={styles.performanceValue}>
-                  {achievements ? `${unlockedAchievements} de ${achievements.length}` : 'Sin datos aún'}
-                </span>
-                <span className={styles.performanceDetail}>Desbloqueados</span>
-              </>
-            )}
-          </span>
-        </Link>
       </div>
 
       <UpcomingGamesStrip />

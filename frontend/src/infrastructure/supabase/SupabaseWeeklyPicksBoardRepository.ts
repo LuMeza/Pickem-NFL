@@ -1,5 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { WeeklyPickBoardRow, WeeklyPicksBoardRepository } from '@/core/ports/WeeklyPicksBoardRepository'
+import type {
+  WeeklyPickBoardRow,
+  WeeklyPicksBoardRepository,
+  WeeklyPicksReadyCount,
+} from '@/core/ports/WeeklyPicksBoardRepository'
 
 interface BoardForWeekRow {
   user_id: string
@@ -30,5 +34,15 @@ export class SupabaseWeeklyPicksBoardRepository implements WeeklyPicksBoardRepos
       pick: row.pick as WeeklyPickBoardRow['pick'],
       outcome: row.outcome as WeeklyPickBoardRow['outcome'],
     }))
+  }
+
+  async getReadyCount(groupId: string, weekId: string): Promise<WeeklyPicksReadyCount> {
+    const { data, error } = await this.client.rpc('weekly_picks_ready_count', {
+      p_group_id: groupId,
+      p_week_id: weekId,
+    })
+    if (error) throw error
+    const row = ((data ?? []) as { ready_count: number | string; total_count: number | string }[])[0]
+    return { ready: Number(row?.ready_count ?? 0), total: Number(row?.total_count ?? 0) }
   }
 }

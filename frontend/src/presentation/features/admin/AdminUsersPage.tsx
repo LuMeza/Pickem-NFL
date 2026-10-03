@@ -132,9 +132,6 @@ export function AdminUsersPage() {
     <section>
       <div className={styles.header}>
         <div>
-          <span className="kicker">
-            <Icon name="users" size={13} /> Usuarios
-          </span>
           <h1 className="text-display-lg">
             Usuarios{users && users.length > 0 && <span className={styles.count}>{users.length}</span>}
           </h1>

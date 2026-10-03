@@ -3,6 +3,9 @@ import { useParams } from 'react-router-dom'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useCanViewPickemTables } from '@/presentation/hooks/useCanViewPickemTables'
 import { useListWeeklyPicksBoard } from '@/presentation/hooks/useListWeeklyPicksBoard'
+import { useGetWeeklyPicksReadyCount } from '@/presentation/hooks/useGetWeeklyPicksReadyCount'
+import { weeklyPickGroupDeadline } from '@/core/rules/weeklyPickGroupDeadline'
+import { formatDeadline } from '@/presentation/features/catalog/pickSheet/PickProgress'
 import { useNow } from '@/presentation/hooks/useNow'
 import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
 import { Icon } from '@/presentation/components/Icon/Icon'
@@ -38,6 +41,7 @@ export function WeeklyPicksBoardPage() {
   const { data: games } = useSession().games
   const { data: canView, run: loadCanView } = useCanViewPickemTables()
   const { status: boardStatus, data: boardRows, run: loadBoard } = useListWeeklyPicksBoard()
+  const { data: readyCount, run: loadReadyCount } = useGetWeeklyPicksReadyCount()
   const nowMs = useNow()
   const [downloading, setDownloading] = useState(false)
 
@@ -54,6 +58,18 @@ export function WeeklyPicksBoardPage() {
   useEffect(() => {
     if (group && weekId && locked) loadBoard({ groupId: group.id, weekId })
   }, [group, weekId, locked, loadBoard])
+
+  // Antes del cierre: solo el conteo. Si la migración aún no está aplicada, la
+  // RPC falla y la tarjeta se muestra sin conteo (readyCount queda null).
+  useEffect(() => {
+    if (group && weekId && canView && !locked) loadReadyCount({ groupId: group.id, weekId }).catch(() => {})
+  }, [group, weekId, canView, locked, loadReadyCount])
+
+  // El tablero se abre cuando cerró el último grupo de días (ver weeklyPickGroupDeadline).
+  const opensAt = gamesForWeek.reduce<Date | null>((latest, game) => {
+    const deadline = weeklyPickGroupDeadline(gamesForWeek, game.kickoffAt)
+    return deadline && (!latest || deadline > latest) ? deadline : latest
+  }, null)
 
   if (!weekId) return null
 
@@ -86,19 +102,31 @@ export function WeeklyPicksBoardPage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="users" size={13} /> Pickem semanal
-      </span>
       <h1 className="text-display-lg">Picks de todos</h1>
-      <p className={`text-body-sm text-muted ${styles.intro}`}>
-        Los picks de los demás solo se ven cuando se bloquean todos los partidos de la semana.
-      </p>
       <WeekSelector activeWeekId={weekId} linkTo={(id) => `/pickem/picks/${id}`} allowedSegments={ALLOWED_SEGMENTS} />
 
       {canView === false && <EmptyState message={EMPTY_STATE_COPY.noModuleAccess} />}
 
       {canView && !locked && (
-        <EmptyState message="Vas a poder ver los picks de los demás apenas se bloqueen todos los partidos de la semana (domingo, después del primer partido)." />
+        <div className={`${styles.waiting} glass-surface`}>
+          <span className={styles.waitingKicker}>Picks ocultos hasta el cierre</span>
+          {readyCount && readyCount.total > 0 ? (
+            <>
+              <p className={styles.waitingTitle}>
+                <strong>{readyCount.ready}</strong> de {readyCount.total} jugadores ya hicieron picks
+              </p>
+              <span className={styles.waitingBar} aria-hidden="true">
+                <span style={{ width: `${(readyCount.ready / readyCount.total) * 100}%` }} />
+              </span>
+            </>
+          ) : (
+            <p className={styles.waitingTitle}>Los picks de los demás todavía no se ven</p>
+          )}
+          <p className={styles.waitingDetail}>
+            {opensAt ? `Se abren el ${formatDeadline(opensAt)}, ` : 'Se abren '}
+            cuando se bloquean todos los partidos de la semana.
+          </p>
+        </div>
       )}
 
       {canView && locked && (

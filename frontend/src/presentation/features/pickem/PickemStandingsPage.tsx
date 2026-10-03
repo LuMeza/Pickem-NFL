@@ -228,9 +228,6 @@ export function PickemStandingsPage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="trophy" size={13} /> Pickem semanal
-      </span>
       <h1 className="text-display-lg">Tabla de posiciones</h1>
       <WeekSelector activeWeekId={weekId} linkTo={(id) => `/pickem/tabla/${id}`} allowedSegments={STANDINGS_SEGMENTS} />
 

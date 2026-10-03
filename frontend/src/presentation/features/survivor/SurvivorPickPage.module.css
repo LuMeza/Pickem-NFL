@@ -112,9 +112,16 @@
   background: rgba(61, 139, 255, 0.06);
 }
 
+/* Elegido: se tiñe con el color del equipo, igual que en la hoja de picks. */
 .teamOption[data-selected='true'] {
   border-color: var(--accent-blue);
-  background: rgba(61, 139, 255, 0.12);
+  border-width: 2px;
+  padding: 13px 7px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--team-primary) 26%, transparent),
+    color-mix(in srgb, var(--team-primary) 6%, transparent)
+  );
 }
 
 .teamOption:disabled {
@@ -128,11 +135,17 @@
   color: var(--accent-blue);
 }
 
+.teamAbbr {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 0.03em;
+}
+
 .teamName {
-  font-family: var(--font-mono);
+  margin-top: -4px;
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  color: var(--text-muted);
   text-align: center;
 }
 
@@ -174,6 +187,41 @@
   color: var(--text-muted);
   width: 72px;
   flex-shrink: 0;
+}
+
+.historyTeam {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* En móvil el nombre completo no cabe junto al indicador de vida: va el corto. */
+.historyTeamShort {
+  display: none;
+}
+
+@media (max-width: 479px) {
+  .historyTeamFull {
+    display: none;
+  }
+
+  .historyTeamShort {
+    display: inline;
+  }
+}
+
+.historyLife {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Semana sin pick dentro del rango (p. ej. fuera antes de revivir): punteada, sin tarjeta. */
+.historyRowEmpty {
+  border: 1px dashed var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
 /* Equipos ya usados: atenuados y en gris. Sin aclarar el logo: ahora el respaldo

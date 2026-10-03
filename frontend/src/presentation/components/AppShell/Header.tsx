@@ -31,12 +31,18 @@ export function Header({ groupName, weekLabel, countdownTo, onSignOut }: HeaderP
       {(groupName || weekLabel) && (
         <div className={styles.context}>
           {groupName && <span>{groupName}</span>}
+          {groupName && weekLabel && (
+            <span className={styles.contextDot} aria-hidden="true">
+              ·
+            </span>
+          )}
           {weekLabel && <span>{weekLabel}</span>}
         </div>
       )}
       {countdownLabel && (
-        <span className={styles.countdown} title="Cierra en">
-          {countdownLabel}
+        <span className={styles.countdown}>
+          <span className={styles.countdownLabel}>Picks cierran en</span>
+          <span className={styles.countdownValue}>{countdownLabel}</span>
         </span>
       )}
       <div className={styles.actions}>

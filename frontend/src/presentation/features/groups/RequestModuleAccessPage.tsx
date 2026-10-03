@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useGetModuleAccessStatus } from '@/presentation/hooks/useGetModuleAccessStatus'
 import { useRequestModuleAccess } from '@/presentation/hooks/useRequestModuleAccess'
-import { Icon } from '@/presentation/components/Icon/Icon'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import type { GameModule, ModuleAccessStatus } from '@/core/ports/ModuleAccessRepository'
 import styles from './RequestModuleAccessPage.module.css'
@@ -62,9 +61,6 @@ export function RequestModuleAccessPage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="ticket" size={13} /> Módulos opcionales
-      </span>
       <h1 className="text-display-md">Acceso a módulos</h1>
       <p className="text-body-sm text-muted">
         El Pickem Semanal se solicita semana a semana desde su propia pantalla. Survivor está disponible para

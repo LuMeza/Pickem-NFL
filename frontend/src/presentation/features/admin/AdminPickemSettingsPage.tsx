@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useGetPickemTablesVisibility } from '@/presentation/hooks/useGetPickemTablesVisibility'
 import { useSetPickemTablesVisibility } from '@/presentation/hooks/useSetPickemTablesVisibility'
-import { Icon } from '@/presentation/components/Icon/Icon'
 
 /** Tarea 4.5 (modulo-pickem-semanal): habilitar/deshabilitar que usuarios sin acceso semanal aprobado vean las tablas de posiciones. */
 export function AdminPickemSettingsPage() {
@@ -22,9 +21,6 @@ export function AdminPickemSettingsPage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="trophy" size={13} /> Pickem semanal
-      </span>
       <h1 className="text-display-md">Visibilidad de tablas</h1>
       <p className="text-body-sm text-muted">
         Por defecto, las tablas de posiciones solo las ven los usuarios que tuvieron acceso semanal aprobado alguna

@@ -18,6 +18,14 @@ export interface WeeklyPickBoardRow {
  * llama a una funcion SQL security definer (ver migracion
  * 20260814000004_weekly_picks_board) que aplica ambos chequeos server-side.
  */
+export interface WeeklyPicksReadyCount {
+  /** Jugadores con al menos un pick en la semana. */
+  ready: number
+  total: number
+}
+
 export interface WeeklyPicksBoardRepository {
   listPicksForWeek(groupId: string, weekId: string): Promise<WeeklyPickBoardRow[]>
+  /** Cuántos ya hicieron picks, sin revelar cuáles — para antes del cierre (migración 20261002000001). */
+  getReadyCount(groupId: string, weekId: string): Promise<WeeklyPicksReadyCount>
 }

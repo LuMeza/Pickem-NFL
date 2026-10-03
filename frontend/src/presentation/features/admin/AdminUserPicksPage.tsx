@@ -433,9 +433,6 @@ export function AdminUserPicksPage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="search" size={13} /> Panel admin
-      </span>
       <h1 className="text-display-lg">Picks de usuarios</h1>
 
       <div className={styles.modeToggle}>

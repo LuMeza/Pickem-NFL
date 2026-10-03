@@ -135,9 +135,6 @@ export function ProfilePage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="user" size={13} /> Tu cuenta
-      </span>
       <h1 className="text-display-md">Mi perfil</h1>
 
       <div className={styles.layout}>

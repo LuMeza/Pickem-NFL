@@ -1,10 +1,56 @@
-.intro {
-  margin-bottom: 4px;
-}
-
 .downloadButton {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   margin-top: 16px;
+}
+
+/* Antes del cierre: cuántos ya hicieron picks y cuándo se abre el tablero. */
+.waiting {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 18px 20px;
+}
+
+.waitingKicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.waitingTitle {
+  margin: 0;
+  font-size: 18px;
+}
+
+.waitingTitle strong {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 400;
+  margin-right: 2px;
+}
+
+.waitingBar {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: rgb(var(--overlay-rgb) / 0.08);
+  overflow: hidden;
+}
+
+.waitingBar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent-blue);
+}
+
+.waitingDetail {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
 }

@@ -65,7 +65,12 @@ export function UpcomingGamesStrip() {
 
   return (
     <div className={styles.section}>
-      <h2 className={styles.sectionTitle}>Próximos partidos</h2>
+      <div className={styles.sectionHeader}>
+        <h2 className={styles.sectionTitle}>Próximos partidos</h2>
+        <Link to="/calendario" className={styles.seeAll}>
+          Ver calendario <span aria-hidden="true">→</span>
+        </Link>
+      </div>
       {gamesStatus === 'idle' || gamesStatus === 'pending' ? (
         <LoadingSpinner variant="inline" label="Cargando partidos" />
       ) : gamesStatus === 'error' ? (

@@ -152,9 +152,6 @@ export function AdminResultsPage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="trophy" size={13} /> Resultados oficiales
-      </span>
       <h1 className="text-display-lg">Cargar resultados</h1>
       <label>
         Semana

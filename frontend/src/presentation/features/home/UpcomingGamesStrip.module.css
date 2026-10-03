@@ -2,13 +2,33 @@
   margin-top: 32px;
 }
 
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
 .sectionTitle {
   font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   font-size: 12px;
   color: var(--text-muted);
-  margin: 0 0 10px;
+  margin: 0;
+}
+
+.seeAll {
+  font-size: 13px;
+  color: var(--accent-blue);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.seeAll:hover,
+.seeAll:focus-visible {
+  text-decoration: underline;
 }
 
 .strip {
@@ -18,8 +38,11 @@
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   scroll-padding-inline: 2px;
-  padding: 2px 2px 10px;
+  padding: 2px 48px 10px 2px;
   scrollbar-width: none;
+  /* La orilla derecha se desvanece: deja ver que la tira sigue y se puede deslizar. */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
 }
 .strip::-webkit-scrollbar {
   display: none;

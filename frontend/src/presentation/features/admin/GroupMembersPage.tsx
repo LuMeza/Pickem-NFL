@@ -5,7 +5,6 @@ import { useRemoveGroupMember } from '@/presentation/hooks/useRemoveGroupMember'
 import type { GroupMember } from '@/core/ports/GroupRepository'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
-import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import { Modal } from '@/presentation/components/Modal/Modal'
 import styles from './GroupMembersPage.module.css'
@@ -38,9 +37,6 @@ export function GroupMembersPage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="users" size={13} /> Grupo
-      </span>
       <h1 className="text-display-lg">Miembros</h1>
       {status === 'pending' && <LoadingSpinner variant="inline" />}
       {error && <p role="alert">No se pudieron cargar los miembros.</p>}

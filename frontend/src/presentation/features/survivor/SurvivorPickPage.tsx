@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
@@ -10,12 +10,15 @@ import { useGetSurvivorPickException } from '@/presentation/hooks/useGetSurvivor
 import { useCountdown } from '@/presentation/hooks/useCountdown'
 import { isWeekAccessLocked } from '@/core/rules/isWeekAccessLocked'
 import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
+import { getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
-import type { Game } from '@/core/entities/catalog'
+import type { Game, Week } from '@/core/entities/catalog'
+import type { SurvivorPick } from '@/core/entities/survivor'
+import { SurvivorLifeIndicator } from './SurvivorLifeIndicator'
 import { weekLabel } from '@/presentation/features/pickem/weekLabel'
 import { SurvivorStatusHero, type SurvivorHeroKind } from './SurvivorStatusHero'
 import { SurvivorHowItWorks } from './SurvivorHowItWorks'
@@ -24,6 +27,27 @@ import styles from './SurvivorPickPage.module.css'
 interface TeamOption {
   teamId: string
   name: string
+}
+
+/**
+ * Semanas del historial: de la primera a la última con pick, incluidas las de
+ * en medio sin pick (p. ej. la semana fuera antes de revivir). Sin esas filas
+ * el historial brincaba (Semana 3 -> Semana 5) y parecía que faltaba algo.
+ */
+function historyWeeks(weeks: Week[], picks: SurvivorPick[]): { week: Week; pick: SurvivorPick | null }[] {
+  const pickByWeek = new Map(picks.map((pick) => [pick.weekId, pick]))
+  const pickedWeeks = weeks.filter((week) => pickByWeek.has(week.id))
+  if (pickedWeeks.length === 0) return []
+  const type = pickedWeeks[0]!.type
+  const numbers = pickedWeeks.filter((week) => week.type === type).map((week) => week.number)
+  const first = Math.min(...numbers)
+  const last = Math.max(...numbers)
+  const inRange = weeks
+    .filter((week) => week.type === type && week.number >= first && week.number <= last)
+    .sort((a, b) => a.number - b.number)
+  // Picks de otro tipo de semana (raro) van al final para no perderlos.
+  const others = pickedWeeks.filter((week) => week.type !== type)
+  return [...inRange, ...others].map((week) => ({ week, pick: pickByWeek.get(week.id) ?? null }))
 }
 
 function teamOptionsForWeek(games: Game[], teamName: (id: string) => string): TeamOption[] {
@@ -128,9 +152,6 @@ export function SurvivorPickPage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="football" size={13} /> Survivor
-      </span>
       <h1 className="text-display-lg">Tu equipo semanal</h1>
       <p className="text-body-sm text-muted">Elige un equipo distinto cada semana y sobrevive lo más que puedas.</p>
       {heroKind && myState && (
@@ -252,10 +273,14 @@ export function SurvivorPickPage() {
                   data-selected={isSelected}
                   disabled={disabled}
                   onClick={() => handlePick(teamId)}
+                  aria-label={name}
+                  aria-pressed={isSelected}
+                  style={{ '--team-primary': getTeamColors(teamId).primary } as CSSProperties}
                 >
                   {isSelected && <Icon name="check" size={14} />}
                   <TeamBadge teamId={teamId} size="md" />
-                  <span className={styles.teamName}>{name}</span>
+                  <span className={styles.teamAbbr}>{teamId}</span>
+                  <span className={styles.teamName}>{name.split(' ').pop()}</span>
                   {usedElsewhere && <span className={styles.tag}>Ya usado</span>}
                   {!usedElsewhere && pickWindowClosed && <span className={styles.tag}>Cerrado</span>}
                 </button>
@@ -269,18 +294,26 @@ export function SurvivorPickPage() {
         <div className={styles.history}>
           <h2 className={`text-display-sm ${styles.historyTitle}`}>Tu historial</h2>
           <ul className={styles.historyList}>
-            {[...myPicks]
-              .sort((a, b) => (weeks?.find((w) => w.id === a.weekId)?.number ?? 0) - (weeks?.find((w) => w.id === b.weekId)?.number ?? 0))
-              .map((pick) => {
-                const week = weeks?.find((w) => w.id === pick.weekId)
-                return (
-                  <li key={pick.weekId} className={`${styles.historyRow} glass-surface`}>
-                    <span className={styles.historyWeek}>{week ? weekLabel(week) : ''}</span>
-                    <TeamBadge teamId={pick.teamId} size="sm" />
-                    <span>{teamName(pick.teamId)}</span>
-                  </li>
-                )
-              })}
+            {historyWeeks(weeks ?? [], myPicks).map(({ week, pick }) =>
+              pick ? (
+                <li key={week.id} className={`${styles.historyRow} glass-surface`}>
+                  <span className={styles.historyWeek}>{weekLabel(week)}</span>
+                  <TeamBadge teamId={pick.teamId} size="sm" />
+                  <span className={styles.historyTeam}>
+                    <span className={styles.historyTeamFull}>{teamName(pick.teamId)}</span>
+                    <span className={styles.historyTeamShort}>{teamName(pick.teamId).split(' ').pop()}</span>
+                  </span>
+                  <span className={styles.historyLife}>
+                    <SurvivorLifeIndicator currentLife={pick.lifeNumber} />
+                  </span>
+                </li>
+              ) : (
+                <li key={week.id} className={`${styles.historyRow} ${styles.historyRowEmpty}`}>
+                  <span className={styles.historyWeek}>{weekLabel(week)}</span>
+                  <span className={styles.historyTeam}>Sin pick</span>
+                </li>
+              ),
+            )}
           </ul>
         </div>
       )}

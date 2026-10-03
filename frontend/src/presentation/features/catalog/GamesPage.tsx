@@ -13,7 +13,6 @@ import type { WeeklyPickValue } from '@/core/ports/WeeklyPickRepository'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { EMPTY_STATE_COPY } from '@/presentation/components/EmptyState/emptyStateCopy'
 import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
-import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import { PickRow, type GamePickView } from './pickSheet/PickRow'
 import { PickProgress } from './pickSheet/PickProgress'
@@ -203,9 +202,6 @@ export function GamesPage() {
 
   return (
     <section>
-      <span className="kicker">
-        <Icon name="football" size={13} /> Pickem semanal
-      </span>
       <h1 className="text-display-lg">Tu pick de la semana</h1>
       <WeekSelector activeWeekId={weekId} allowedSegments={ALLOWED_SEGMENTS} />
 

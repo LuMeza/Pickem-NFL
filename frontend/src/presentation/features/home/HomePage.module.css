@@ -106,10 +106,24 @@
 /* Barra de desempeño pasivo — deliberadamente más chata y sin icono que las
    StatTile de arriba, para que la jerarquía visual sea clara: "Esta semana"
    pide una acción, esta barra solo informa (ver comentario en HomePage.tsx). */
+/* Survivor + desempeño en una fila desde tablet (antes Survivor quedaba solo
+   en una cuadrícula de dos columnas, con media fila vacía). */
+.weekRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+@media (min-width: 768px) {
+  .weekRow {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
 .performanceBar {
   display: flex;
   align-items: center;
-  margin-top: 12px;
   padding: 12px 18px;
   text-decoration: none;
   color: var(--text-primary);
@@ -183,4 +197,98 @@
 .exploreLink:focus-visible {
   color: var(--accent-blue);
   border-color: rgba(61, 139, 255, 0.35);
+}
+
+/* ---------- Acción de la semana (lo primero de Inicio) ---------- */
+
+.picksHero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+  padding: 18px 20px 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.picksHero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-blue);
+}
+
+.picksHero[data-pending='false']::before {
+  background: rgb(var(--overlay-rgb) / 0.2);
+}
+
+.picksHeroKicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.picksHeroRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.picksHeroText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.picksHeroTitle {
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.picksHeroDetail {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+/* Parece botón aunque toda la tarjeta es el link: dice qué pasa al tocarla. */
+.picksHeroAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
+}
+
+.picksHero[data-pending='true'] .picksHeroAction {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: #fff;
+}
+
+@media (max-width: 479px) {
+  .picksHeroAction {
+    width: 100%;
+    justify-content: center;
+  }
 }
