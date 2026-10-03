@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
 import { useNow } from '@/presentation/hooks/useNow'
 import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
 import { formatLivePeriod } from '@/core/rules/formatLivePeriod'
+import { pickDefaultWeek } from '@/core/rules/pickDefaultWeek'
 import { weekLabel } from '@/presentation/features/pickem/weekLabel'
 import type { Game, Week, WeekType } from '@/core/entities/catalog'
 import type { GameResult } from '@/core/entities/gameResult'
@@ -22,6 +23,9 @@ const EXPORT_WEEK_WIDTH = 900
 /** Paginas que apilan varias semanas (Pretemporada, Playoffs) piden un poco mas de aire horizontal. */
 const EXPORT_SEGMENT_WIDTH = 1000
 
+/** Mismo margen que pickDefaultWeek/GamesPage: un partido dura ~4h en cancha. */
+const LIVE_WINDOW_MS = 4 * 60 * 60 * 1000
+
 const SEGMENT_ORDER: WeekType[] = ['hof', 'pretemporada', 'regular', 'playoffs']
 
 const SEGMENT_LABEL: Record<WeekType, string> = {
@@ -31,20 +35,30 @@ const SEGMENT_LABEL: Record<WeekType, string> = {
   playoffs: 'Playoffs',
 }
 
-const SEGMENT_ACCENT: Record<WeekType, string> = {
-  hof: styles.dotSilver ?? '',
-  pretemporada: styles.dotMuted ?? '',
-  regular: styles.dotBlue ?? '',
-  playoffs: styles.dotSilver ?? '',
+const RAIL_SEGMENT_LABEL: Record<WeekType, string> = {
+  hof: 'HOF',
+  pretemporada: 'Pretemporada',
+  regular: 'Temporada regular',
+  playoffs: 'Playoffs',
 }
 
-function formatDayLabel(date: Date): string {
-  const raw = date.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })
-  return raw.charAt(0).toUpperCase() + raw.slice(1)
+const PLAYOFFS_SHORT_LABEL: Record<number, string> = { 1: 'WC', 2: 'DIV', 3: 'CONF', 4: 'SB' }
+
+type WeekStatus = 'past' | 'current' | 'upcoming' | 'empty'
+
+const STATUS_LABEL: Record<WeekStatus, string> = {
+  past: 'Jugada',
+  current: 'Esta semana',
+  upcoming: 'Próxima',
+  empty: 'Sin partidos',
 }
 
-function segmentAnchor(type: WeekType): string {
-  return `segmento-${type}`
+/** Etiqueta corta para la celda del riel: tiene que caber en ~40px. */
+function railLabel(week: Week): string {
+  if (week.type === 'hof') return 'HOF'
+  if (week.type === 'pretemporada') return `P${week.number}`
+  if (week.type === 'playoffs') return PLAYOFFS_SHORT_LABEL[week.number] ?? `R${week.number}`
+  return String(week.number)
 }
 
 function sortByNumber(weeks: Week[]): Week[] {
@@ -55,44 +69,19 @@ function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 }
 
-function MatchChip({
-  game,
-  teamName,
-  result,
-  nowMs,
-}: {
-  game: Game
-  teamName: (id: string) => string
-  result: GameResult | null
-  nowMs: number
-}) {
-  const status = getGameLiveStatus(game, result, new Date(nowMs))
-  const title =
-    status === 'final' && result
-      ? `${teamName(game.homeTeamId)} ${result.homeScore} - ${result.awayScore} ${teamName(game.awayTeamId)}`
-      : `${teamName(game.homeTeamId)} vs ${teamName(game.awayTeamId)}`
+function formatShortDate(date: Date): string {
+  return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }).replace('.', '')
+}
 
-  return (
-    <li className={`${styles.matchChip} ${status === 'live' ? styles.matchChipLive : ''}`} title={title}>
-      <span className={styles.matchChipTeams}>
-        <TeamBadge teamId={game.homeTeamId} size="sm" />
-        {status === 'final' && result ? (
-          <span className={styles.matchChipScore}>
-            {result.homeScore}&#8211;{result.awayScore}
-          </span>
-        ) : (
-          <span className={styles.matchChipSep}>-</span>
-        )}
-        <TeamBadge teamId={game.awayTeamId} size="sm" />
-      </span>
-      {status === 'live' && (
-        <span className={styles.matchChipStatus}>
-          <span className={styles.liveDot} aria-hidden="true" />
-          {formatLivePeriod(game.livePeriod) ?? 'En vivo'}
-        </span>
-      )}
-    </li>
-  )
+function formatWeekday(date: Date): string {
+  return date.toLocaleDateString('es-MX', { weekday: 'short' }).replace('.', '')
+}
+
+/** "25 – 29 sep" si cae en un mes, "29 sep – 2 oct" si cruza. */
+function formatRange(start: Date, end: Date): string {
+  if (start.toDateString() === end.toDateString()) return formatShortDate(start)
+  if (start.getMonth() === end.getMonth()) return `${start.getDate()} – ${formatShortDate(end)}`
+  return `${formatShortDate(start)} – ${formatShortDate(end)}`
 }
 
 interface DayGroup {
@@ -106,7 +95,7 @@ interface TimeGroup {
   games: Game[]
 }
 
-/** Agrupa por fecha de kickoff para no repetir el día en cada chip (un domingo de temporada regular puede tener 10+ partidos). */
+/** Agrupa por fecha de kickoff para no repetir el día en cada partido (un domingo de temporada regular puede tener 10+ partidos). */
 function groupByDay(sortedGames: Game[]): DayGroup[] {
   const groupByDate = new Map<string, DayGroup>()
 
@@ -123,7 +112,7 @@ function groupByDay(sortedGames: Game[]): DayGroup[] {
   return [...groupByDate.values()]
 }
 
-/** Agrupa los partidos de un día por hora de kickoff, para mostrar la hora una sola vez por franja en vez de repetirla en cada chip. */
+/** Agrupa los partidos de un día por hora de kickoff, para mostrar la hora una sola vez por franja. */
 function groupByTime(dayGames: Game[]): TimeGroup[] {
   const groupByClock = new Map<string, TimeGroup>()
 
@@ -140,26 +129,164 @@ function groupByTime(dayGames: Game[]): TimeGroup[] {
   return [...groupByClock.values()]
 }
 
-function WeekCard({
-  week,
-  games,
+function GameTile({
+  game,
+  teamName,
+  result,
+  nowMs,
+}: {
+  game: Game
+  teamName: (id: string) => string
+  result: GameResult | null
+  nowMs: number
+}) {
+  const status = getGameLiveStatus(game, result, new Date(nowMs))
+  const score =
+    (status === 'final' || status === 'live') && result && result.homeScore !== null && result.awayScore !== null
+      ? { home: result.homeScore, away: result.awayScore }
+      : null
+  const homeWon = status === 'final' && score ? score.home > score.away : null
+  const title = score
+    ? `${teamName(game.homeTeamId)} ${score.home} - ${score.away} ${teamName(game.awayTeamId)}`
+    : `${teamName(game.homeTeamId)} vs ${teamName(game.awayTeamId)}`
+
+  return (
+    <li className={`${styles.gameTile} ${status === 'live' ? styles.gameTileLive : ''}`} title={title}>
+      <span className={`${styles.gameSide} ${homeWon === false ? styles.gameSideLost : ''}`}>
+        <TeamBadge teamId={game.homeTeamId} size="xs" />
+        <span className={styles.gameAbbr}>{game.homeTeamId}</span>
+      </span>
+      <span className={styles.gameCenter}>
+        {score ? (
+          <span className={styles.gameScore}>
+            {score.home}&#8211;{score.away}
+          </span>
+        ) : (
+          <span className={styles.gameVs}>vs</span>
+        )}
+        {status === 'live' && (
+          <span className={styles.gameLive}>
+            <span className={styles.liveDot} aria-hidden="true" />
+            {formatLivePeriod(game.livePeriod) ?? 'En vivo'}
+          </span>
+        )}
+      </span>
+      <span className={`${styles.gameSide} ${styles.gameSideAway} ${homeWon === true ? styles.gameSideLost : ''}`}>
+        <span className={styles.gameAbbr}>{game.awayTeamId}</span>
+        <TeamBadge teamId={game.awayTeamId} size="xs" />
+      </span>
+    </li>
+  )
+}
+
+interface WeekInfo {
+  week: Week
+  games: Game[]
+  status: WeekStatus
+  start: Date | null
+  end: Date | null
+}
+
+/**
+ * Riel con todas las semanas de la temporada: se ve la temporada completa y
+ * en qué punto va (jugada / esta semana / próxima) sin apilar 26 tarjetas
+ * que obligaban a deslizar varias pantallas para llegar a la semana actual.
+ */
+function SeasonRail({
+  segments,
+  infos,
+  selectedId,
+  onSelect,
+}: {
+  segments: WeekType[]
+  infos: WeekInfo[]
+  selectedId: string | null
+  onSelect: (weekId: string) => void
+}) {
+  const scrollerRef = useRef<HTMLDivElement>(null)
+
+  // Centra la celda elegida dentro del riel (solo scroll horizontal del riel, nunca de la página).
+  useLayoutEffect(() => {
+    const scroller = scrollerRef.current
+    if (!scroller || !selectedId) return
+    const cell = scroller.querySelector<HTMLElement>(`[data-week-id="${selectedId}"]`)
+    if (!cell) return
+    const target = cell.offsetLeft - scroller.clientWidth / 2 + cell.offsetWidth / 2
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    scroller.scrollTo({ left: Math.max(0, target), behavior: reduceMotion ? 'auto' : 'smooth' })
+  }, [selectedId])
+
+  return (
+    <div className={styles.rail}>
+      <div className={styles.railScroller} ref={scrollerRef}>
+        {segments.map((type) => {
+          const segmentInfos = infos.filter((info) => info.week.type === type)
+          return (
+            <div key={type} className={styles.railSegment} role="group" aria-label={SEGMENT_LABEL[type]}>
+              <span className={styles.railSegmentLabel}>{RAIL_SEGMENT_LABEL[type]}</span>
+              <div className={styles.railCells}>
+                {segmentInfos.map((info) => {
+                  const isSelected = info.week.id === selectedId
+                  return (
+                    <button
+                      key={info.week.id}
+                      type="button"
+                      data-week-id={info.week.id}
+                      className={`${styles.railCell} ${styles[`railCell_${info.status}`] ?? ''} ${
+                        isSelected ? styles.railCellSelected : ''
+                      }`}
+                      aria-pressed={isSelected}
+                      aria-label={`${weekLabel(info.week)}, ${STATUS_LABEL[info.status].toLowerCase()}`}
+                      onClick={() => onSelect(info.week.id)}
+                    >
+                      {railLabel(info.week)}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      <ul className={styles.railLegend} aria-hidden="true">
+        <li>
+          <span className={`${styles.legendBar} ${styles.legendPast}`} /> Jugada
+        </li>
+        <li>
+          <span className={`${styles.legendBar} ${styles.legendCurrent}`} /> Esta semana
+        </li>
+        <li>
+          <span className={`${styles.legendBar} ${styles.legendUpcoming}`} /> Próxima
+        </li>
+      </ul>
+    </div>
+  )
+}
+
+function WeekFocus({
+  info,
+  prev,
+  next,
+  onSelect,
   teamName,
   resultsByGame,
   nowMs,
 }: {
-  week: Week
-  games: Game[]
+  info: WeekInfo
+  prev: WeekInfo | null
+  next: WeekInfo | null
+  onSelect: (weekId: string) => void
   teamName: (id: string) => string
   resultsByGame: Map<string, GameResult>
   nowMs: number
 }) {
+  const { week, games, status, start, end } = info
   const sorted = [...games].sort((a, b) => a.kickoffAt.getTime() - b.kickoffAt.getTime())
   const dayGroups = groupByDay(sorted)
   const [downloading, setDownloading] = useState(false)
 
-  const handleDownload = async (event: React.MouseEvent) => {
-    event.preventDefault()
-    event.stopPropagation()
+  const handleDownload = async () => {
     if (downloading || sorted.length === 0) return
 
     setDownloading(true)
@@ -179,63 +306,96 @@ function WeekCard({
   }
 
   return (
-    <div className={styles.weekCardWrap}>
-      <Link to={`/weeks/${week.id}/games`} className={`${styles.weekCard} glass-surface`}>
-        <div className={styles.weekCardHeader}>
-          <span className={styles.weekCardLabel}>{weekLabel(week)}</span>
-          <span className={styles.weekCardCount}>
-            {sorted.length} {sorted.length === 1 ? 'partido' : 'partidos'}
+    <article className={`${styles.focus} glass-surface`} aria-labelledby="calendar-focus-title">
+      <header className={styles.focusHeader}>
+        <button
+          type="button"
+          className={styles.stepButton}
+          onClick={() => prev && onSelect(prev.week.id)}
+          disabled={!prev}
+          aria-label={prev ? `Ir a ${weekLabel(prev.week)}` : 'No hay semana anterior'}
+        >
+          <span aria-hidden="true">◀</span>
+        </button>
+
+        <div className={styles.focusTitleBlock}>
+          <span className={`${styles.statusPill} ${styles[`statusPill_${status}`] ?? ''}`}>
+            {SEGMENT_LABEL[week.type]} · {STATUS_LABEL[status]}
+          </span>
+          <h2 id="calendar-focus-title" className={styles.focusTitle}>
+            {weekLabel(week)}
+          </h2>
+          <span className={styles.focusMeta}>
+            {start && end ? formatRange(start, end) : 'Fechas por definir'}
+            {sorted.length > 0 && ` · ${sorted.length} ${sorted.length === 1 ? 'partido' : 'partidos'}`}
           </span>
         </div>
 
-        {sorted.length === 0 ? (
-          <p className={`text-body-sm text-muted ${styles.weekCardEmpty}`}>Sin partidos cargados todavía.</p>
-        ) : (
-          <div className={styles.dayGroups}>
-            {dayGroups.map((group) => (
-              <div key={group.dateKey} className={styles.dayGroup}>
-                <span className={styles.dayLabel}>{formatDayLabel(group.date)}</span>
-                <div className={styles.timeGroups}>
-                  {groupByTime(group.games).map((timeGroup) => (
-                    <div key={timeGroup.time} className={styles.timeGroup}>
-                      <span className={styles.timeLabel}>Hora {timeGroup.time}</span>
-                      <ul className={styles.matchGrid}>
-                        {timeGroup.games.map((game) => (
-                          <MatchChip
-                            key={game.id}
-                            game={game}
-                            teamName={teamName}
-                            result={resultsByGame.get(game.id) ?? null}
-                            nowMs={nowMs}
-                          />
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </Link>
-
-      {sorted.length > 0 && (
         <button
           type="button"
-          className={styles.weekCardDownload}
-          onClick={handleDownload}
-          disabled={downloading}
-          aria-label={`Descargar ${weekLabel(week)} como imagen`}
-          title="Descargar como imagen"
+          className={styles.stepButton}
+          onClick={() => next && onSelect(next.week.id)}
+          disabled={!next}
+          aria-label={next ? `Ir a ${weekLabel(next.week)}` : 'No hay semana siguiente'}
         >
-          <Icon name="download" size={14} />
+          <span aria-hidden="true">▶</span>
         </button>
+      </header>
+
+      <div className={styles.focusActions}>
+        <Link to={`/weeks/${week.id}/games`} className={styles.focusLink}>
+          Ver detalle de partidos
+        </Link>
+        {sorted.length > 0 && (
+          <button
+            type="button"
+            className={styles.focusDownload}
+            onClick={handleDownload}
+            disabled={downloading}
+          >
+            <Icon name="download" size={14} />
+            {downloading ? 'Generando...' : 'Descargar imagen'}
+          </button>
+        )}
+      </div>
+
+      {sorted.length === 0 ? (
+        <p className={`text-body-sm text-muted ${styles.focusEmpty}`}>Esta semana todavía no tiene partidos cargados.</p>
+      ) : (
+        <div className={styles.agenda}>
+          {dayGroups.map((group) => (
+            <section key={group.dateKey} className={styles.agendaDay} aria-label={formatShortDate(group.date)}>
+              <div className={styles.agendaDayLabel}>
+                <span className={styles.agendaWeekday}>{formatWeekday(group.date)}</span>
+                <span className={styles.agendaDate}>{formatShortDate(group.date)}</span>
+              </div>
+              <div className={styles.agendaSlots}>
+                {groupByTime(group.games).map((slot) => (
+                  <div key={slot.time} className={styles.agendaSlot}>
+                    <span className={styles.agendaTime}>{slot.time}</span>
+                    <ul className={styles.gameGrid}>
+                      {slot.games.map((game) => (
+                        <GameTile
+                          key={game.id}
+                          game={game}
+                          teamName={teamName}
+                          result={resultsByGame.get(game.id) ?? null}
+                          nowMs={nowMs}
+                        />
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
       )}
-    </div>
+    </article>
   )
 }
 
-/** Calendario general de toda la temporada (hof/pretemporada/regular/playoffs) de un vistazo, sin ir semana por semana. Partidos como chips compactos en grid (en vez de lista vertical de una fila por partido) para que quepan más semanas en pantalla sin ocultar información detrás de un clic. */
+/** Calendario de la temporada: riel con todas las semanas arriba y, debajo, la semana elegida (por defecto, la actual) en formato agenda. La semana vive en `?semana=` para poder compartir el enlace. */
 export function CalendarPage() {
   const { weeks: weeksResource, games: gamesResource, teams: teamsResource } = useSession()
   const { status, data: weeks, error } = weeksResource
@@ -243,6 +403,7 @@ export function CalendarPage() {
   const { data: teams } = teamsResource
   const { data: results, run: loadResults } = useListResultsForGames()
   const nowMs = useNow()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   useEffect(() => {
     if (games && games.length > 0) loadResults({ gameIds: games.map((game) => game.id) })
@@ -260,6 +421,38 @@ export function CalendarPage() {
   }
 
   const segments = SEGMENT_ORDER.filter((type) => weeks?.some((week) => week.type === type))
+  const orderedWeeks = segments.flatMap((type) => sortByNumber((weeks ?? []).filter((week) => week.type === type)))
+  const currentWeek = weeks && weeks.length > 0 ? pickDefaultWeek(weeks, games ?? [], new Date(nowMs)) : null
+
+  const infos: WeekInfo[] = orderedWeeks.map((week) => {
+    const weekGames = gamesByWeek.get(week.id) ?? []
+    if (weekGames.length === 0) return { week, games: weekGames, status: 'empty', start: null, end: null }
+
+    const times = weekGames.map((game) => game.kickoffAt.getTime())
+    const start = new Date(Math.min(...times))
+    const end = new Date(Math.max(...times))
+    const weekStatus: WeekStatus =
+      week.id === currentWeek?.id ? 'current' : end.getTime() + LIVE_WINDOW_MS < nowMs ? 'past' : 'upcoming'
+    return { week, games: weekGames, status: weekStatus, start, end }
+  })
+
+  const requestedId = searchParams.get('semana')
+  const selectedIndex = Math.max(
+    0,
+    infos.findIndex((info) => info.week.id === (requestedId ?? currentWeek?.id)),
+  )
+  const selected = infos[selectedIndex] ?? null
+
+  const selectWeek = (weekId: string) => {
+    setSearchParams(
+      (params) => {
+        params.set('semana', weekId)
+        return params
+      },
+      { replace: true },
+    )
+  }
+
   const [downloadingAll, setDownloadingAll] = useState(false)
 
   /**
@@ -344,7 +537,7 @@ export function CalendarPage() {
             <Icon name="calendar" size={13} /> Temporada completa
           </span>
           <h1 className="text-display-lg">Calendario</h1>
-          <p className="text-body-sm text-muted">Todos los partidos de la temporada, de un vistazo.</p>
+          <p className="text-body-sm text-muted">Elige una semana en la temporada para ver sus partidos.</p>
         </div>
 
         {segments.length > 0 && (
@@ -364,39 +557,21 @@ export function CalendarPage() {
       {error && <EmptyState message={EMPTY_STATE_COPY.resultsLoadError} />}
       {weeks && weeks.length === 0 && <EmptyState message={EMPTY_STATE_COPY.noWeeksAvailable} />}
 
-      {segments.length > 1 && (
-        <div className={styles.jumpNavWrap}>
-          <nav className={styles.jumpNav} aria-label="Saltar a segmento de temporada">
-            {segments.map((type) => (
-              <a key={type} href={`#${segmentAnchor(type)}`} className={styles.jumpChip}>
-                <span className={`${styles.dot} ${SEGMENT_ACCENT[type]}`} aria-hidden="true" />
-                {SEGMENT_LABEL[type]}
-              </a>
-            ))}
-          </nav>
-        </div>
+      {selected && (
+        <>
+          <SeasonRail segments={segments} infos={infos} selectedId={selected.week.id} onSelect={selectWeek} />
+          <WeekFocus
+            key={selected.week.id}
+            info={selected}
+            prev={infos[selectedIndex - 1] ?? null}
+            next={infos[selectedIndex + 1] ?? null}
+            onSelect={selectWeek}
+            teamName={teamName}
+            resultsByGame={resultsByGame}
+            nowMs={nowMs}
+          />
+        </>
       )}
-
-      {segments.map((type) => (
-        <div key={type} id={segmentAnchor(type)} className={styles.segment}>
-          <h2 className={`text-display-sm ${styles.segmentTitle}`}>
-            <span className={`${styles.dot} ${SEGMENT_ACCENT[type]}`} aria-hidden="true" />
-            {SEGMENT_LABEL[type]}
-          </h2>
-          <div className={styles.weekGrid}>
-            {sortByNumber((weeks ?? []).filter((week) => week.type === type)).map((week) => (
-              <WeekCard
-                key={week.id}
-                week={week}
-                games={gamesByWeek.get(week.id) ?? []}
-                teamName={teamName}
-                resultsByGame={resultsByGame}
-                nowMs={nowMs}
-              />
-            ))}
-          </div>
-        </div>
-      ))}
     </section>
   )
 }
