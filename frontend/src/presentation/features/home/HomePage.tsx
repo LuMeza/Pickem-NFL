@@ -104,8 +104,7 @@ export function HomePage() {
         <PicksHero week={activeWeek} games={weekGames} picks={weeklyPicks} nowMs={nowMs} />
       )}
 
-      {/* Un admin no aparece en el ranking: la tarjeta solo le diría "No participas". */}
-      {canViewTables !== false && !(isPlatformAdmin && !standingPosition) && (
+      {canViewTables !== false && (
         <Link
           to={activeWeek ? `/pickem/tabla/${activeWeek.id}` : '/pickem/tabla'}
           className={`${styles.standingsHero} glass-surface glass-interactive`}
