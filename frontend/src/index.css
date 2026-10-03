@@ -394,24 +394,6 @@ label {
   margin-bottom: 16px;
 }
 
-/* Grid de partidos (tarea 2.6): 1 columna mobile, 2 tablet, 3 desktop —
-   consumido por las cartas de predicción de los módulos de juego. */
-.games-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-@media (min-width: 768px) {
-  .games-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (min-width: 1024px) {
-  .games-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
 /* Grid de tarjetas de navegación (dashboards de Inicio/Admin). */
 .card-grid {
   display: grid;
