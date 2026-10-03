@@ -258,7 +258,7 @@
   align-items: center;
   justify-content: center;
   /* Ancho fijo: E, marcador y "en vivo" alinean la columna central entre renglones. */
-  width: 68px;
+  width: 80px;
   border-left: 1px solid var(--glass-border);
   border-right: 1px solid var(--glass-border);
 }
@@ -308,24 +308,86 @@
 }
 
 .score {
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
+}
+
+.scoreLine {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-/* En un final el perdedor se apaga; el ganador queda a todo color. */
+.scoreLine [data-won='false'] {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.scoreDash {
+  margin: 0 2px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* Fuera del flujo para que el marcador siga centrado con o sin flecha. */
+.winCaret {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--accent-blue);
+}
+
+.winCaret:first-child {
+  right: calc(100% + 3px);
+}
+
+.winCaret:last-child {
+  left: calc(100% + 3px);
+}
+
+.finalLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* En un final el perdedor se apaga entero (logo, siglas y nombre); el
+   ganador queda a todo color. */
 .row[data-state='final'] .side[data-won='false'] .abbr {
   color: var(--text-muted);
 }
 
 .row[data-state='final'] .side[data-won='false'] > :first-child {
-  opacity: 0.5;
+  opacity: 0.4;
   filter: grayscale(1);
+}
+
+.row[data-state='final'] .side[data-won='false'] .teamText {
+  opacity: 0.6;
+}
+
+/* Empate: nadie gana, nadie se apaga. */
+.row[data-state='final'] .side[data-won='false'][data-tie-result='true'] .abbr {
+  color: var(--text-primary);
+}
+
+.row[data-state='final'] .side[data-tie-result='true'] > :first-child,
+.row[data-state='final'] .side[data-tie-result='true'] .teamText {
+  opacity: 1;
+  filter: none;
 }
 
 /* En un final manda el resultado, no el pick: el ganador nunca se apaga

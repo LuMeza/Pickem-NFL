@@ -81,6 +81,7 @@ export function PickRow({
         data-side={value}
         data-selected={selected}
         data-won={won}
+        data-tie-result={hasResult && result!.outcome === 'tie'}
         aria-pressed={selected}
         aria-label={`${fullName}${value === 'home' ? ' (local)' : ' (visitante)'}`}
         disabled={disabled}
@@ -101,10 +102,23 @@ export function PickRow({
 
   let center
   if (hasResult) {
+    const { outcome, homeScore, awayScore } = result!
+    const winnerLabel = outcome === 'tie' ? 'empate' : `ganó ${outcome === 'home' ? game.homeTeamId : game.awayTeamId}`
+    // Como en un marcador de TV: el puntaje del ganador fuerte, el del perdedor
+    // apagado y una flecha que apunta hacia el lado ganador.
     center = (
-      <span className={styles.score} aria-label={`Final ${result!.homeScore} a ${result!.awayScore}`}>
-        {result!.homeScore}–{result!.awayScore}
-        {pickedValue === 'tie' && correct !== null && <ResultMark correct={correct} />}
+      <span className={styles.score} aria-label={`Final ${homeScore} a ${awayScore}, ${winnerLabel}`}>
+        <span className={styles.scoreLine} aria-hidden="true">
+          {outcome === 'home' && <span className={styles.winCaret}>◂</span>}
+          <span data-won={outcome !== 'away'}>{homeScore}</span>
+          <span className={styles.scoreDash}>–</span>
+          <span data-won={outcome !== 'home'}>{awayScore}</span>
+          {outcome === 'away' && <span className={styles.winCaret}>▸</span>}
+        </span>
+        <span className={styles.finalLabel} aria-hidden="true">
+          {outcome === 'tie' ? 'Empate' : 'Final'}
+          {pickedValue === 'tie' && correct !== null && <ResultMark correct={correct} />}
+        </span>
       </span>
     )
   } else if (isLive) {
