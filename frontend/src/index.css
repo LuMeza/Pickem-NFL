@@ -15,8 +15,10 @@
   --shadow-rgb: 0 0 0;
   --shadow-strength: 1;
   /* Respaldo detras del logo de equipo: claro en ambos temas, varios escudos
-     son muy oscuros (ver TeamBadge.module.css). */
-  --logo-backing: rgb(244 246 248 / 0.2);
+     son muy oscuros (ver TeamBadge.module.css). En oscuro tiene que ser casi
+     opaco: con 0.2 los escudos navy (Giants, Rams, Patriots, Colts) y el verde
+     de los Jets se perdían. */
+  --logo-backing: rgb(226 232 240 / 0.88);
 
   --bg-base: #0b0f14;
   --bg-surface: #141b23;
@@ -239,6 +241,11 @@ button:disabled {
   cursor: not-allowed;
 }
 button.button-secondary {
+  /* Para botones con ícono + texto (ej. "Descargar PDF"). */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   background: transparent;
   color: var(--text-primary);
   border: 1px solid var(--glass-border);

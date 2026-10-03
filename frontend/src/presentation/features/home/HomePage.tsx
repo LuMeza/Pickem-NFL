@@ -133,7 +133,7 @@ export function HomePage() {
                 </span>
                 <span className={styles.standingsHeroDetail}>
                   {standingPosition
-                    ? `${standingPosition.total} aciertos`
+                    ? `${standingPosition.total} ${standingPosition.total === 1 ? 'acierto' : 'aciertos'}`
                     : isPlatformAdmin
                       ? 'Los admins no aparecen en el ranking'
                       : 'Juega tu primera semana'}

@@ -92,7 +92,9 @@ function PodiumSlot({ tier, rank }: { tier?: Tier; rank: 1 | 2 | 3 }) {
           {PODIUM_RANK_LABEL[rank]}
         </span>
         <span className={styles.podiumScore}>{tier.rows[0]!.correctCount}</span>
-        <span className={styles.podiumScoreLabel}>aciertos</span>
+        <span className={styles.podiumScoreLabel}>
+          {tier.rows[0]!.correctCount === 1 ? 'acierto' : 'aciertos'}
+        </span>
         <ul className={styles.podiumMembers}>
           {tier.rows.map((row) => (
             <li key={row.userId} className={styles.podiumMember}>
@@ -142,7 +144,8 @@ function StandingsList({ rows }: { rows: StandingRow[] }) {
               <div className={styles.tierHead}>
                 <span className={styles.tierPosition}>{tier.position}°</span>
                 <span className={styles.tierScore}>
-                  <strong>{tier.rows[0]!.correctCount}</strong> aciertos
+                  <strong>{tier.rows[0]!.correctCount}</strong>{' '}
+                  {tier.rows[0]!.correctCount === 1 ? 'acierto' : 'aciertos'}
                 </span>
               </div>
               <ul className={styles.members}>
@@ -246,7 +249,7 @@ export function PickemStandingsPage() {
               <span className="text-body-sm text-muted">Resultado final de temporada</span>
               <p className="text-display-sm">
                 {winners.userIds.length > 1 ? 'Empate en el primer lugar: ' : 'Ganador: '}
-                {winnerNames} ({winners.total} aciertos)
+                {winnerNames} ({winners.total} {winners.total === 1 ? 'acierto' : 'aciertos'})
               </p>
             </div>
           )}

@@ -40,7 +40,7 @@ export function PickemHubPage() {
           to="/playoffs"
           icon="trophy"
           title="Playoffs"
-          description="Proximamente"
+          description="Próximamente"
           disabled
         />
       </div>

@@ -78,13 +78,15 @@
 }
 
 /* Numero de "camiseta" apenas visible en la esquina de la tarjeta — refuerzo
-   sutil del tema de fútbol americano sin competir con el contenido. */
+   sutil del tema de fútbol americano sin competir con el contenido. Completo
+   arriba a la derecha (junto al título): sangrado por abajo se leía como un
+   recorte accidental detrás del botón. */
 .watermark {
   position: absolute;
-  right: -8px;
-  bottom: -28px;
+  top: 12px;
+  right: 20px;
   font-family: var(--font-display);
-  font-size: 140px;
+  font-size: 120px;
   line-height: 1;
   color: rgb(var(--overlay-rgb) / 0.04);
   pointer-events: none;

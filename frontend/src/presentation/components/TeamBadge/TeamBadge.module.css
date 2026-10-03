@@ -36,11 +36,9 @@
   border-radius: 18px;
 }
 
-/* Respaldo claro semi-transparente (no --bg-surface, casi negro) para el
-   escudo: varios equipos tienen colores de marca muy oscuros (Bears,
-   Jaguars, Cowboys, Raiders...) que se perdian contra un fondo casi negro.
-   Semi-transparente en vez de solido para que no se sienta como un cuadro
-   blanco pegado encima de la tarjeta oscura. */
+/* Respaldo claro (no --bg-surface, casi negro) para el escudo: varios equipos
+   tienen colores de marca muy oscuros (Giants, Rams, Patriots, Raiders...)
+   que se perdian contra un fondo casi negro. Ver --logo-backing en index.css. */
 .logoBadge {
   background: var(--logo-backing);
   padding: 6px;

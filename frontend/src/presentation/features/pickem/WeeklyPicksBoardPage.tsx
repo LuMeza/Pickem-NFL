@@ -91,7 +91,7 @@ export function WeeklyPicksBoardPage() {
       </span>
       <h1 className="text-display-lg">Picks de todos</h1>
       <p className={`text-body-sm text-muted ${styles.intro}`}>
-        Los picks de los demás se ven recién cuando se bloquean todos los partidos de la semana.
+        Los picks de los demás solo se ven cuando se bloquean todos los partidos de la semana.
       </p>
       <WeekSelector activeWeekId={weekId} linkTo={(id) => `/pickem/picks/${id}`} allowedSegments={ALLOWED_SEGMENTS} />
 
