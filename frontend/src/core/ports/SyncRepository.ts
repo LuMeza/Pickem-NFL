@@ -5,6 +5,12 @@ export interface SyncSummary {
   errors: string[]
 }
 
+export interface PredictionSyncSummary {
+  gamesConsidered: number
+  predictionsUpdated: number
+  errors: string[]
+}
+
 export interface RosterSyncSummary {
   teamsProcessed: number
   playersSynced: number
@@ -20,4 +26,6 @@ export interface RosterSyncSummary {
 export interface SyncRepository {
   syncWithEspn(): Promise<SyncSummary>
   syncEspnRoster(): Promise<RosterSyncSummary>
+  /** Ver openspec/changes/espn-game-predictions — Edge Function `sync-espn-predictions`. */
+  syncEspnPredictions(): Promise<PredictionSyncSummary>
 }

@@ -6,6 +6,7 @@ import type { GroupRepository } from './GroupRepository'
 import type { ModuleAccessRepository } from './ModuleAccessRepository'
 import type { WeeklyPickRepository } from './WeeklyPickRepository'
 import type { PickemStandingsRepository } from './PickemStandingsRepository'
+import type { PredictionsRepository } from './PredictionsRepository'
 import type { SurvivorRepository } from './SurvivorRepository'
 import type { CatalogRepository } from './CatalogRepository'
 import type { ResultsRepository } from './ResultsRepository'
@@ -27,4 +28,5 @@ export interface Repositories {
   adminPaymentsRepository: AdminPaymentsRepository
   achievementsRepository: AchievementsRepository
   weeklyPicksBoardRepository: WeeklyPicksBoardRepository
+  predictionsRepository: PredictionsRepository
 }

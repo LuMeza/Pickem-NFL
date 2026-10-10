@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { PickemStandingsRepository } from '@/core/ports/PickemStandingsRepository'
 import type { StandingRow } from '@/core/entities/standings'
+import type { PredictionsMode } from '@/core/entities/gamePrediction'
 
 interface StandingRowResponse {
   user_id: string
@@ -61,6 +62,21 @@ export class SupabasePickemStandingsRepository implements PickemStandingsReposit
     const { error } = await this.client
       .from('pickem_settings')
       .upsert({ group_id: groupId, tables_visible_to_all: visible })
+    if (error) throw error
+  }
+
+  async getPredictionsMode(groupId: string): Promise<PredictionsMode> {
+    const { data, error } = await this.client
+      .from('pickem_settings')
+      .select('predictions_mode')
+      .eq('group_id', groupId)
+      .maybeSingle()
+    if (error) throw error
+    return (data?.predictions_mode as PredictionsMode | undefined) ?? 'off'
+  }
+
+  async setPredictionsMode(groupId: string, mode: PredictionsMode): Promise<void> {
+    const { error } = await this.client.from('pickem_settings').upsert({ group_id: groupId, predictions_mode: mode })
     if (error) throw error
   }
 }

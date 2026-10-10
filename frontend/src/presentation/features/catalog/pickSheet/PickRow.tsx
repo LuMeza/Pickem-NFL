@@ -1,8 +1,10 @@
 import type { CSSProperties } from 'react'
 import type { Game } from '@/core/entities/catalog'
 import type { GameResult } from '@/core/entities/gameResult'
+import type { GamePrediction } from '@/core/entities/gamePrediction'
 import type { WeeklyPickValue } from '@/core/ports/WeeklyPickRepository'
 import { formatLivePeriod } from '@/core/rules/formatLivePeriod'
+import { formatPredictionSpread } from '@/core/rules/formatPredictionSpread'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { getReadableAccent, getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
 import { Icon } from '@/presentation/components/Icon/Icon'
@@ -20,6 +22,8 @@ export interface GamePickView {
   locked: boolean
   /** Solo con resultado oficial y pick hecho. */
   correct: boolean | null
+  /** Pronóstico visible para el usuario (RLS decide según el modo del grupo); null si no hay o no le toca verlo. */
+  prediction: GamePrediction | null
 }
 
 /** "Washington Commanders" -> "Commanders" (mismo criterio que TeamsPage). */
@@ -48,6 +52,58 @@ function ResultMark({ correct }: { correct: boolean }) {
 }
 
 /**
+ * Pronóstico de ESPN bajo el renglón: barra proporcional con el color de cada
+ * equipo y los porcentajes. Solo informativo — no es interactivo y nunca
+ * muestra momios ni casas de apuestas (ver specs/pronosticos-partidos).
+ */
+function PredictionBar({
+  game,
+  prediction,
+  teamName,
+}: {
+  game: Game
+  prediction: GamePrediction
+  teamName: (id: string) => string
+}) {
+  const homePct = Math.round(prediction.homeWinPct)
+  const awayPct = Math.round(prediction.awayWinPct)
+  const spread = formatPredictionSpread(prediction.homeSpread)
+  const favoriteText = spread ? `Favorito por ${spread.points} pts` : null
+  const homeName = nickname(teamName(game.homeTeamId))
+  const awayName = nickname(teamName(game.awayTeamId))
+  const favoriteName = spread ? (spread.favorite === 'home' ? homeName : awayName) : null
+  const label =
+    `Pronóstico ESPN: ${homeName} ${homePct}%, ${awayName} ${awayPct}%` +
+    (favoriteName ? `. ${favoriteName} favorito por ${spread!.points} puntos` : '')
+
+  return (
+    <div className={styles.prediction} role="img" aria-label={label}>
+      <div className={styles.predictionTrack} aria-hidden="true">
+        <span
+          className={styles.predictionFill}
+          style={{ ...teamStyle(game.homeTeamId), flexGrow: prediction.homeWinPct }}
+        />
+        <span
+          className={styles.predictionFill}
+          style={{ ...teamStyle(game.awayTeamId), flexGrow: prediction.awayWinPct }}
+        />
+      </div>
+      <div className={styles.predictionMeta} aria-hidden="true">
+        <span className={styles.predictionSide}>
+          <strong>{homePct}%</strong>
+          {spread?.favorite === 'home' && <span>{favoriteText}</span>}
+        </span>
+        <span className={styles.predictionSource}>Pronóstico ESPN</span>
+        <span className={styles.predictionSide} data-side="away">
+          {spread?.favorite === 'away' && <span>{favoriteText}</span>}
+          <strong>{awayPct}%</strong>
+        </span>
+      </div>
+    </div>
+  )
+}
+
+/**
  * Un renglón de quiniela: Local · E · Visitante. Se elige tocando el lado
  * del equipo (o la E del centro para empate); el lado elegido se tiñe con
  * el color del equipo. Con resultado oficial el centro pasa a ser el
@@ -64,7 +120,7 @@ export function PickRow({
   saveFailed: boolean
   onPick: (gameId: string, pick: WeeklyPickValue) => void
 }) {
-  const { game, pickedValue, result, isFinal, isLive, locked, correct } = view
+  const { game, pickedValue, result, isFinal, isLive, locked, correct, prediction } = view
   const hasResult = isFinal && result !== null
   const disabled = locked || hasResult
   const state = hasResult ? 'final' : isLive ? 'live' : locked ? 'locked' : 'open'
@@ -152,6 +208,7 @@ export function PickRow({
         <div className={styles.center}>{center}</div>
         {side('away')}
       </div>
+      {prediction && <PredictionBar game={game} prediction={prediction} teamName={teamName} />}
       {saveFailed && (
         <p className={`${styles.rowError} text-body-sm`} role="alert">
           No se pudo guardar tu pick. Intenta de nuevo.

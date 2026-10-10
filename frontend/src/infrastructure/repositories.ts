@@ -13,6 +13,7 @@ import { SupabaseCatalogRepository } from '@/infrastructure/supabase/SupabaseCat
 import { SupabaseResultsRepository } from '@/infrastructure/supabase/SupabaseResultsRepository'
 import { SupabaseSyncRepository } from '@/infrastructure/supabase/SupabaseSyncRepository'
 import { SupabaseWeeklyPicksBoardRepository } from '@/infrastructure/supabase/SupabaseWeeklyPicksBoardRepository'
+import { SupabasePredictionsRepository } from '@/infrastructure/supabase/SupabasePredictionsRepository'
 
 /**
  * Punto único de construcción de los adapters concretos. Solo `src/main.tsx`
@@ -34,5 +35,6 @@ export function createSupabaseRepositories(): Repositories {
     adminPaymentsRepository: new SupabaseAdminPaymentsRepository(supabaseClient),
     achievementsRepository: new SupabaseAchievementsRepository(supabaseClient),
     weeklyPicksBoardRepository: new SupabaseWeeklyPicksBoardRepository(supabaseClient),
+    predictionsRepository: new SupabasePredictionsRepository(supabaseClient),
   }
 }

@@ -35,7 +35,7 @@ const SECTIONS: AdminSection[] = [
   {
     title: 'Quinielas',
     actions: [
-      { to: '/admin/pickem/settings', icon: 'trophy', title: 'Visibilidad de tablas', description: 'Mostrar u ocultar las tablas del pickem a quien no jugó' },
+      { to: '/admin/pickem/settings', icon: 'trophy', title: 'Configuración del Pickem', description: 'Visibilidad de tablas y de pronósticos de partidos' },
       { to: '/admin/survivor', icon: 'refresh', title: 'Recalcular Survivor', description: 'Plan B si el recalculo automático no corrio' },
     ],
   },

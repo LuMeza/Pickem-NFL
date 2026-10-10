@@ -447,6 +447,56 @@
   background: var(--status-active);
 }
 
+/* Pronóstico bajo el renglón: discreto, para que no compita con el pick. */
+.prediction {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 6px 4px 0;
+}
+
+.predictionTrack {
+  display: flex;
+  gap: 2px;
+  height: 4px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgb(var(--overlay-rgb) / 0.08);
+}
+
+.predictionFill {
+  flex-basis: 0;
+  background: var(--team-accent);
+  opacity: 0.85;
+}
+
+.predictionMeta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.predictionSide {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.predictionSide strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.predictionSource {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
 .rowError {
   margin: 6px 4px 0;
   color: var(--danger);

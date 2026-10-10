@@ -37,6 +37,7 @@ export function PicksHero({
       isLive: false,
       locked: isWeeklyPickLocked(games, game, now),
       correct: null,
+      prediction: null,
     }))
   const picked = views.filter((view) => view.pickedValue !== null).length
   const missing = views.filter((view) => !view.locked && view.pickedValue === null).length

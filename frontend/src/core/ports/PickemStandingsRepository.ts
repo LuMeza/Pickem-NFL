@@ -1,4 +1,5 @@
 import type { StandingRow } from '@/core/entities/standings'
+import type { PredictionsMode } from '@/core/entities/gamePrediction'
 
 /**
  * Tablas de posiciones del pickem semanal — ver
@@ -16,4 +17,7 @@ export interface PickemStandingsRepository {
   /** Panel admin (tarea 4.5): valor crudo guardado en `pickem_settings` (false si no hay fila todavía). */
   getTablesVisibleToAll(groupId: string): Promise<boolean>
   setTablesVisibleToAll(groupId: string, visible: boolean): Promise<void>
+  /** Panel admin: modo de visibilidad de pronósticos (`off` si no hay fila todavía) — ver openspec/changes/espn-game-predictions. */
+  getPredictionsMode(groupId: string): Promise<PredictionsMode>
+  setPredictionsMode(groupId: string, mode: PredictionsMode): Promise<void>
 }

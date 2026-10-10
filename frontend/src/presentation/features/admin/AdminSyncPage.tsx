@@ -1,5 +1,6 @@
 import { useSyncWithEspn } from '@/presentation/hooks/useSyncWithEspn'
 import { useSyncEspnRoster } from '@/presentation/hooks/useSyncEspnRoster'
+import { useSyncEspnPredictions } from '@/presentation/hooks/useSyncEspnPredictions'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import styles from './AdminSyncPage.module.css'
 
@@ -7,6 +8,12 @@ import styles from './AdminSyncPage.module.css'
 export function AdminSyncPage() {
   const { status, data, error, run } = useSyncWithEspn()
   const { status: rosterStatus, data: rosterData, error: rosterError, run: runRosterSync } = useSyncEspnRoster()
+  const {
+    status: predictionsStatus,
+    data: predictionsData,
+    error: predictionsError,
+    run: runPredictionsSync,
+  } = useSyncEspnPredictions()
   const { weeks, games } = useSession()
 
   async function handleSync() {
@@ -96,6 +103,49 @@ export function AdminSyncPage() {
               <p>{rosterData.errors.length} problema(s):</p>
               <ul>
                 {rosterData.errors.map((message, index) => (
+                  <li key={index}>{message}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      <h2 className="text-display-sm" style={{ marginTop: 32 }}>
+        Pronósticos
+      </h2>
+      <p className="text-body-sm text-muted">
+        Trae de ESPN el % de victoria y la línea de puntos de los partidos de los próximos 8 días. Un partido que ya
+        arrancó conserva el último pronóstico que tenía.
+      </p>
+
+      <button
+        type="button"
+        onClick={() => runPredictionsSync().catch(() => {})}
+        disabled={predictionsStatus === 'pending'}
+      >
+        {predictionsStatus === 'pending' ? 'Sincronizando...' : 'Sincronizar pronósticos'}
+      </button>
+
+      {predictionsError && <p role="alert">No se pudieron sincronizar los pronósticos: {predictionsError.message}</p>}
+
+      {predictionsData && (
+        <div className={`${styles.card} glass-surface`}>
+          <div className={styles.statsRow}>
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{predictionsData.gamesConsidered}</span>
+              <span className={styles.statLabel}>Partidos próximos</span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{predictionsData.predictionsUpdated}</span>
+              <span className={styles.statLabel}>Pronósticos actualizados</span>
+            </div>
+          </div>
+          {predictionsData.errors.length > 0 && (
+            <div className={styles.errorList}>
+              <p>{predictionsData.errors.length} problema(s):</p>
+              <ul>
+                {predictionsData.errors.map((message, index) => (
                   <li key={index}>{message}</li>
                 ))}
               </ul>

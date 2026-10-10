@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { RosterSyncSummary, SyncRepository, SyncSummary } from '@/core/ports/SyncRepository'
+import type { PredictionSyncSummary, RosterSyncSummary, SyncRepository, SyncSummary } from '@/core/ports/SyncRepository'
 
 export class SupabaseSyncRepository implements SyncRepository {
   private readonly client: SupabaseClient
@@ -22,6 +22,16 @@ export class SupabaseSyncRepository implements SyncRepository {
     })
     if (error || !data) {
       throw new Error(`No se pudo sincronizar la plantilla: ${error?.message ?? 'respuesta vacia'}`)
+    }
+    return data
+  }
+
+  async syncEspnPredictions(): Promise<PredictionSyncSummary> {
+    const { data, error } = await this.client.functions.invoke<PredictionSyncSummary>('sync-espn-predictions', {
+      method: 'POST',
+    })
+    if (error || !data) {
+      throw new Error(`No se pudieron sincronizar los pronósticos: ${error?.message ?? 'respuesta vacia'}`)
     }
     return data
   }

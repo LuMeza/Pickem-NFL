@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
+import { useListPredictionsForGames } from '@/presentation/hooks/useListPredictionsForGames'
 import { useListWeeklyPicksForWeek } from '@/presentation/hooks/useListWeeklyPicksForWeek'
 import { useSaveWeeklyPick } from '@/presentation/hooks/useSaveWeeklyPick'
 import { useNow } from '@/presentation/hooks/useNow'
@@ -130,6 +131,7 @@ export function GamesPage() {
   const { data: profile } = profileResource
   const { data: loadedPicks, run: loadPicks } = useListWeeklyPicksForWeek()
   const { data: results, run: loadResults } = useListResultsForGames()
+  const { data: predictions, run: loadPredictions } = useListPredictionsForGames()
   const { run: savePick } = useSaveWeeklyPick()
   const [teamNames] = useState(() => new Map<string, string>())
   const [picks, setPicks] = useState<Record<string, WeeklyPickValue>>({})
@@ -149,6 +151,12 @@ export function GamesPage() {
   useEffect(() => {
     if (games && games.length > 0) loadResults({ gameIds: games.map((game) => game.id) })
   }, [games, loadResults])
+
+  // RLS solo devuelve los pronósticos que el modo del grupo deja ver; sin
+  // filas (o si la consulta falla) los renglones se ven igual que siempre.
+  useEffect(() => {
+    if (games && games.length > 0) loadPredictions({ gameIds: games.map((game) => game.id) }).catch(() => {})
+  }, [games, loadPredictions])
 
   useEffect(() => {
     if (loadedPicks) setPicks(loadedPicks)
@@ -195,6 +203,7 @@ export function GamesPage() {
         isLive: liveStatus === 'live',
         locked: !canPredict || isWeeklyPickLocked(weekGames, game, now),
         correct: isFinal && pickedValue ? pickedValue === result.outcome : null,
+        prediction: predictions?.get(game.id) ?? null,
       }
     }),
   )
