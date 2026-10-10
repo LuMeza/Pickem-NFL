@@ -61,11 +61,15 @@ El administrador de plataforma SHALL poder configurar por grupo el modo de visib
 - **THEN** el sistema lo trata como modo `off`
 
 ### Requirement: Pronóstico en la hoja de picks
-Cuando un pronóstico es visible para el usuario, la hoja de picks de la quiniela semanal SHALL mostrar, en el renglón del partido, el porcentaje de victoria de cada equipo y, si existe spread, el equipo favorito y por cuántos puntos. La interfaz SHALL NOT mostrar momios (moneyline), nombres ni logos de casas de apuestas, ni ligas hacia ellas.
+Cuando un pronóstico es visible para el usuario, la hoja de picks de la quiniela semanal SHALL mostrar, en el renglón del partido, el porcentaje de victoria de cada equipo atribuido al modelo de ESPN y, si existe spread, en un renglón aparte atribuido a las casas de apuestas, el equipo favorito según la línea y por cuántos puntos. Ambos datos SHALL mostrarse separados y con su fuente, porque pueden no coincidir en el favorito. La interfaz SHALL NOT mostrar momios (moneyline), nombres ni logos de casas de apuestas, ni ligas hacia ellas.
 
 #### Scenario: Pronóstico visible con spread
 - **WHEN** el usuario ve un partido con pronóstico visible de 73.6% local y 26.2% visitante y spread de -7.5 para el local
-- **THEN** el renglón muestra una barra proporcional con "74%" del lado local y "26%" del lado visitante, y el texto "Favorito por 7.5 pts" asociado al equipo local
+- **THEN** el renglón muestra una barra proporcional con "74%" del lado local y "26%" del lado visitante etiquetada "Pronóstico ESPN", y debajo, separado, el texto "Línea de apuestas: JAX por 7.5 pts"
+
+#### Scenario: Modelo y línea no coinciden en el favorito
+- **WHEN** el modelo de ESPN da 56% al visitante SF pero la línea favorece al local SEA por 3
+- **THEN** la barra muestra a SF con 56% como "Pronóstico ESPN" y el renglón aparte muestra "Línea de apuestas: SEA por 3 pts", sin combinarlos en un solo favorito
 
 #### Scenario: Sin pronóstico visible
 - **WHEN** el partido no tiene pronóstico o no es visible para el usuario

@@ -67,7 +67,7 @@ export function AdminPickemSettingsPage() {
         Pronósticos de partidos
       </h2>
       <p className="text-body-sm text-muted">
-        Muestra en la hoja de picks el % de victoria de cada equipo según ESPN y por cuántos puntos es favorito.
+        Muestra en la hoja de picks el % de victoria de cada equipo según el modelo de ESPN y, aparte, la línea de puntos de las casas de apuestas (pueden no coincidir en el favorito).
         Con &quot;Después del cierre del pick&quot; cada pronóstico aparece hasta que ya no se puede cambiar el pick de
         ese partido, para que nadie solo copie al favorito.
       </p>

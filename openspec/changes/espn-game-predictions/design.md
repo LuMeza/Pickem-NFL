@@ -81,7 +81,7 @@ Esto se encapsula en una función `security definer` `can_view_game_prediction(p
 - `core/rules/formatPredictionSpread.ts` (con test): de `homeSpread` a `{ favorite: 'home' | 'away', points: 7.5 } | null`; `0` o `null` dan `null` ("pick'em").
 - `core/use-cases/listPredictionsForGames.ts` + hook `useListPredictionsForGames`.
 - `getPickemPredictionsMode` / `setPickemPredictionsMode` en `PickemStandingsRepository`, junto al flag de tablas que ya existe.
-- `PickRow` recibe una `prediction?: GamePrediction` opcional y dibuja una barra delgada bajo los equipos, con el color de cada equipo (`--team-primary`), los porcentajes redondeados y, si aplica, el texto "Favorito por X pts". La barra es `aria-hidden` y va acompañada de un texto accesible: "Pronóstico ESPN: Jaguars 74%, Eagles 26%".
+- `PickRow` recibe una `prediction?: GamePrediction` opcional y dibuja una barra delgada bajo los equipos, con el color de cada equipo (`--team-primary`), los porcentajes redondeados y la etiqueta "Pronóstico ESPN". La línea va en un renglón aparte, "Línea de apuestas: SEA por 3 pts", porque es otra fuente (las casas de apuestas, vía `pickcenter`) y puede no coincidir con el favorito del modelo. La barra es `aria-hidden` y va acompañada de un texto accesible: "Pronóstico ESPN: Jaguars 74%, Eagles 26%".
 
 ### 6. Cron
 Un job de `pg_cron` cada 6 horas (`0 */6 * * *`), con el mismo patrón `net.http_post` y la service role desde `vault`. No hace falta saltarse días: si no hay partidos próximos, la corrida no hace ninguna llamada a ESPN.

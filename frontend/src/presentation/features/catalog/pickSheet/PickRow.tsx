@@ -52,9 +52,11 @@ function ResultMark({ correct }: { correct: boolean }) {
 }
 
 /**
- * Pronóstico de ESPN bajo el renglón: barra proporcional con el color de cada
- * equipo y los porcentajes. Solo informativo — no es interactivo y nunca
- * muestra momios ni casas de apuestas (ver specs/pronosticos-partidos).
+ * Pronóstico bajo el renglón, con cada dato atribuido a su fuente porque no
+ * siempre coinciden: la barra es el % de victoria del modelo de ESPN (FPI) y
+ * el renglón de abajo es la línea de puntos de las casas de apuestas. Solo
+ * informativo — no es interactivo y nunca muestra momios ni el nombre de la
+ * casa de apuestas (ver specs/pronosticos-partidos).
  */
 function PredictionBar({
   game,
@@ -68,37 +70,38 @@ function PredictionBar({
   const homePct = Math.round(prediction.homeWinPct)
   const awayPct = Math.round(prediction.awayWinPct)
   const spread = formatPredictionSpread(prediction.homeSpread)
-  const favoriteText = spread ? `Favorito por ${spread.points} pts` : null
   const homeName = nickname(teamName(game.homeTeamId))
   const awayName = nickname(teamName(game.awayTeamId))
-  const favoriteName = spread ? (spread.favorite === 'home' ? homeName : awayName) : null
-  const label =
-    `Pronóstico ESPN: ${homeName} ${homePct}%, ${awayName} ${awayPct}%` +
-    (favoriteName ? `. ${favoriteName} favorito por ${spread!.points} puntos` : '')
+  const favoriteId = spread ? (spread.favorite === 'home' ? game.homeTeamId : game.awayTeamId) : null
 
   return (
-    <div className={styles.prediction} role="img" aria-label={label}>
-      <div className={styles.predictionTrack} aria-hidden="true">
-        <span
-          className={styles.predictionFill}
-          style={{ ...teamStyle(game.homeTeamId), flexGrow: prediction.homeWinPct }}
-        />
-        <span
-          className={styles.predictionFill}
-          style={{ ...teamStyle(game.awayTeamId), flexGrow: prediction.awayWinPct }}
-        />
-      </div>
-      <div className={styles.predictionMeta} aria-hidden="true">
-        <span className={styles.predictionSide}>
+    <div className={styles.prediction}>
+      <div
+        className={styles.predictionModel}
+        role="img"
+        aria-label={`Pronóstico ESPN: ${homeName} ${homePct}%, ${awayName} ${awayPct}%`}
+      >
+        <div className={styles.predictionTrack} aria-hidden="true">
+          <span
+            className={styles.predictionFill}
+            style={{ ...teamStyle(game.homeTeamId), flexGrow: prediction.homeWinPct }}
+          />
+          <span
+            className={styles.predictionFill}
+            style={{ ...teamStyle(game.awayTeamId), flexGrow: prediction.awayWinPct }}
+          />
+        </div>
+        <div className={styles.predictionMeta} aria-hidden="true">
           <strong>{homePct}%</strong>
-          {spread?.favorite === 'home' && <span>{favoriteText}</span>}
-        </span>
-        <span className={styles.predictionSource}>Pronóstico ESPN</span>
-        <span className={styles.predictionSide} data-side="away">
-          {spread?.favorite === 'away' && <span>{favoriteText}</span>}
+          <span className={styles.predictionSource}>Pronóstico ESPN</span>
           <strong>{awayPct}%</strong>
-        </span>
+        </div>
       </div>
+      {spread && (
+        <p className={styles.predictionLine}>
+          Línea de apuestas: <strong>{favoriteId}</strong> por {spread.points} pts
+        </p>
+      )}
     </div>
   )
 }
