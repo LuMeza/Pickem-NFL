@@ -180,7 +180,11 @@ export function GamesPage() {
     try {
       await savePick({ groupId: group.id, userId: profile.userId, gameId, pick })
     } catch {
-      setPicks((current) => (previous ? { ...current, [gameId]: previous } : current))
+      setPicks((current) => {
+        if (previous) return { ...current, [gameId]: previous }
+        const { [gameId]: _unsaved, ...rest } = current
+        return rest
+      })
       setFailedGameId(gameId)
     }
   }
