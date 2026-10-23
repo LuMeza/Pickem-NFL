@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { weeklyPickGroupDeadline } from '@/core/rules/weeklyPickGroupDeadline'
 import type { Game } from '@/core/entities/catalog'
 import { getReadableAccent, getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
@@ -6,6 +6,28 @@ import type { GamePickView } from './PickRow'
 import styles from './PickSheet.module.css'
 
 const URGENT_THRESHOLD_MS = 2 * 60 * 60 * 1000
+const CELEBRATE_MS = 1600
+
+/**
+ * true durante un momento cuando `complete` pasa de false a true en esta
+ * visita (el último pick que faltaba). Abrir una semana ya completa no lo
+ * dispara: es la única animación de la hoja y solo marca ese logro.
+ */
+function useJustCompleted(complete: boolean): boolean {
+  const previous = useRef(complete)
+  const [active, setActive] = useState(false)
+
+  useEffect(() => {
+    const wasComplete = previous.current
+    previous.current = complete
+    if (!complete || wasComplete) return
+    setActive(true)
+    const timeoutId = setTimeout(() => setActive(false), CELEBRATE_MS)
+    return () => clearTimeout(timeoutId)
+  }, [complete])
+
+  return active
+}
 
 /** Color de marca puro (tema claro) y su variante legible sobre fondo oscuro. */
 function segmentStyle(view: GamePickView): CSSProperties | undefined {
@@ -40,7 +62,7 @@ export function nextDeadline(views: GamePickView[], weekGames: Game[], nowMs: nu
 export function formatDeadline(date: Date): string {
   const day = date.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric' }).replace('.', '')
   const time = date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
-  return `${day} · ${time}`
+  return `${day}, ${time}`
 }
 
 /**
@@ -60,6 +82,8 @@ export function PickProgress({
   const picked = views.filter((view) => view.pickedValue !== null).length
   const deadline = nextDeadline(views, weekGames, nowMs)
   const urgent = deadline !== null && deadline.getTime() - nowMs < URGENT_THRESHOLD_MS
+  const complete = views.length > 0 && picked === views.length
+  const celebrate = useJustCompleted(complete)
 
   function scrollToGame(gameId: string) {
     document.getElementById(`game-${gameId}`)?.scrollIntoView({ block: 'center' })
@@ -69,13 +93,19 @@ export function PickProgress({
     <div className={styles.progress}>
       <div className={styles.progressText}>
         <span className={styles.progressCount}>
-          <strong>{picked}</strong> de {views.length} picks
+          {celebrate ? (
+            <strong>Semana completa</strong>
+          ) : (
+            <>
+              <strong>{picked}</strong> de {views.length} picks
+            </>
+          )}
         </span>
         <span className={styles.progressDeadline} data-urgent={urgent}>
           {deadline ? `Cierra ${formatDeadline(deadline)}` : 'Semana cerrada'}
         </span>
       </div>
-      <PickSegments views={views} onSelect={scrollToGame} />
+      <PickSegments views={views} onSelect={scrollToGame} celebrate={celebrate} />
     </div>
   )
 }
@@ -84,17 +114,35 @@ export function PickProgress({
  * Solo la tira de segmentos. Con `onSelect` cada segmento es un botón (hoja
  * de picks); sin él son decorativos, para usarla dentro de un link (Inicio).
  */
-export function PickSegments({ views, onSelect }: { views: GamePickView[]; onSelect?: (gameId: string) => void }) {
+export function PickSegments({
+  views,
+  onSelect,
+  size = 'md',
+  celebrate = false,
+}: {
+  views: GamePickView[]
+  onSelect?: (gameId: string) => void
+  /** 'lg' = barra más alta, para el hero de Inicio. */
+  size?: 'md' | 'lg'
+  /** Recorre la tira con una ola de brillo: solo al completar la semana. */
+  celebrate?: boolean
+}) {
   return (
-    <ol className={styles.segments} aria-hidden={onSelect ? undefined : true}>
-      {views.map((view) => {
-        const style = segmentStyle(view)
+    <ol
+      className={styles.segments}
+      data-size={size}
+      data-celebrate={celebrate}
+      aria-hidden={onSelect ? undefined : true}
+    >
+      {views.map((view, index) => {
+        const colorStyle = segmentStyle(view)
         const common = {
           className: styles.segment,
-          'data-filled': style !== undefined,
+          'data-filled': colorStyle !== undefined,
           'data-locked': view.locked,
           'data-correct': view.correct ?? undefined,
-          style,
+          // --i escalona la ola de "semana completa" de izquierda a derecha.
+          style: { ...colorStyle, '--i': index } as CSSProperties,
         }
         return (
           <li key={view.game.id}>

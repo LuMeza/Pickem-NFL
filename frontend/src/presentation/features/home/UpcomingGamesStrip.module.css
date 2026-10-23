@@ -11,10 +11,9 @@
 }
 
 .sectionTitle {
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
   color: var(--text-muted);
   margin: 0;
 }
@@ -79,10 +78,10 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
   padding: 3px 8px;
   border-radius: 999px;
   white-space: nowrap;
@@ -95,8 +94,8 @@
 
 .statusLive {
   color: var(--danger);
-  background: rgba(255, 84, 104, 0.12);
-  border: 1px solid rgba(255, 84, 104, 0.3);
+  background: rgb(var(--danger-rgb) / 0.12);
+  border: 1px solid rgb(var(--danger-rgb) / 0.3);
 }
 
 .liveDot {
@@ -111,11 +110,11 @@
   0%,
   100% {
     opacity: 1;
-    box-shadow: 0 0 0 0 rgba(255, 84, 104, 0.45);
+    box-shadow: 0 0 0 0 rgb(var(--danger-rgb) / 0.45);
   }
   50% {
     opacity: 0.7;
-    box-shadow: 0 0 0 4px rgba(255, 84, 104, 0);
+    box-shadow: 0 0 0 4px rgb(var(--danger-rgb) / 0);
   }
 }
 

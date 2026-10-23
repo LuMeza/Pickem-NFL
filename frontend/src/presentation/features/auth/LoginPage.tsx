@@ -4,6 +4,11 @@ import { useSignIn } from '@/presentation/hooks/useSignIn'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import styles from './LoginPage.module.css'
 
+/** Temporada NFL en curso: arranca en septiembre y el Super Bowl cae en febrero del año siguiente. */
+function currentSeasonYear(now: Date): number {
+  return now.getMonth() >= 2 ? now.getFullYear() : now.getFullYear() - 1
+}
+
 /** Tarea 4.3 (base-plataforma): login con correo + contraseña. */
 export function LoginPage() {
   const [email, setEmail] = useState('')
@@ -24,14 +29,13 @@ export function LoginPage() {
   return (
     <div className="auth-screen">
       <section className="glass-surface">
-        <span className={styles.watermark} aria-hidden="true">12</span>
         <span className={`auth-kicker ${styles.reveal}`}>
-          <Icon name="football" size={13} /> Pickem NFL
+          <Icon name="football" size={13} /> Pickem NFL {currentSeasonYear(new Date())}
         </span>
         <h1 className={`text-display-lg ${styles.title} ${styles.reveal}`}>Bienvenido</h1>
         <div className={styles.firstDownLine} aria-hidden="true">
           <span className={styles.firstDownBar} />
-          <span className={styles.firstDownChip}>1ST</span>
+          <span className={styles.firstDownChip}>1ra y 10</span>
         </div>
         <p className={`text-body-sm text-muted ${styles.subtitle} ${styles.reveal}`}>
           Entra con la cuenta que te dio el administrador.
@@ -74,7 +78,6 @@ export function LoginPage() {
         <p className={`${styles.footer} ${styles.reveal}`}>
           <Link to="/forgot-password" className={styles.forgotLink}>
             Olvidé mi contraseña
-            <Icon name="arrowLeft" size={14} className={styles.forgotIcon} />
           </Link>
         </p>
       </section>

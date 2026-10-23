@@ -1,181 +1,249 @@
-.section {
-  margin-top: 32px;
-  opacity: 0;
-  animation: reveal 400ms ease-out forwards;
+/* Saludo discreto: el protagonista de Inicio es el hero de picks, no el nombre. */
+.greeting {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
-.sectionDelayed {
-  animation-delay: 120ms;
+/* Sin animación de entrada: Inicio se abre decenas de veces por temporada y
+   el fade-and-slide en cada visita era ruido. */
+.section {
+  margin-top: 32px;
 }
 
 .sectionTitle {
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
   color: var(--text-muted);
-  margin: 0 0 10px;
+  margin: 0 0 4px;
 }
 
-@keyframes reveal {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* ---------- Acción de la semana (lo primero de Inicio) ---------- */
 
-/* Banner destacado de posición — antes era una tarjeta más entre cinco en el
-   grid de "Tu resumen" y se perdía; ahora es lo primero que se ve al entrar. */
-.standingsHero {
-  position: relative;
+/* La única superficie con peso en la página. La tira de colores de equipo
+   hace de acento; no lleva franja superior. */
+.picksHero {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 20px;
-  padding: 18px 20px;
-  overflow: hidden;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 20px 20px 18px;
   text-decoration: none;
   color: var(--text-primary);
+  transition: border-color 150ms ease-out;
 }
 
-.standingsHero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--accent-silver), var(--accent-blue));
+.picksHero:hover,
+.picksHero:focus-visible {
+  border-color: rgb(var(--accent-rgb) / 0.45);
 }
 
-.standingsHeroKicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 11px;
-  color: var(--accent-silver);
+.picksHero[data-pending='true'] {
+  border-color: rgb(var(--accent-rgb) / 0.3);
 }
 
-.standingsHeroBody {
+.picksHeroWeek {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.picksHeroRow {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 24px;
 }
 
-.standingsHeroPosition {
+.picksHeroTitle {
   font-family: var(--font-display);
-  font-size: 44px;
-  line-height: 1;
-  color: var(--text-primary);
+  font-weight: 900;
+  font-size: 52px;
+  line-height: 0.92;
+  text-transform: uppercase;
 }
 
-.standingsHeroMeta {
+.picksHero[data-pending='false'] .picksHeroTitle {
+  font-weight: 700;
+  font-size: 40px;
+}
+
+/* Reloj de jugadas: dígitos tabulares para que no baile al contar. */
+.picksHeroClock {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  flex: 1;
-  min-width: 0;
 }
 
-.standingsHeroTotal {
-  font-size: 15px;
+.picksHeroClockLabel {
+  font-size: 12px;
   font-weight: 600;
+  color: var(--text-muted);
 }
 
-.standingsHeroDetail {
+.picksHeroClockValue {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent-blue);
+}
+
+.picksHeroClock[data-urgent='true'] .picksHeroClockValue {
+  color: var(--danger);
+}
+
+.picksHero[data-pending='false'] .picksHeroClockValue {
+  font-size: 18px;
+  color: var(--text-muted);
+}
+
+.picksHeroFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.picksHeroDetail {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+/* Parece botón aunque toda la tarjeta es el link: dice qué pasa al tocarla. */
+.picksHeroAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  white-space: nowrap;
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
+}
+
+.picksHero[data-pending='true'] .picksHeroAction {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: #fff;
+}
+
+@media (max-width: 479px) {
+  .picksHeroAction {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .picksHero {
+    padding: 24px 28px 22px;
+  }
+
+  .picksHeroTitle {
+    font-size: 68px;
+  }
+
+  .picksHeroClock {
+    align-items: flex-end;
+  }
+
+  .picksHeroClockValue {
+    font-size: 32px;
+  }
+}
+
+/* ---------- Tu temporada ---------- */
+
+/* Renglones planos sobre el fondo, separados por una línea: informan sin
+   competir con el hero. Dos columnas desde tablet. */
+.seasonList {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .seasonList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.seasonRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'label chevron'
+    'value chevron'
+    'detail chevron';
+  align-items: center;
+  column-gap: 12px;
+  padding: 14px 2px;
+  border-bottom: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.seasonRow:hover .seasonChevron,
+.seasonRow:focus-visible .seasonChevron {
+  color: var(--accent-blue);
+}
+
+.seasonLabel {
+  grid-area: label;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.seasonValue {
+  grid-area: value;
+  margin-top: 2px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 28px;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.seasonValueSoft {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.seasonDetail {
+  grid-area: detail;
+  margin-top: 2px;
   font-size: 13px;
   color: var(--text-muted);
 }
 
-.standingsHeroFire {
-  flex-shrink: 0;
-  align-self: center;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--accent-silver);
-}
-
-/* Barra de desempeño pasivo — deliberadamente más chata y sin icono que las
-   StatTile de arriba, para que la jerarquía visual sea clara: "Esta semana"
-   pide una acción, esta barra solo informa (ver comentario en HomePage.tsx). */
-/* Survivor + desempeño en una fila desde tablet (antes Survivor quedaba solo
-   en una cuadrícula de dos columnas, con media fila vacía). */
-.weekRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
-  margin-top: 16px;
-}
-
-@media (min-width: 768px) {
-  .weekRow {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
-}
-
-.performanceBar {
-  display: flex;
-  align-items: center;
-  padding: 12px 18px;
-  text-decoration: none;
-  color: var(--text-primary);
-}
-
-.performanceStat {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.performanceKicker {
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 10px;
+.seasonChevron {
+  grid-area: chevron;
   color: var(--text-muted);
+  transition: color 150ms ease-out;
 }
 
-.performanceValue {
-  font-family: var(--font-display);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  font-size: 17px;
-  line-height: 1.3;
-}
+/* ---------- Explorar ---------- */
 
-.performanceDetail {
-  font-size: 11px;
-  color: var(--text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.performanceDivider {
-  width: 1px;
-  align-self: stretch;
-  margin: 0 16px;
-  background: var(--glass-border);
-}
-
-/* Enlaces secundarios — a diferencia de las tarjetas glass de arriba, estos
-   son destinos de baja frecuencia (catálogo de referencia, solicitud de
-   acceso a un módulo futuro), no ameritan el mismo peso visual. */
+/* Enlaces secundarios — destinos de baja frecuencia (catálogo de referencia,
+   solicitud de acceso a un módulo futuro), no ameritan peso visual. */
 .exploreLinks {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 .exploreLink {
@@ -196,99 +264,5 @@
 .exploreLink:hover,
 .exploreLink:focus-visible {
   color: var(--accent-blue);
-  border-color: rgba(61, 139, 255, 0.35);
-}
-
-/* ---------- Acción de la semana (lo primero de Inicio) ---------- */
-
-.picksHero {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 20px;
-  padding: 18px 20px 16px;
-  overflow: hidden;
-  text-decoration: none;
-  color: var(--text-primary);
-}
-
-.picksHero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--accent-blue);
-}
-
-.picksHero[data-pending='false']::before {
-  background: rgb(var(--overlay-rgb) / 0.2);
-}
-
-.picksHeroKicker {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.picksHeroRow {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px 20px;
-}
-
-.picksHeroText {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-.picksHeroTitle {
-  font-family: var(--font-display);
-  font-size: 40px;
-  line-height: 0.95;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-}
-
-.picksHeroDetail {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-muted);
-}
-
-/* Parece botón aunque toda la tarjeta es el link: dice qué pasa al tocarla. */
-.picksHeroAction {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 0 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  white-space: nowrap;
-  color: var(--text-primary);
-  border: 1px solid var(--glass-border);
-}
-
-.picksHero[data-pending='true'] .picksHeroAction {
-  background: var(--accent-blue);
-  border-color: var(--accent-blue);
-  color: #fff;
-}
-
-@media (max-width: 479px) {
-  .picksHeroAction {
-    width: 100%;
-    justify-content: center;
-  }
+  border-color: rgb(var(--accent-rgb) / 0.35);
 }

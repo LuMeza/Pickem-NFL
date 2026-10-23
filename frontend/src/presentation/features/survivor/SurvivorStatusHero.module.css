@@ -1,6 +1,6 @@
 .hero {
   --tone: var(--accent-blue);
-  --tone-bg: rgba(61, 139, 255, 0.08);
+  --tone-bg: rgb(var(--accent-rgb) / 0.08);
   margin: 16px 0 0;
   padding: 16px;
   border-color: color-mix(in srgb, var(--tone) 45%, transparent);
@@ -10,12 +10,12 @@
 
 .hero[data-kind='revive'] {
   --tone: var(--accent-silver);
-  --tone-bg: rgba(165, 172, 175, 0.1);
+  --tone-bg: rgb(var(--silver-rgb) / 0.1);
 }
 
 .hero[data-kind='out'] {
   --tone: var(--danger);
-  --tone-bg: rgba(255, 84, 104, 0.08);
+  --tone-bg: rgb(var(--danger-rgb) / 0.08);
 }
 
 .top {
@@ -33,17 +33,16 @@
 }
 
 .kicker {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
   color: var(--text-muted);
 }
 
 .headline {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: var(--display-weight);
   font-size: clamp(34px, 9vw, 52px);
   line-height: 1;
   letter-spacing: 0.01em;
@@ -70,10 +69,9 @@
 }
 
 .slotLabel {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 11px;
 }
 
 .slot[data-slot='current'] {
@@ -92,7 +90,7 @@
 .slot[data-slot='lost'] {
   opacity: 1;
   color: var(--danger);
-  border-color: rgba(255, 84, 104, 0.4);
+  border-color: rgb(var(--danger-rgb) / 0.4);
   text-decoration: line-through;
 }
 

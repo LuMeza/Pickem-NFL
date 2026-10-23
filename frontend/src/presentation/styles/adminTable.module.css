@@ -30,10 +30,8 @@
 }
 
 .table thead th {
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  font-size: 11px;
+  font-family: var(--font-body);
+  font-size: 12px;
   color: var(--text-muted);
   font-weight: 400;
 }

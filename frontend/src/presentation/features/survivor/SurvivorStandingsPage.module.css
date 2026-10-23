@@ -15,6 +15,7 @@
 
 .podiumRank {
   font-family: var(--font-display);
+  font-weight: var(--display-weight);
   text-transform: uppercase;
   letter-spacing: 0.02em;
   font-size: 16px;
@@ -56,10 +57,9 @@
 .statusPill {
   flex-shrink: 0;
   margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
   padding: 4px 10px;
   border-radius: 999px;
   white-space: nowrap;
@@ -67,20 +67,20 @@
 
 .statusAlive {
   color: var(--accent-blue);
-  background: rgba(61, 139, 255, 0.12);
-  border: 1px solid rgba(61, 139, 255, 0.25);
+  background: rgb(var(--accent-rgb) / 0.12);
+  border: 1px solid rgb(var(--accent-rgb) / 0.25);
 }
 
 .statusEliminated {
   color: var(--danger);
-  background: rgba(255, 84, 104, 0.12);
-  border: 1px solid rgba(255, 84, 104, 0.25);
+  background: rgb(var(--danger-rgb) / 0.12);
+  border: 1px solid rgb(var(--danger-rgb) / 0.25);
 }
 
 .statusPending {
   color: var(--accent-silver);
-  background: rgba(165, 172, 175, 0.12);
-  border: 1px solid rgba(165, 172, 175, 0.25);
+  background: rgb(var(--silver-rgb) / 0.12);
+  border: 1px solid rgb(var(--silver-rgb) / 0.25);
 }
 
 .group {
@@ -93,7 +93,7 @@
   align-items: baseline;
   gap: 8px;
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: var(--display-weight);
   font-size: 24px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -117,6 +117,6 @@
 
 .statusRevive {
   color: var(--accent-silver);
-  background: rgba(165, 172, 175, 0.12);
-  border: 1px solid rgba(165, 172, 175, 0.3);
+  background: rgb(var(--silver-rgb) / 0.12);
+  border: 1px solid rgb(var(--silver-rgb) / 0.3);
 }

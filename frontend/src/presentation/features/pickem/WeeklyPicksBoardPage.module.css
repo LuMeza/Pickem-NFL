@@ -15,10 +15,9 @@
 }
 
 .waitingKicker {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
   color: var(--text-muted);
 }
 
@@ -30,7 +29,7 @@
 .waitingTitle strong {
   font-family: var(--font-display);
   font-size: 32px;
-  font-weight: 400;
+  font-weight: var(--display-weight);
   margin-right: 2px;
 }
 

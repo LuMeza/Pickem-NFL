@@ -117,10 +117,8 @@
 }
 
 .simpleTable thead th {
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  font-size: 11px;
+  font-family: var(--font-body);
+  font-size: 12px;
   color: var(--text-muted);
   font-weight: 400;
 }
@@ -227,11 +225,9 @@ td[data-status='noPick'] {
   min-height: 36px;
   padding: 8px 14px;
   border-radius: 999px;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-body);
+  font-size: 12px;
   font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
   white-space: nowrap;
   cursor: pointer;
   transition:
@@ -251,12 +247,12 @@ td[data-status='noPick'] {
 }
 
 .paidPillOn {
-  background: rgba(61, 139, 255, 0.12);
+  background: rgb(var(--accent-rgb) / 0.12);
   color: var(--accent-blue);
-  border: 1px solid rgba(61, 139, 255, 0.3);
+  border: 1px solid rgb(var(--accent-rgb) / 0.3);
 }
 .paidPillOn:hover {
-  background: rgba(61, 139, 255, 0.18);
+  background: rgb(var(--accent-rgb) / 0.18);
 }
 
 /* Circulo compacto (sin texto) para ir pegado al nombre — misma logica de
@@ -290,6 +286,7 @@ td[data-status='noPick'] {
 .weekTitle {
   display: block;
   font-family: var(--font-display);
+  font-weight: var(--display-weight);
   text-transform: uppercase;
   font-size: 14px;
   color: var(--text-muted);

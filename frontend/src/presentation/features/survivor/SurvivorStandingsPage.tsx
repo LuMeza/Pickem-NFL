@@ -104,7 +104,7 @@ export function SurvivorStandingsPage() {
 
       {roster && roster.length > 0 && (
         <p className="text-body-sm text-muted">
-          {alive.length} en juego · {reviving.length} pueden revivir · {out.length} eliminados
+          {alive.length} en juego, {reviving.length} pueden revivir y {out.length} eliminados
         </p>
       )}
 
@@ -115,7 +115,7 @@ export function SurvivorStandingsPage() {
         participants={alive}
         renderStatus={(participant) => (
           <>
-            Vivo · <SurvivorLifeIndicator currentLife={participant.currentLife} />
+            Vivo <SurvivorLifeIndicator currentLife={participant.currentLife} />
           </>
         )}
       />
@@ -131,7 +131,7 @@ export function SurvivorStandingsPage() {
         caption="Ya no pueden volver esta temporada."
         tone="out"
         participants={out}
-        renderStatus={(participant) => <>Fuera · {weekNumberLabel(participant.eliminatedWeekId)}</>}
+        renderStatus={(participant) => <>Fuera en {weekNumberLabel(participant.eliminatedWeekId)}</>}
       />
     </section>
   )

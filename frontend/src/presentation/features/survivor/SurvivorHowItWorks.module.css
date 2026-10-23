@@ -8,10 +8,9 @@
   align-items: center;
   min-height: var(--touch-target-min);
   cursor: pointer;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
   color: var(--accent-blue);
 }
 
@@ -49,8 +48,9 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 1px solid rgba(61, 139, 255, 0.4);
+  border: 1px solid rgb(var(--accent-rgb) / 0.4);
   font-family: var(--font-display);
+  font-weight: var(--display-weight);
   font-size: 16px;
   color: var(--accent-blue);
 }

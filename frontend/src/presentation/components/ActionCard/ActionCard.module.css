@@ -46,8 +46,8 @@
   height: 48px;
   flex-shrink: 0;
   border-radius: 12px;
-  background: rgba(61, 139, 255, 0.1);
-  border: 1px solid rgba(61, 139, 255, 0.18);
+  background: rgb(var(--accent-rgb) / 0.1);
+  border: 1px solid rgb(var(--accent-rgb) / 0.18);
   color: var(--accent-blue);
 }
 
@@ -60,6 +60,7 @@
 
 .title {
   font-family: var(--font-display);
+  font-weight: var(--display-weight);
   text-transform: uppercase;
   letter-spacing: 0.02em;
   font-size: 19px;

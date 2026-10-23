@@ -23,10 +23,9 @@
 }
 
 .statLabel {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-weight: 600;
 }
 
 .errorList {

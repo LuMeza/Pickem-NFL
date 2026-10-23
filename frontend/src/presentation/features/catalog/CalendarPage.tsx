@@ -334,14 +334,14 @@ function WeekFocus({
 
         <div className={styles.focusTitleBlock}>
           <span className={`${styles.statusPill} ${styles[`statusPill_${status}`] ?? ''}`}>
-            {SEGMENT_LABEL[week.type]} · {STATUS_LABEL[status]}
+            {SEGMENT_LABEL[week.type]}, {STATUS_LABEL[status].toLowerCase()}
           </span>
           <h2 id="calendar-focus-title" className={styles.focusTitle}>
             {weekLabel(week)}
           </h2>
           <span className={styles.focusMeta}>
             {start && end ? formatRange(start, end) : 'Fechas por definir'}
-            {sorted.length > 0 && ` · ${sorted.length} ${sorted.length === 1 ? 'partido' : 'partidos'}`}
+            {sorted.length > 0 && `, ${sorted.length} ${sorted.length === 1 ? 'partido' : 'partidos'}`}
           </span>
         </div>
 

@@ -34,11 +34,15 @@ Reglas de uso:
 
 | Rol | Fuente | Uso |
 |---|---|---|
-| Display | **Bebas Neue** | Títulos de sección, números de semana ("SEMANA 07"), nombres de módulo. Siempre en mayúsculas, tracking +2%. |
+| Display | **Big Shoulders Display** | Títulos de sección, números de semana ("SEMANA 07"), nombres de módulo, cifras protagonistas. Siempre en mayúsculas, peso por defecto 800 (`--display-weight`); 900 para el título del hero, 500 para el contexto dentro de una cifra ("3° de 24"). |
 | Cuerpo | **Inter** | Todo el texto de interfaz: labels, botones, descripciones, formularios. Legibilidad en datos densos por encima de personalidad. |
 | Datos/Numérica | **JetBrains Mono** | Marcadores, porcentajes de acierto, contadores de tiempo, folios. Los dígitos tabulares evitan que las tablas "bailen" al actualizar. |
 
-Bebas Neue se usa con restricción: solo en encabezados de página y hitos (número de semana, "1ER LUGAR"). Nunca en párrafos ni en botones — condensada en mayúsculas es ilegible en texto largo.
+Big Shoulders (nacida de la rotulación de Chicago) reemplazó a Bebas Neue porque tiene pesos de 500 a 900: la jerarquía puede vivir dentro del propio display. Se usa con restricción: solo en encabezados de página y cifras. Nunca en párrafos, botones ni etiquetas chicas — a menos de ~16px su "1" se confunde con "I".
+
+**Etiquetas:** Inter 12–13px, peso 600, en minúsculas normales ("Tabla de posiciones"), nunca mono en mayúsculas. Mono queda solo para números (relojes, marcadores, fechas con hora) y para las etiquetas tipo marcador de TV ("FINAL", "Q3", "vs") dentro de una tarjeta de partido.
+
+**Copy:** sin flechas `→` al final de botones o links, y sin unir datos con `·` — usar coma, "y", o dos líneas.
 
 Escala sugerida: Display 40/32/24px · Body 16/14px · Mono 14/12px (tabular-nums).
 
@@ -76,7 +80,7 @@ Esto es lo que hace que la app se sienta como "quiniela de cartas" en vez de un 
 
 Cada partido de la semana se muestra como una **carta física**, no una fila de tabla:
 
-- Estado **sin elegir**: carta glass, escudos de ambos equipos enfrentados al centro, línea VS en Bebas Neue. Los dos escudos son botones grandes (mínimo 44px táctil).
+- Estado **sin elegir**: carta glass, escudos de ambos equipos enfrentados al centro, línea VS en el display. Los dos escudos son botones grandes (mínimo 44px táctil).
 - Al tocar un equipo, **la carta hace flip** (rotateY, 300ms, ease-out) y revela el reverso: el equipo elegido en grande con borde `--accent-blue`, sello tipo "PICK CONFIRMADO" en plateado si faltan >24h, o en rojo si el cierre es inminente (<2h).
 - Empate (solo Playoffs, opción "diferencia <6 pts"): la carta tiene un tercer estado central, sin flip completo — se ilumina el borde superior en vez de rotar.
 - Cartas ya cerradas (partido jugado): pierden el glow, bajan opacidad al 70%, y muestran un check azul (acierto) o X roja (fallo) sobre el pick guardado — nunca se regeneran ni se pueden re-tocar.
@@ -108,7 +112,7 @@ Esto reemplaza cualquier tentación de usar dropdowns o radios: la metáfora de 
 - Empates: mostrar ambas filas con el mismo número de posición y un conector visual (llave `⎬`) en vez de reordenar arbitrariamente — refleja que el sistema no aplica desempate.
 
 **Perfil**
-- Header con historial de aciertos totales y % como cifras grandes en mono + Bebas Neue label, estilo "stat card" de FIFA Ultimate Team pero sin ilustración de jugador (evitamos cualquier semejanza con marca deportiva registrada).
+- Header con historial de aciertos totales y % como cifras grandes en mono + display, estilo "stat card" de FIFA Ultimate Team pero sin ilustración de jugador (evitamos cualquier semejanza con marca deportiva registrada).
 
 ---
 
@@ -147,6 +151,8 @@ Derivado directamente de la sección 7 del README: esta app **no procesa pagos n
 ## 9. Movimiento
 
 - Flip de carta de predicción: única animación con peso narrativo real (300ms, ease-out) — es la firma del sistema, se ejecuta bien y no se repite en otro lado.
+- Semana completa: al guardar el último pick que faltaba, una ola de brillo recorre la tira de segmentos de la hoja de picks (`useJustCompleted` en PickProgress). Solo en esa transición, nunca al abrir una semana que ya estaba completa.
+- Sin animaciones de entrada por sección ni "lift" al pasar el mouse sobre tarjetas: la app se abre decenas de veces por temporada y eso es ruido. El hover solo enciende el borde.
 - Transiciones de tabla (reordenamiento al actualizar resultados): fade + shift vertical, 200ms, nunca más — con 40-50 filas un reordenamiento animado agresivo se siente lento.
 - Ticker: scroll continuo lineal, sin easing, velocidad constante ~40px/s.
 - Respetar `prefers-reduced-motion`: el flip se reemplaza por un cross-fade instantáneo, el ticker se vuelve estático con flechas de paginación manual.

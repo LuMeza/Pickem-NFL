@@ -93,6 +93,7 @@ const PATHS = {
     </>
   ),
   check: <path d="M4 12.5l5.5 5.5L20 6" />,
+  chevronRight: <path d="M9 6l6 6-6 6" />,
   search: (
     <>
       <circle cx="10.5" cy="10.5" r="6.5" />

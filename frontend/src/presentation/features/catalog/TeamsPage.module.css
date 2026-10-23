@@ -34,8 +34,6 @@
 .divisionTitle {
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--text-muted);
 }
 
@@ -73,14 +71,12 @@
     var(--bg-surface);
   border: 1px solid var(--glass-border);
   transition:
-    transform 150ms ease-out,
     border-color 150ms ease-out,
     box-shadow 150ms ease-out;
 }
 
 .teamTile:hover,
 .teamTile:focus-visible {
-  transform: translateY(-4px);
   border-color: color-mix(in srgb, var(--team-accent) 55%, transparent);
   box-shadow: 0 14px 28px -16px color-mix(in srgb, var(--team-accent) 55%, transparent);
 }

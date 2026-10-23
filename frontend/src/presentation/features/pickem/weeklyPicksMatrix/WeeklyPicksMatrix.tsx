@@ -64,7 +64,7 @@ export function WeeklyPicksMatrix({
     <>
       {games.length > SCROLL_HINT_THRESHOLD && (
         <p className={`text-body-sm text-muted ${styles.scrollHint}`}>
-          Desliza para ver los {games.length} partidos →
+          Desliza a los lados para ver los {games.length} partidos
         </p>
       )}
       <div className={`${styles.tableScroll} glass-surface`}>

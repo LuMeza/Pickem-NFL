@@ -15,8 +15,8 @@
   padding: 0 8px;
   margin-left: 10px;
   border-radius: 999px;
-  background: rgba(61, 139, 255, 0.12);
-  border: 1px solid rgba(61, 139, 255, 0.3);
+  background: rgb(var(--accent-rgb) / 0.12);
+  border: 1px solid rgb(var(--accent-rgb) / 0.3);
   color: var(--accent-blue);
   font-family: var(--font-mono);
   font-size: 14px;

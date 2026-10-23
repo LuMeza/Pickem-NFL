@@ -30,13 +30,8 @@ export function Header({ groupName, weekLabel, countdownTo, onSignOut }: HeaderP
       </Link>
       {(groupName || weekLabel) && (
         <div className={styles.context}>
+          {weekLabel && <span className={styles.contextWeek}>{weekLabel}</span>}
           {groupName && <span>{groupName}</span>}
-          {groupName && weekLabel && (
-            <span className={styles.contextDot} aria-hidden="true">
-              ·
-            </span>
-          )}
-          {weekLabel && <span>{weekLabel}</span>}
         </div>
       )}
       {countdownLabel && (

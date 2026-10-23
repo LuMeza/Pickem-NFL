@@ -1,6 +1,5 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { StatTile } from '@/presentation/components/StatTile/StatTile'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { LoadingSpinner } from '@/presentation/components/LoadingSpinner/LoadingSpinner'
 import { useSession } from '@/presentation/hooks/SessionContext'
@@ -21,7 +20,8 @@ import styles from './HomePage.module.css'
 
 /**
  * Landing post-login — jerarquía por frecuencia de decisión, no por lista de
- * rutas: posición (hero) > acción pendiente de la semana > desempeño pasivo >
+ * rutas: acción pendiente de la semana (único elemento con peso visual) >
+ * tu temporada (posición, Survivor, desempeño, en renglones planos) >
  * próximos partidos > accesos secundarios. Pickem/Survivor/Calendario/Perfil
  * ya viven en el NavBar, así que Inicio no los repite como tarjetas.
  */
@@ -95,120 +95,94 @@ export function HomePage() {
 
   const unlockedAchievements = achievements?.filter((achievement) => achievement.unlocked).length ?? null
 
+  const survivorValue = !survivorParticipant
+    ? 'Aún no juegas'
+    : survivorParticipant.status === 'alive'
+      ? `Vivo, vida ${survivorParticipant.currentLife} de 3`
+      : survivorParticipant.revivalDeadlineWeekId
+        ? 'Puedes revivir'
+        : 'Eliminado'
+  const survivorDetail = !survivorParticipant
+    ? 'Elige tu equipo de la semana'
+    : survivorParticipant.status === 'alive'
+      ? 'Revisa tu pick de la semana'
+      : survivorParticipant.revivalDeadlineWeekId
+        ? `Elige equipo en la semana ${survivorReviveWeekNumber ?? 'siguiente'} antes del primer partido`
+        : 'Sigue la tabla del grupo'
+
+  const statsLoading = statsStatus === 'idle' || statsStatus === 'pending'
+  const achievementsLoading = achievementsStatus === 'idle' || achievementsStatus === 'pending'
+
   return (
     <section>
-      <h1 className="text-display-lg">{profile ? `Hola, ${profile.displayName}` : 'Pickem NFL'}</h1>
-      <p className="text-body-sm text-muted">Tu semana arranca aquí.</p>
+      <h1 className={styles.greeting}>{profile ? `Hola, ${profile.displayName}` : 'Pickem NFL'}</h1>
 
       {showPicksTile && activeWeek && weekGames && weeklyPicks && weekGames.length > 0 && (
         <PicksHero week={activeWeek} games={weekGames} picks={weeklyPicks} nowMs={nowMs} />
       )}
 
-      {canViewTables !== false && (
-        <Link
-          to={activeWeek ? `/pickem/tabla/${activeWeek.id}` : '/pickem/tabla'}
-          className={`${styles.standingsHero} glass-surface glass-interactive`}
-        >
-          <span className={styles.standingsHeroKicker}>
-            <Icon name="trophy" size={13} /> Tabla de posiciones
-          </span>
-          {!group || seasonStandings == null ? (
-            <LoadingSpinner variant="inline" />
-          ) : (
-            <div className={styles.standingsHeroBody}>
-              <span className={styles.standingsHeroPosition}>
-                {standingPosition ? `${standingPosition.position}°` : '—'}
-              </span>
-              <div className={styles.standingsHeroMeta}>
-                <span className={styles.standingsHeroTotal}>
-                  {standingPosition
-                    ? `de ${standingPosition.totalPlayers} jugadores`
-                    : isPlatformAdmin
-                      ? 'No participas'
-                      : 'Sin datos aún'}
-                </span>
-                <span className={styles.standingsHeroDetail}>
-                  {standingPosition
-                    ? `${standingPosition.total} ${standingPosition.total === 1 ? 'acierto' : 'aciertos'}`
-                    : isPlatformAdmin
-                      ? 'Los admins no aparecen en el ranking'
-                      : 'Juega tu primera semana'}
-                </span>
-              </div>
-              {myStreak >= 3 && <span className={styles.standingsHeroFire}>🔥 {myStreak}</span>}
-            </div>
-          )}
-        </Link>
-      )}
-
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Esta semana</h2>
-        <div className={styles.weekRow}>
-          <StatTile
+        <h2 className={styles.sectionTitle}>Tu temporada</h2>
+        <ul className={styles.seasonList}>
+          {canViewTables !== false && (
+            <SeasonRow
+              to={activeWeek ? `/pickem/tabla/${activeWeek.id}` : '/pickem/tabla'}
+              label="Posición"
+              loading={!group || seasonStandings == null}
+              value={
+                standingPosition ? (
+                  <>
+                    {standingPosition.position}°
+                    <span className={styles.seasonValueSoft}> de {standingPosition.totalPlayers}</span>
+                  </>
+                ) : isPlatformAdmin ? (
+                  'No participas'
+                ) : (
+                  'Sin datos aún'
+                )
+              }
+              detail={
+                standingPosition
+                  ? `${standingPosition.total} ${standingPosition.total === 1 ? 'acierto' : 'aciertos'}${myStreak >= 3 ? `, racha de ${myStreak} 🔥` : ''}`
+                  : isPlatformAdmin
+                    ? 'Los admins no aparecen en el ranking'
+                    : 'Juega tu primera semana'
+              }
+            />
+          )}
+          <SeasonRow
             to={survivorParticipant ? '/survivor/tabla' : '/survivor'}
-            icon="heart"
-            kicker="Survivor"
+            label="Survivor"
             loading={!group || survivorRoster == null}
-            value={
-              !survivorParticipant
-                ? 'Aún no juegas'
-                : survivorParticipant.status === 'alive'
-                  ? `Vivo · vida ${survivorParticipant.currentLife} de 3`
-                  : survivorParticipant.revivalDeadlineWeekId
-                    ? 'Puedes revivir'
-                    : 'Eliminado'
-            }
+            value={survivorValue}
+            detail={survivorDetail}
+          />
+          <SeasonRow
+            to="/profile"
+            label="Efectividad"
+            loading={statsLoading}
+            value={hasPicked && accuracy != null ? `${accuracy}%` : hasPicksPendingResult ? 'Pendiente' : 'Sin picks aún'}
             detail={
-              !survivorParticipant
-                ? 'Elige tu equipo de la semana'
-                : survivorParticipant.status === 'alive'
-                  ? 'Revisa tu pick de la semana'
-                  : survivorParticipant.revivalDeadlineWeekId
-                    ? `Elige equipo en la semana ${survivorReviveWeekNumber ?? 'siguiente'} antes del primer partido`
-                    : 'Sigue la tabla del grupo'
+              hasPicked && stats
+                ? `${stats.totalCorrect} de ${stats.totalPicked} aciertos`
+                : hasPicksPendingResult
+                  ? 'Esperando resultados'
+                  : 'Haz tu primer pick'
             }
           />
-          <Link to="/profile" className={`${styles.performanceBar} glass-surface glass-interactive`}>
-            <span className={styles.performanceStat}>
-              <span className={styles.performanceKicker}>Efectividad</span>
-              {statsStatus === 'idle' || statsStatus === 'pending' ? (
-                <LoadingSpinner variant="inline" />
-              ) : (
-                <>
-                  <span className={styles.performanceValue}>
-                    {hasPicked && accuracy != null ? `${accuracy}%` : hasPicksPendingResult ? 'Pendiente' : 'Sin picks aún'}
-                  </span>
-                  <span className={styles.performanceDetail}>
-                    {hasPicked && stats
-                      ? `${stats.totalCorrect}/${stats.totalPicked} aciertos`
-                      : hasPicksPendingResult
-                        ? 'Esperando resultados'
-                        : 'Haz tu primer pick'}
-                  </span>
-                </>
-              )}
-            </span>
-            <span className={styles.performanceDivider} aria-hidden="true" />
-            <span className={styles.performanceStat}>
-              <span className={styles.performanceKicker}>Logros</span>
-              {achievementsStatus === 'idle' || achievementsStatus === 'pending' ? (
-                <LoadingSpinner variant="inline" />
-              ) : (
-                <>
-                  <span className={styles.performanceValue}>
-                    {achievements ? `${unlockedAchievements} de ${achievements.length}` : 'Sin datos aún'}
-                  </span>
-                  <span className={styles.performanceDetail}>Desbloqueados</span>
-                </>
-              )}
-            </span>
-          </Link>
-        </div>
+          <SeasonRow
+            to="/profile"
+            label="Logros"
+            loading={achievementsLoading}
+            value={achievements ? `${unlockedAchievements} de ${achievements.length}` : 'Sin datos aún'}
+            detail="Desbloqueados"
+          />
+        </ul>
       </div>
 
       <UpcomingGamesStrip />
 
-      <div className={`${styles.section} ${styles.sectionDelayed}`}>
+      <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Explorar</h2>
         <div className={styles.exploreLinks}>
           <Link to="/teams" className={styles.exploreLink}>
@@ -220,5 +194,40 @@ export function HomePage() {
         </div>
       </div>
     </section>
+  )
+}
+
+/**
+ * Renglón de "Tu temporada": dato en display + contexto en texto. Sin tarjeta
+ * a propósito — solo el hero de picks lleva superficie; esto informa, no pide.
+ */
+function SeasonRow({
+  to,
+  label,
+  value,
+  detail,
+  loading,
+}: {
+  to: string
+  label: string
+  value: ReactNode
+  detail: string
+  loading: boolean
+}) {
+  return (
+    <li>
+      <Link to={to} className={styles.seasonRow}>
+        <span className={styles.seasonLabel}>{label}</span>
+        {loading ? (
+          <LoadingSpinner variant="inline" />
+        ) : (
+          <>
+            <span className={styles.seasonValue}>{value}</span>
+            <span className={styles.seasonDetail}>{detail}</span>
+          </>
+        )}
+        <Icon name="chevronRight" size={16} className={styles.seasonChevron} />
+      </Link>
+    </li>
   )
 }

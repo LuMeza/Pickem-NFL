@@ -54,15 +54,16 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-family: var(--font-display);
-  letter-spacing: 0.08em;
-  font-size: 13px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 12px;
   opacity: 0.85;
 }
 
 .podiumScore {
   margin-top: 4px;
   font-family: var(--font-display);
+  font-weight: var(--display-weight);
   font-variant-numeric: tabular-nums;
   font-size: 44px;
   line-height: 1;
@@ -70,10 +71,9 @@
 
 .podiumScoreLabel {
   margin-top: 4px;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 12px;
   color: var(--text-muted);
+  font-weight: 600;
 }
 
 .podiumMembers {
@@ -216,6 +216,7 @@
 
 .tierPosition {
   font-family: var(--font-display);
+  font-weight: var(--display-weight);
   font-size: 22px;
   line-height: 1;
   letter-spacing: 0.02em;
@@ -258,8 +259,8 @@
   height: 28px;
   flex-shrink: 0;
   border-radius: 999px;
-  background: rgba(61, 139, 255, 0.1);
-  border: 1px solid rgba(61, 139, 255, 0.18);
+  background: rgb(var(--accent-rgb) / 0.1);
+  border: 1px solid rgb(var(--accent-rgb) / 0.18);
   color: var(--accent-blue);
   font-family: var(--font-mono);
   font-size: 10px;

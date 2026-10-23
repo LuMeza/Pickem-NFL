@@ -17,15 +17,16 @@
 
 .label {
   font-family: var(--font-display);
+  font-weight: var(--display-weight);
   text-transform: uppercase;
   letter-spacing: 0.02em;
   font-size: 18px;
 }
 
 .badge {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  text-transform: uppercase;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
   padding: 4px 10px;
   border-radius: 999px;
   white-space: nowrap;

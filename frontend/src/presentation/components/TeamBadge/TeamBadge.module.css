@@ -4,6 +4,7 @@
   justify-content: center;
   border-radius: 14px;
   font-family: var(--font-display);
+  font-weight: var(--display-weight);
   letter-spacing: 0.02em;
   flex-shrink: 0;
   box-shadow: inset 0 0 0 2px rgb(var(--overlay-rgb) / 0.12);

@@ -34,10 +34,9 @@
   border: none;
   background: transparent;
   color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
   padding: 0 14px;
   min-height: 36px;
   border-radius: 999px;
@@ -81,7 +80,7 @@
 
 .stepButton:hover,
 .stepButton:focus-visible {
-  border-color: rgba(61, 139, 255, 0.4);
+  border-color: rgb(var(--accent-rgb) / 0.4);
   color: var(--accent-blue);
 }
 
@@ -99,6 +98,7 @@
   border: 1px solid var(--glass-border);
   color: var(--text-primary);
   font-family: var(--font-display);
+  font-weight: var(--display-weight);
   text-transform: uppercase;
   letter-spacing: 0.02em;
   font-size: 16px;
@@ -108,7 +108,7 @@
 
 .currentWeekButton:hover,
 .currentWeekButton:focus-visible {
-  border-color: rgba(61, 139, 255, 0.4);
+  border-color: rgb(var(--accent-rgb) / 0.4);
 }
 
 .picker {
@@ -145,12 +145,12 @@
 .pickerChip:hover,
 .pickerChip:focus-visible {
   color: var(--text-primary);
-  border-color: rgba(61, 139, 255, 0.3);
+  border-color: rgb(var(--accent-rgb) / 0.3);
 }
 
 .pickerChipActive {
-  background: rgba(61, 139, 255, 0.12);
-  border-color: rgba(61, 139, 255, 0.4);
+  background: rgb(var(--accent-rgb) / 0.12);
+  border-color: rgb(var(--accent-rgb) / 0.4);
   color: var(--accent-blue);
 }
 

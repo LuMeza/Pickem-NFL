@@ -20,6 +20,12 @@
      de los Jets se perdían. */
   --logo-backing: rgb(226 232 240 / 0.88);
 
+  /* Canales RGB de los acentos para capas translucidas: rgb(var(--accent-rgb) / a).
+     Se redefinen en tema claro junto con el acento sólido. */
+  --accent-rgb: 61 139 255;
+  --silver-rgb: 165 172 175;
+  --danger-rgb: 255 84 104;
+
   --bg-base: #0b0f14;
   --bg-surface: #141b23;
   --glass-border: rgb(var(--overlay-rgb) / 0.08);
@@ -41,7 +47,11 @@
      contraste real solo mejora, nunca empeora. */
   --text-muted: #8a97a6;
 
-  --font-display: 'Bebas Neue', sans-serif;
+  /* Big Shoulders: nacida de la rotulación de Chicago, con pesos de 500 a 900
+     — permite jerarquía dentro del propio display (posición en 900, contexto en
+     600), cosa que Bebas Neue (un solo peso) no daba. */
+  --font-display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+  --display-weight: 800;
   --font-body: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
@@ -66,6 +76,10 @@
   --shadow-rgb: 15 23 42;
   --shadow-strength: 0.28;
   --logo-backing: rgb(15 23 42 / 0.05);
+
+  --accent-rgb: 31 111 229;
+  --silver-rgb: 95 104 110;
+  --danger-rgb: 212 38 62;
 
   --bg-base: #eef1f5;
   --bg-surface: #ffffff;
@@ -103,24 +117,29 @@ body {
   /* Glow de fondo (energia "carta de juego", ver doc/design-system.md
      inspiración onetouch.football) — sutil, fijo, no compite con el contenido. */
   background-image:
-    radial-gradient(600px circle at 15% -10%, rgba(61, 139, 255, 0.13), transparent 60%),
-    radial-gradient(500px circle at 100% 10%, rgba(165, 172, 175, 0.11), transparent 55%);
+    radial-gradient(600px circle at 15% -10%, rgb(var(--accent-rgb) / 0.13), transparent 60%),
+    radial-gradient(500px circle at 100% 10%, rgb(var(--silver-rgb) / 0.11), transparent 55%);
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
 
-/* Escala tipografica (tarea 1.3): display en Bebas Neue mayúsculas, cuerpo en
+/* Escala tipografica (tarea 1.3): display en Big Shoulders mayúsculas, cuerpo en
    Inter, datos/numerica en JetBrains Mono con tabular-nums. */
 .text-display-lg,
 .text-display-md,
 .text-display-sm {
   font-family: var(--font-display);
+  font-weight: var(--display-weight);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
   margin: 0;
 }
 .text-display-lg {
   font-size: 40px;
+  /* Big Shoulders es más alta que Bebas: sin este aire el título de página
+     tocaba el selector de semana que va debajo. */
+  margin-bottom: 8px;
 }
 .text-display-md {
   font-size: 32px;
@@ -172,23 +191,16 @@ body {
     0 4px 12px -6px rgb(var(--shadow-rgb) / calc(0.5 * var(--shadow-strength)));
 }
 
-/* Modificador para tarjetas clickeables/enlaces — hover con lift + glow azul. */
+/* Modificador para tarjetas clickeables/enlaces — solo el borde se enciende.
+   Sin lift: la app se abre decenas de veces por temporada y el brinco en
+   cada tarjeta era ruido, no información. */
 .glass-interactive {
   cursor: pointer;
-  transition:
-    transform 150ms ease-out,
-    border-color 150ms ease-out,
-    box-shadow 150ms ease-out;
+  transition: border-color 150ms ease-out;
 }
 .glass-interactive:hover,
 .glass-interactive:focus-visible {
-  transform: translateY(-3px);
-  border-color: rgba(61, 139, 255, 0.4);
-  box-shadow:
-    0 1px 0 0 rgb(var(--sheen-rgb) / 0.07) inset,
-    0 20px 40px -16px rgb(var(--shadow-rgb) / calc(0.7 * var(--shadow-strength))),
-    0 0 0 1px rgba(61, 139, 255, 0.12),
-    0 0 24px -4px rgba(61, 139, 255, 0.18);
+  border-color: rgb(var(--accent-rgb) / 0.45);
 }
 
 /* Foco de teclado visible (tarea 5.3) — outline azul 2px en toda la app. */
@@ -382,13 +394,12 @@ label {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
   color: var(--accent-blue);
-  background: rgba(61, 139, 255, 0.1);
-  border: 1px solid rgba(61, 139, 255, 0.25);
+  background: rgb(var(--accent-rgb) / 0.1);
+  border: 1px solid rgb(var(--accent-rgb) / 0.25);
   border-radius: 999px;
   padding: 5px 12px 5px 10px;
   margin-bottom: 16px;

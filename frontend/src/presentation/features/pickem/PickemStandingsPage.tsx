@@ -71,7 +71,7 @@ function groupIntoTiers(rows: StandingRow[]): Tier[] {
   return tiers
 }
 
-const PODIUM_RANK_LABEL: Record<1 | 2 | 3, string> = { 1: '1ER', 2: '2DO', 3: '3ER' }
+const PODIUM_RANK_LABEL: Record<1 | 2 | 3, string> = { 1: '1er lugar', 2: '2do lugar', 3: '3er lugar' }
 
 function PodiumSlot({ tier, rank }: { tier?: Tier; rank: 1 | 2 | 3 }) {
   if (!tier) return <div className={styles.podiumEmpty} aria-hidden="true" />

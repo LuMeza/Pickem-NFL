@@ -38,6 +38,7 @@
    tamaño en desktop. */
 .heroTitle {
   font-family: var(--font-display);
+  font-weight: var(--display-weight);
   text-transform: uppercase;
   letter-spacing: 0.02em;
   margin: 0;
@@ -55,8 +56,7 @@
 
 .heroDivision {
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-weight: 600;
 }
 
 .heroRecord {
@@ -95,11 +95,11 @@
   0%,
   100% {
     opacity: 1;
-    box-shadow: 0 0 0 0 rgba(255, 84, 104, 0.45);
+    box-shadow: 0 0 0 0 rgb(var(--danger-rgb) / 0.45);
   }
   50% {
     opacity: 0.7;
-    box-shadow: 0 0 0 4px rgba(255, 84, 104, 0);
+    box-shadow: 0 0 0 4px rgb(var(--danger-rgb) / 0);
   }
 }
 
@@ -136,11 +136,10 @@
 }
 
 .gameSectionTitle {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   margin-bottom: 8px;
+  font-weight: 600;
 }
 
 .gameList {
@@ -187,10 +186,9 @@
 }
 
 .gameWeek {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-weight: 600;
 }
 
 .gameKickoff {

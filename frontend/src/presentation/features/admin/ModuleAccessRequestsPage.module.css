@@ -35,11 +35,10 @@
 }
 
 .module {
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
 }
 
 .actions {
@@ -49,10 +48,9 @@
 }
 
 .statusPill {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
   padding: 4px 10px;
   border-radius: 999px;
   white-space: nowrap;
@@ -60,12 +58,12 @@
 
 .statusAprobado {
   color: var(--accent-blue);
-  background: rgba(61, 139, 255, 0.12);
-  border: 1px solid rgba(61, 139, 255, 0.25);
+  background: rgb(var(--accent-rgb) / 0.12);
+  border: 1px solid rgb(var(--accent-rgb) / 0.25);
 }
 
 .statusRechazado {
   color: var(--danger);
-  background: rgba(255, 84, 104, 0.12);
-  border: 1px solid rgba(255, 84, 104, 0.25);
+  background: rgb(var(--danger-rgb) / 0.12);
+  border: 1px solid rgb(var(--danger-rgb) / 0.25);
 }

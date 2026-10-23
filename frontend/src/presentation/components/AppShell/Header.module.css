@@ -11,7 +11,7 @@
   background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(61, 139, 255, 0.18);
+  border-bottom: 1px solid rgb(var(--accent-rgb) / 0.18);
 }
 
 .brand {
@@ -20,6 +20,7 @@
   gap: 8px;
   flex-shrink: 0;
   font-family: var(--font-display);
+  font-weight: var(--display-weight);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   font-size: 24px;
@@ -39,14 +40,17 @@
 .context {
   display: none;
   align-items: baseline;
-  gap: 8px;
+  gap: 10px;
   color: var(--text-muted);
   font-size: 14px;
   min-width: 0;
 }
 
-.contextDot {
-  color: rgb(var(--overlay-rgb) / 0.3);
+/* Semana primero y en color de texto, grupo después y apagado: la jerarquía
+   la da el peso, no un separador. */
+.contextWeek {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .context span {
@@ -64,18 +68,18 @@
   align-items: center;
   gap: 1px;
   color: var(--accent-blue);
-  background: rgba(61, 139, 255, 0.1);
-  border: 1px solid rgba(61, 139, 255, 0.3);
+  background: rgb(var(--accent-rgb) / 0.1);
+  border: 1px solid rgb(var(--accent-rgb) / 0.3);
   border-radius: 6px;
   padding: 3px 8px;
   white-space: nowrap;
 }
 
 .countdownLabel {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 1.2;
   color: var(--text-muted);
 }
 
@@ -95,7 +99,7 @@
   }
 
   .countdownLabel {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .countdownValue {

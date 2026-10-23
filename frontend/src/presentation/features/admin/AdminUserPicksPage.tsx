@@ -494,7 +494,7 @@ export function AdminUserPicksPage() {
               {weeklyByUser.size > 0 && (
                 <>
                   <p className={`text-body-sm text-muted ${styles.paymentsSummary}`}>
-                    {weeklyByUser.size} usuario{weeklyByUser.size === 1 ? '' : 's'} ·{' '}
+                    {weeklyByUser.size} usuario{weeklyByUser.size === 1 ? '' : 's'},{' '}
                     {[...weeklyByUser.keys()].filter((userId) => weeklyPaidByUser.get(userId)).length} pagaron esta
                     semana.
                   </p>
@@ -535,7 +535,7 @@ export function AdminUserPicksPage() {
               {survivorWeekRows && survivorWeekRows.length > 0 && (
                 <>
                   <p className={`text-body-sm text-muted ${styles.paymentsSummary}`}>
-                    {survivorWeekRows.length} usuario{survivorWeekRows.length === 1 ? '' : 's'} ·{' '}
+                    {survivorWeekRows.length} usuario{survivorWeekRows.length === 1 ? '' : 's'},{' '}
                     {
                       survivorWeekRows.filter(
                         (row) => row.lifeNumber && survivorPaidByUserAndLife.get(row.userId)?.get(row.lifeNumber),

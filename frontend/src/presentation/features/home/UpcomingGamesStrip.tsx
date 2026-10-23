@@ -22,14 +22,14 @@ function isSameDay(a: Date, b: Date): boolean {
 
 function formatKickoffLabel(kickoffAt: Date, now: Date): string {
   const time = kickoffAt.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
-  if (isSameDay(kickoffAt, now)) return `Hoy · ${time}`
+  if (isSameDay(kickoffAt, now)) return `Hoy, ${time}`
 
   const tomorrow = new Date(now)
   tomorrow.setDate(now.getDate() + 1)
-  if (isSameDay(kickoffAt, tomorrow)) return `Mañana · ${time}`
+  if (isSameDay(kickoffAt, tomorrow)) return `Mañana, ${time}`
 
   const day = kickoffAt.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric' })
-  return `${day} · ${time}`
+  return `${day}, ${time}`
 }
 
 /** Partidos en vivo y los próximos por arrancar, de un vistazo desde el inicio — no reemplaza el calendario, solo adelanta lo inmediato. */
@@ -68,7 +68,7 @@ export function UpcomingGamesStrip() {
       <div className={styles.sectionHeader}>
         <h2 className={styles.sectionTitle}>Próximos partidos</h2>
         <Link to="/calendario" className={styles.seeAll}>
-          Ver calendario <span aria-hidden="true">→</span>
+          Ver calendario
         </Link>
       </div>
       {gamesStatus === 'idle' || gamesStatus === 'pending' ? (

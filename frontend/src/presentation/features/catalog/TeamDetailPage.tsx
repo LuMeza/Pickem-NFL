@@ -155,7 +155,7 @@ export function TeamDetailPage() {
     const isHome = nextGame.homeTeamId === teamId
     const opponentId = isHome ? nextGame.awayTeamId : nextGame.homeTeamId
     const opponentName = teamNameById.get(opponentId) ?? opponentId
-    return `${isHome ? 'Recibe a' : 'Visita a'} ${opponentName} · ${formatKickoff(nextGame.kickoffAt)}`
+    return `${isHome ? 'Recibe a' : 'Visita a'} ${opponentName}, ${formatKickoff(nextGame.kickoffAt)}`
   }, [nextGame, teamId, teamNameById])
 
   /** Ventana entre el kickoff y el resultado cargado (ver getGameLiveStatus) — mientras dura, se prioriza sobre el "proximo partido" en vez de saltarselo de largo. */
@@ -202,7 +202,7 @@ export function TeamDetailPage() {
         {liveGameLabel ? (
           <div className={`${styles.heroNextGame} ${styles.heroLive}`}>
             <span className={styles.liveDot} aria-hidden="true" />
-            {formatLivePeriod(liveGame?.livePeriod ?? null) ?? 'En vivo'} ·{' '}
+            {formatLivePeriod(liveGame?.livePeriod ?? null) ?? 'En vivo'}:{' '}
             {liveGameLabel}
           </div>
         ) : (
@@ -261,7 +261,7 @@ export function TeamDetailPage() {
                           {isHome ? 'Recibe a' : 'Visita a'} {teamNameById.get(opponentId) ?? opponentId}
                         </span>
                         <span className={styles.gameWeek}>
-                          {weekLabelFor(game.weekId)} · {isHome ? 'de local' : 'de visitante'}
+                          {weekLabelFor(game.weekId)}, {isHome ? 'de local' : 'de visitante'}
                         </span>
                       </div>
                       {isFinal ? (
