@@ -121,6 +121,12 @@ const PATHS = {
       <path d="M10 11v6M14 11v6" />
     </>
   ),
+  mapPin: (
+    <>
+      <path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </>
+  ),
   trendUp: (
     <>
       <path d="M3 17l6-6 4 4 8-8" />

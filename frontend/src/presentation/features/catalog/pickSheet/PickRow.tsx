@@ -35,6 +35,12 @@ function nickname(name: string): string {
   return name.split(' ').pop() ?? name
 }
 
+/** "Green Bay Packers" -> "Green Bay": la ciudad es el nombre sin el apodo. Es la sede del local (no cubre juegos en campo neutral). */
+function homeCity(name: string): string | null {
+  const parts = name.split(' ')
+  return parts.length > 1 ? parts.slice(0, -1).join(' ') : null
+}
+
 function teamStyle(teamId: string): CSSProperties {
   return {
     '--team-primary': getTeamColors(teamId).primary,
@@ -237,8 +243,17 @@ export function PickRow({
     )
   }
 
+  const city = homeCity(teamName(game.homeTeamId))
+
   return (
     <div id={`game-${game.id}`} className={styles.rowWrap}>
+      {city && (
+        <p className={styles.venue}>
+          <Icon name="mapPin" size={12} />
+          <span className={styles.srOnly}>Sede: </span>
+          {city}
+        </p>
+      )}
       <div className={styles.row} data-state={state} data-picked={pickedValue !== null}>
         {side('home')}
         <div className={styles.center}>{center}</div>
