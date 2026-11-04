@@ -2,12 +2,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useListGamesForWeek } from '@/presentation/hooks/useListGamesForWeek'
 import { useSession } from '@/presentation/hooks/SessionContext'
+import { useListAllGames } from '@/presentation/hooks/useListAllGames'
 import { useListResultsForGames } from '@/presentation/hooks/useListResultsForGames'
 import { useListPredictionsForGames } from '@/presentation/hooks/useListPredictionsForGames'
 import { useListWeeklyPicksForWeek } from '@/presentation/hooks/useListWeeklyPicksForWeek'
 import { useSaveWeeklyPick } from '@/presentation/hooks/useSaveWeeklyPick'
 import { useNow } from '@/presentation/hooks/useNow'
 import { isWeeklyPickLocked } from '@/core/rules/weeklyPickGroupDeadline'
+import { computeTeamForm } from '@/core/rules/computeTeamForm'
 import { getGameLiveStatus } from '@/core/rules/getGameLiveStatus'
 import type { Game, WeekType } from '@/core/entities/catalog'
 import type { WeeklyPickValue } from '@/core/ports/WeeklyPickRepository'
@@ -132,6 +134,9 @@ export function GamesPage() {
   const { data: loadedPicks, run: loadPicks } = useListWeeklyPicksForWeek()
   const { data: results, run: loadResults } = useListResultsForGames()
   const { data: predictions, run: loadPredictions } = useListPredictionsForGames()
+  // Temporada completa, solo para el récord y la racha de cada equipo bajo su nombre.
+  const { data: seasonGames, run: loadSeasonGames } = useListAllGames()
+  const { data: seasonResults, run: loadSeasonResults } = useListResultsForGames()
   const { run: savePick } = useSaveWeeklyPick()
   const [teamNames] = useState(() => new Map<string, string>())
   const [picks, setPicks] = useState<Record<string, WeeklyPickValue>>({})
@@ -158,6 +163,17 @@ export function GamesPage() {
     if (games && games.length > 0) loadPredictions({ gameIds: games.map((game) => game.id) }).catch(() => {})
   }, [games, loadPredictions])
 
+  // Informativo: si falla, las tarjetas se ven igual que siempre, sin récord.
+  useEffect(() => {
+    loadSeasonGames().catch(() => {})
+  }, [loadSeasonGames])
+
+  useEffect(() => {
+    if (seasonGames && seasonGames.length > 0) {
+      loadSeasonResults({ gameIds: seasonGames.map((game) => game.id) }).catch(() => {})
+    }
+  }, [seasonGames, loadSeasonResults])
+
   useEffect(() => {
     if (loadedPicks) setPicks(loadedPicks)
   }, [loadedPicks])
@@ -166,6 +182,21 @@ export function GamesPage() {
   const teamName = (id: string) => teamNames.get(id) ?? id
 
   const resultsByGame = useMemo(() => new Map((results ?? []).map((result) => [result.gameId, result])), [results])
+
+  const teamForm = useMemo(() => {
+    if (!seasonGames || !seasonResults || !weeks) return null
+    const countedWeekIds = new Set(weeks.filter((week) => week.type === 'regular' || week.type === 'playoffs').map((week) => week.id))
+    const resultsById = new Map(seasonResults.map((result) => [result.gameId, result]))
+    const cache = new Map<string, ReturnType<typeof computeTeamForm>>()
+    return (teamId: string) => {
+      let form = cache.get(teamId)
+      if (!form) {
+        form = computeTeamForm(teamId, seasonGames, resultsById, countedWeekIds)
+        cache.set(teamId, form)
+      }
+      return form
+    }
+  }, [seasonGames, seasonResults, weeks])
 
   const activeWeek = weeks?.find((week) => week.id === weekId)
   const isPlayoffsWeek = activeWeek?.type === 'playoffs'
@@ -208,6 +239,8 @@ export function GamesPage() {
         locked: !canPredict || isWeeklyPickLocked(weekGames, game, now),
         correct: isFinal && pickedValue ? pickedValue === result.outcome : null,
         prediction: predictions?.get(game.id) ?? null,
+        homeForm: teamForm?.(game.homeTeamId) ?? null,
+        awayForm: teamForm?.(game.awayTeamId) ?? null,
       }
     }),
   )

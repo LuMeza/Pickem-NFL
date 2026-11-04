@@ -4,6 +4,7 @@ import type { GameResult } from '@/core/entities/gameResult'
 import type { GamePrediction } from '@/core/entities/gamePrediction'
 import type { WeeklyPickValue } from '@/core/ports/WeeklyPickRepository'
 import { formatLivePeriod } from '@/core/rules/formatLivePeriod'
+import type { TeamForm } from '@/core/rules/computeTeamForm'
 import { formatPredictionSpread } from '@/core/rules/formatPredictionSpread'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { getReadableAccent, getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
@@ -24,6 +25,9 @@ export interface GamePickView {
   correct: boolean | null
   /** Pronóstico visible para el usuario (RLS decide según el modo del grupo); null si no hay o no le toca verlo. */
   prediction: GamePrediction | null
+  /** Récord de temporada y últimos resultados de cada equipo; ausente si aún no cargan. */
+  homeForm?: TeamForm | null
+  awayForm?: TeamForm | null
 }
 
 /** "Washington Commanders" -> "Commanders" (mismo criterio que TeamsPage). */
@@ -36,6 +40,33 @@ function teamStyle(teamId: string): CSSProperties {
     '--team-primary': getTeamColors(teamId).primary,
     '--team-accent': getReadableAccent(teamId),
   } as CSSProperties
+}
+
+const FORM_LABEL = { W: 'victoria', L: 'derrota', T: 'empate' } as const
+
+/** Récord (victorias en verde, derrotas en rojo) y puntos de los últimos resultados, del más antiguo al más reciente. */
+function TeamFormLine({ form }: { form: TeamForm }) {
+  if (form.wins + form.losses + form.ties === 0) return null
+  const label = `Récord ${form.wins}-${form.losses}${form.ties > 0 ? `-${form.ties}` : ''}. Últimos ${form.recent.length}: ${form.recent
+    .map((mark) => FORM_LABEL[mark])
+    .join(', ')}`
+  return (
+    <span className={styles.form} role="img" aria-label={label}>
+      <span className={styles.formRecord} aria-hidden="true">
+        <b data-kind="W">{form.wins}</b>-<b data-kind="L">{form.losses}</b>
+        {form.ties > 0 && (
+          <>
+            -<b data-kind="T">{form.ties}</b>
+          </>
+        )}
+      </span>
+      <span className={styles.formDots} aria-hidden="true">
+        {form.recent.map((mark, index) => (
+          <i key={index} data-kind={mark} />
+        ))}
+      </span>
+    </span>
+  )
 }
 
 function ResultMark({ correct }: { correct: boolean }) {
@@ -123,12 +154,13 @@ export function PickRow({
   saveFailed: boolean
   onPick: (gameId: string, pick: WeeklyPickValue) => void
 }) {
-  const { game, pickedValue, result, isFinal, isLive, locked, correct, prediction } = view
+  const { game, pickedValue, result, isFinal, isLive, locked, correct, prediction, homeForm, awayForm } = view
   const hasResult = isFinal && result !== null
   const disabled = locked || hasResult
   const state = hasResult ? 'final' : isLive ? 'live' : locked ? 'locked' : 'open'
 
   function side(value: 'home' | 'away') {
+    const form = value === 'home' ? homeForm : awayForm
     const teamId = value === 'home' ? game.homeTeamId : game.awayTeamId
     const fullName = teamName(teamId)
     const selected = pickedValue === value
@@ -154,6 +186,7 @@ export function PickRow({
             {selected && correct !== null && <ResultMark correct={correct} />}
           </span>
           <span className={styles.nick}>{nickname(fullName)}</span>
+          {form && <TeamFormLine form={form} />}
         </span>
       </button>
     )
