@@ -530,12 +530,12 @@ export function AdminUserPicksPage() {
               {survivorWeekStatus === 'pending' && <LoadingSpinner variant="inline" />}
               {survivorWeekStatus === 'error' && <p role="alert">No se pudieron cargar los picks.</p>}
               {survivorWeekRows && survivorWeekRows.length === 0 && (
-                <EmptyState message="Nadie tiene picks de survivor para esta semana." />
+                <EmptyState message="Nadie seguía en juego en esta semana." />
               )}
               {survivorWeekRows && survivorWeekRows.length > 0 && (
                 <>
                   <p className={`text-body-sm text-muted ${styles.paymentsSummary}`}>
-                    {survivorWeekRows.length} usuario{survivorWeekRows.length === 1 ? '' : 's'},{' '}
+                    {survivorWeekRows.length} usuario{survivorWeekRows.length === 1 ? '' : 's'} en juego esta semana,{' '}
                     {
                       survivorWeekRows.filter(
                         (row) => row.lifeNumber && survivorPaidByUserAndLife.get(row.userId)?.get(row.lifeNumber),
