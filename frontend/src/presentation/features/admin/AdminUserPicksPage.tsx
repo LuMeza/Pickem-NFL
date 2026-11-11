@@ -16,6 +16,7 @@ import { useListAdminSurvivorPickExceptions } from '@/presentation/hooks/useList
 import { useGrantSurvivorPickException } from '@/presentation/hooks/useGrantSurvivorPickException'
 import { useRevokeSurvivorPickException } from '@/presentation/hooks/useRevokeSurvivorPickException'
 import { isWeekAccessLocked } from '@/core/rules/isWeekAccessLocked'
+import { pickDefaultWeek } from '@/core/rules/pickDefaultWeek'
 import { Icon } from '@/presentation/components/Icon/Icon'
 import { EmptyState } from '@/presentation/components/EmptyState/EmptyState'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
@@ -161,6 +162,23 @@ export function AdminUserPicksPage() {
   useEffect(() => {
     if (group) loadMembers({ groupId: group.id })
   }, [group, loadMembers])
+
+  /** Arranca en la semana en curso (la de los partidos más cercanos, igual que el resto de la app)
+   * para que el admin no tenga que elegirla cada vez. Solo semanas regulares: HOF y pretemporada
+   * no tienen picks que revisar y WeekSelector no las ofrece en este panel. */
+  useEffect(() => {
+    if (!weeks || !games || (selectedWeekId && paymentsWeekId)) return
+    const regularWeeks = weeks.filter((week) => week.type === 'regular')
+    if (regularWeeks.length === 0) return
+    const regularWeekIds = new Set(regularWeeks.map((week) => week.id))
+    const defaultWeek = pickDefaultWeek(
+      regularWeeks,
+      games.filter((game) => regularWeekIds.has(game.weekId)),
+      new Date(),
+    )
+    setSelectedWeekId((current) => current || defaultWeek.id)
+    setPaymentsWeekId((current) => current || defaultWeek.id)
+  }, [weeks, games, selectedWeekId, paymentsWeekId])
 
   useEffect(() => {
     if (!group || mode !== 'porSemana' || !selectedWeekId) return
@@ -466,10 +484,7 @@ export function AdminUserPicksPage() {
               Quiniela
               <select
                 value={quiniela}
-                onChange={(event) => {
-                  setQuiniela(event.target.value as Quiniela)
-                  setSelectedWeekId('')
-                }}
+                onChange={(event) => setQuiniela(event.target.value as Quiniela)}
               >
                 <option value="weekly">Pickem semanal</option>
                 <option value="survivor">Survivor</option>
@@ -489,7 +504,7 @@ export function AdminUserPicksPage() {
               {weeklyWeekStatus === 'pending' && <LoadingSpinner variant="inline" />}
               {weeklyWeekStatus === 'error' && <p role="alert">No se pudieron cargar los picks.</p>}
               {weeklyByUser.size === 0 && weeklyWeekStatus === 'success' && (
-                <EmptyState message="Nadie tiene picks para esta semana." />
+                <EmptyState message="Nadie ha hecho picks esta semana." />
               )}
               {weeklyByUser.size > 0 && (
                 <>
@@ -752,10 +767,7 @@ export function AdminUserPicksPage() {
               Quiniela
               <select
                 value={paymentsQuiniela}
-                onChange={(event) => {
-                  setPaymentsQuiniela(event.target.value as Quiniela)
-                  setPaymentsWeekId('')
-                }}
+                onChange={(event) => setPaymentsQuiniela(event.target.value as Quiniela)}
               >
                 <option value="weekly">Pickem semanal</option>
                 <option value="survivor">Survivor</option>
