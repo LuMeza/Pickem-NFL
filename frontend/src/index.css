@@ -10,7 +10,7 @@
      fondo oscuro; en claro se invierten (ver :root[data-theme='light']).
      Usar como rgb(var(--overlay-rgb) / alpha) en vez de rgba(255,255,255,a). */
   --overlay-rgb: 255 255 255;
-  --surface-rgb: 20 27 35;
+  --surface-rgb: 17 29 51;
   --sheen-rgb: 255 255 255;
   --shadow-rgb: 0 0 0;
   --shadow-strength: 1;
@@ -22,18 +22,22 @@
 
   /* Canales RGB de los acentos para capas translucidas: rgb(var(--accent-rgb) / a).
      Se redefinen en tema claro junto con el acento sólido. */
-  --accent-rgb: 61 139 255;
+  --accent-rgb: 90 141 238;
+  --accent-red-rgb: 255 90 95;
   --silver-rgb: 165 172 175;
-  --danger-rgb: 255 84 104;
+  --danger-rgb: 255 90 95;
 
-  --bg-base: #0b0f14;
-  --bg-surface: #141b23;
+  --bg-base: #0a1220;
+  --bg-surface: #111d33;
   --glass-border: rgb(var(--overlay-rgb) / 0.08);
   --glass-bg: rgb(var(--surface-rgb) / 0.55);
-  --accent-blue: #3d8bff;
-  --accent-blue-bright: #6fa8ff;
+  --accent-blue: #5a8dee;
+  --accent-blue-bright: #8fb1ff;
   --accent-silver: #a5acaf;
-  --danger: #ff5468;
+  --danger: #ff5a5f;
+  /* Rojo de resalte (marino y rojo): primer lugar, confeti, énfasis puntual.
+     Distinto de --danger solo por intención: mismo tono, otro uso. */
+  --accent-red: #ff5a5f;
   /* Disponibilidad de jugador (plantilla) — separados de --accent-blue y
      --accent-silver (muy saturados, pensados para acentos puntuales) porque
      estos se repiten como texto/badge en cada card. */
@@ -45,7 +49,7 @@
      por encima del mínimo AA (4.5:1) para texto normal. Sobre glass-bg el
      fondo efectivo se mezcla con --bg-base (aún más oscuro), por lo que el
      contraste real solo mejora, nunca empeora. */
-  --text-muted: #8a97a6;
+  --text-muted: #93a1b8;
 
   /* Big Shoulders: nacida de la rotulación de Chicago, con pesos de 500 a 900
      — permite jerarquía dentro del propio display (posición en 900, contexto en
@@ -70,29 +74,31 @@
    blanco no llegaban a AA. data-theme lo fija el script de index.html
    (antes del primer pintado) y el ThemeToggle del header. */
 :root[data-theme='light'] {
-  --overlay-rgb: 15 23 42;
+  --overlay-rgb: 12 26 51;
   --surface-rgb: 255 255 255;
   --sheen-rgb: 255 255 255;
-  --shadow-rgb: 15 23 42;
+  --shadow-rgb: 12 26 51;
   --shadow-strength: 0.28;
   --logo-backing: rgb(15 23 42 / 0.05);
 
-  --accent-rgb: 31 111 229;
+  --accent-rgb: 11 42 91;
+  --accent-red-rgb: 211 47 47;
   --silver-rgb: 95 104 110;
-  --danger-rgb: 212 38 62;
+  --danger-rgb: 211 47 47;
 
-  --bg-base: #eef1f5;
+  --bg-base: #f5f7fa;
   --bg-surface: #ffffff;
-  --glass-border: rgb(15 23 42 / 0.1);
+  --glass-border: rgb(12 26 51 / 0.1);
   --glass-bg: rgb(255 255 255 / 0.72);
-  --accent-blue: #1f6fe5;
-  --accent-blue-bright: #1559c4;
+  --accent-blue: #0b2a5b;
+  --accent-blue-bright: #1b4a9a;
   --accent-silver: #5f686e;
-  --danger: #d4263e;
+  --danger: #d32f2f;
+  --accent-red: #d32f2f;
   --status-active: #047857;
   --status-questionable: #b45309;
-  --text-primary: #0f1722;
-  --text-muted: #556171;
+  --text-primary: #0c1a33;
+  --text-muted: #56637a;
 
   color-scheme: light;
 }
@@ -118,7 +124,7 @@ body {
      inspiración onetouch.football) — sutil, fijo, no compite con el contenido. */
   background-image:
     radial-gradient(600px circle at 15% -10%, rgb(var(--accent-rgb) / 0.13), transparent 60%),
-    radial-gradient(500px circle at 100% 10%, rgb(var(--silver-rgb) / 0.11), transparent 55%);
+    radial-gradient(500px circle at 100% 10%, rgb(var(--accent-red-rgb) / 0.09), transparent 55%);
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
@@ -387,7 +393,7 @@ label {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--accent-blue), var(--accent-silver));
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-red));
 }
 .auth-kicker,
 .kicker {

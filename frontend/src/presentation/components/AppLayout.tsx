@@ -9,6 +9,7 @@ import { weeklyPickGroupDeadline } from '@/core/rules/weeklyPickGroupDeadline'
 import { weekLabel as formatWeekLabel } from '@/presentation/features/pickem/weekLabel'
 import { AppShell } from '@/presentation/components/AppShell/AppShell'
 import type { NavItem } from '@/presentation/components/AppShell/NavBar'
+import { WeeklyWinnerCelebration } from '@/presentation/components/WeeklyWinnerCelebration/WeeklyWinnerCelebration'
 
 const BASE_NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Inicio', icon: 'home' },
@@ -75,6 +76,7 @@ function AuthenticatedShell() {
       }}
     >
       <Outlet />
+      <WeeklyWinnerCelebration formatWeekLabel={formatWeekLabel} />
     </AppShell>
   )
 }

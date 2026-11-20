@@ -43,7 +43,6 @@ interface Tier {
   rows: StandingRow[]
 }
 
-/** Iniciales para el avatar — primera letra del nombre y del apellido (o las dos primeras si no hay apellido). */
 /** Aplana los niveles de empate en filas planas para el PDF, marcando ganador(es) al primer nivel. */
 function buildStandingsExportRows(rows: StandingRow[]): StandingsExportRow[] {
   return groupIntoTiers(rows).flatMap((tier) =>
@@ -69,6 +68,21 @@ function groupIntoTiers(rows: StandingRow[]): Tier[] {
     }
   })
   return tiers
+}
+
+/** Posición (con empates) de un usuario en una tabla, o null si no aparece. */
+function positionOf(rows: StandingRow[] | null, userId: string): number | null {
+  if (!rows || rows.length === 0) return null
+  const tier = groupIntoTiers(rows).find((candidate) => candidate.rows.some((row) => row.userId === userId))
+  return tier ? tier.position : null
+}
+
+function splitPodium(rows: StandingRow[]) {
+  const tiers = groupIntoTiers(rows)
+  const podiumTiers = tiers.slice(0, 3)
+  const podiumMemberCount = podiumTiers.reduce((sum, tier) => sum + tier.rows.length, 0)
+  const showPodium = podiumMemberCount > 0 && podiumMemberCount <= MAX_PODIUM_MEMBERS
+  return { tiers, podiumTiers, showPodium, listTiers: showPodium ? tiers.slice(3) : tiers }
 }
 
 const PODIUM_RANK_LABEL: Record<1 | 2 | 3, string> = { 1: '1er lugar', 2: '2do lugar', 3: '3er lugar' }
@@ -117,49 +131,146 @@ function Podium({ tiers }: { tiers: Tier[] }) {
   )
 }
 
-function StandingsList({ rows }: { rows: StandingRow[] }) {
+interface MyResultProps {
+  rows: StandingRow[]
+  prevRows: StandingRow[] | null
+  prevWeekNumber: number | null
+  totalGames: number | null
+  userId: string
+}
+
+/** Resumen personal arriba de la tabla semanal: lugar, aciertos, distancia al primero y cambio contra la semana anterior. Solo si el usuario aparece en la tabla (los admins no). */
+function MyResult({ rows, prevRows, prevWeekNumber, totalGames, userId }: MyResultProps) {
+  const tiers = groupIntoTiers(rows)
+  const myTier = tiers.find((tier) => tier.rows.some((row) => row.userId === userId))
+  if (!myTier) return null
+
+  const myScore = myTier.rows[0]!.correctCount
+  const gap = tiers[0]!.rows[0]!.correctCount - myScore
+  const previousPosition = positionOf(prevRows, userId)
+  const delta = previousPosition != null ? previousPosition - myTier.position : null
+
+  return (
+    <div className={`${styles.myResult} glass-surface`}>
+      <div className={styles.myBlock}>
+        <span className={styles.myLabel}>Tu lugar esta semana</span>
+        <span className={styles.myPosition}>
+          {myTier.position}°<span className={styles.mySoft}> de {rows.length}</span>
+        </span>
+      </div>
+      <div className={styles.myBlock}>
+        <span className={styles.myLabel}>Aciertos</span>
+        <span className={styles.myValue}>
+          {myScore}
+          {totalGames ? ` de ${totalGames}` : ''}
+        </span>
+      </div>
+      <div className={styles.myBlock}>
+        <span className={styles.myLabel}>Distancia al 1°</span>
+        <span className={gap === 0 ? styles.myValueLead : styles.myValueBehind}>{gap === 0 ? 'Vas arriba' : `-${gap}`}</span>
+      </div>
+      {delta != null && prevWeekNumber != null && (
+        <div className={styles.myBlock}>
+          <span className={styles.myLabel}>Vs semana {prevWeekNumber}</span>
+          <span className={delta > 0 ? styles.myValueLead : delta < 0 ? styles.myValueBehind : styles.myValue}>
+            {delta === 0 ? 'Igual' : `${delta > 0 ? '+' : ''}${delta} ${Math.abs(delta) === 1 ? 'lugar' : 'lugares'}`}
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** Tabla semanal: podio cuando cabe, y el resto por nivel de puntaje con los jugadores como chips y una barra relativa al primero. */
+function WeeklyStandings({ rows, currentUserId }: { rows: StandingRow[]; currentUserId?: string | null }) {
   if (rows.length === 0) {
     return <p className="text-body-sm text-muted">Todavía no hay resultados para mostrar.</p>
   }
 
-  const tiers = groupIntoTiers(rows)
-  const podiumTiers = tiers.slice(0, 3)
-  const podiumMemberCount = podiumTiers.reduce((sum, tier) => sum + tier.rows.length, 0)
-  const showPodium = podiumMemberCount > 0 && podiumMemberCount <= MAX_PODIUM_MEMBERS
-  const listTiers = showPodium ? tiers.slice(3) : tiers
+  const { tiers, podiumTiers, showPodium, listTiers } = splitPodium(rows)
+  const leaderScore = tiers[0]!.rows[0]!.correctCount
 
   return (
     <>
       {showPodium && <Podium tiers={podiumTiers} />}
       {listTiers.length > 0 && (
         <ol className={`${styles.tiers} glass-surface`}>
-          {listTiers.map((tier) => (
-            <li key={tier.position} className={styles.tier}>
-              <div className={styles.tierHead}>
-                <span className={styles.tierPosition}>{tier.position}°</span>
-                <span className={styles.tierScore}>
-                  <strong>{tier.rows[0]!.correctCount}</strong>{' '}
-                  {tier.rows[0]!.correctCount === 1 ? 'acierto' : 'aciertos'}
-                </span>
-              </div>
-              <ul className={styles.members}>
-                {tier.rows.map((row) => {
-                  const onFire = row.currentStreak >= FIRE_STREAK_THRESHOLD
-                  return (
-                    <li key={row.userId} className={styles.member}>
-                      <span className={styles.avatar}>{getInitials(row.displayName)}</span>
-                      <span className={styles.nameText}>{row.displayName}</span>
-                      {onFire && (
-                        <span className={styles.fireBadge} title={`${row.currentStreak} aciertos seguidos`}>
-                          🔥{row.currentStreak}
+          {listTiers.map((tier) => {
+            const score = tier.rows[0]!.correctCount
+            const isFirst = tier.position === 1
+            return (
+              <li key={tier.position} className={`${styles.tier} ${isFirst ? styles.tierFirst : ''}`}>
+                <div className={styles.tierHead}>
+                  <span className={styles.tierPosition}>{tier.position}°</span>
+                  <span className={styles.tierScore}>
+                    <strong>{score}</strong> {score === 1 ? 'acierto' : 'aciertos'}
+                  </span>
+                  {isFirst && tier.rows.length > 1 && (
+                    <span className={styles.tierTie}>Empate entre {tier.rows.length} jugadores</span>
+                  )}
+                  {!isFirst && (
+                    <span className={styles.tierBar} aria-hidden="true">
+                      <span
+                        className={styles.tierBarFill}
+                        style={{ width: `${leaderScore > 0 ? (score / leaderScore) * 100 : 0}%` }}
+                      />
+                    </span>
+                  )}
+                </div>
+                <ul className={styles.members}>
+                  {tier.rows.map((row) => {
+                    const onFire = row.currentStreak >= FIRE_STREAK_THRESHOLD
+                    const isMe = row.userId === currentUserId
+                    return (
+                      <li key={row.userId} className={`${styles.member} ${isMe ? styles.memberMe : ''}`}>
+                        <span className={styles.avatar}>{getInitials(row.displayName)}</span>
+                        <span className={styles.nameText}>
+                          {row.displayName}
+                          {isMe ? ', tú' : ''}
                         </span>
-                      )}
-                    </li>
-                  )
-                })}
-              </ul>
-            </li>
-          ))}
+                        {onFire && (
+                          <span className={styles.fireBadge} title={`${row.currentStreak} aciertos seguidos`}>
+                            <Icon name="flame" size={11} />
+                            {row.currentStreak}
+                          </span>
+                        )}
+                      </li>
+                    )
+                  })}
+                </ul>
+              </li>
+            )
+          })}
+        </ol>
+      )}
+    </>
+  )
+}
+
+/** Panel de temporada: podio y, debajo, una fila por jugador (con la posición del empate). Tu fila queda fija abajo al hacer scroll. */
+function SeasonStandings({ rows, currentUserId }: { rows: StandingRow[]; currentUserId?: string | null }) {
+  if (rows.length === 0) {
+    return <p className="text-body-sm text-muted">Todavía no hay resultados para mostrar.</p>
+  }
+
+  const { podiumTiers, showPodium, listTiers } = splitPodium(rows)
+  const listRows = listTiers.flatMap((tier) => tier.rows.map((row) => ({ row, position: tier.position })))
+
+  return (
+    <>
+      {showPodium && <Podium tiers={podiumTiers} />}
+      {listRows.length > 0 && (
+        <ol className={`${styles.compactList} glass-surface`}>
+          {listRows.map(({ row, position }) => {
+            const isMe = row.userId === currentUserId
+            return (
+              <li key={row.userId} className={`${styles.compactRow} ${isMe ? styles.compactMe : ''}`}>
+                <span className={styles.compactPos}>{position}</span>
+                <span className={styles.compactName}>{isMe ? `Tú, ${row.displayName}` : row.displayName}</span>
+                <span className={styles.compactScore}>{row.correctCount}</span>
+              </li>
+            )
+          })}
         </ol>
       )}
     </>
@@ -170,13 +281,23 @@ function StandingsList({ rows }: { rows: StandingRow[] }) {
 export function PickemStandingsPage() {
   const { weekId } = useParams<{ weekId: string }>()
   const { data: group } = useSession().group
+  const { data: profile } = useSession().profile
   const { data: weeks } = useSession().weeks
   const { data: canView, run: loadCanView } = useCanViewPickemTables()
   const { data: isAdmin, run: loadIsAdmin } = useCheckPlatformAdmin()
   const { status: weeklyStatus, data: weeklyStandings, run: loadWeeklyStandings } = useListWeeklyStandings()
+  const { data: prevStandings, run: loadPrevStandings } = useListWeeklyStandings()
   const { data: seasonStandings, run: loadSeasonStandings } = useListSeasonStandings()
   const { data: wildCardGames, run: loadWildCardGames } = useListGamesForWeek()
+  const { data: weekGames, run: loadWeekGames } = useListGamesForWeek()
   const [downloadingPdf, setDownloadingPdf] = useState(false)
+
+  const activeWeek = weeks?.find((week) => week.id === weekId)
+  const prevWeek = activeWeek
+    ? weeks?.find((week) => week.type === activeWeek.type && week.number === activeWeek.number - 1)
+    : undefined
+  const activeWeekId = activeWeek?.id
+  const prevWeekId = prevWeek?.id
 
   useEffect(() => {
     if (group && weekId) {
@@ -185,6 +306,14 @@ export function PickemStandingsPage() {
       loadSeasonStandings({ groupId: group.id })
     }
   }, [group, weekId, loadCanView, loadWeeklyStandings, loadSeasonStandings])
+
+  useEffect(() => {
+    if (group && prevWeekId) loadPrevStandings({ groupId: group.id, weekId: prevWeekId })
+  }, [group, prevWeekId, loadPrevStandings])
+
+  useEffect(() => {
+    if (activeWeekId) loadWeekGames({ weekId: activeWeekId })
+  }, [activeWeekId, loadWeekGames])
 
   useEffect(() => {
     loadIsAdmin()
@@ -197,7 +326,6 @@ export function PickemStandingsPage() {
 
   if (!weekId) return null
 
-  const activeWeek = weeks?.find((week) => week.id === weekId)
   const playoffsStarted = wildCardWeek ? isPlayoffsStarted([wildCardWeek], wildCardGames ?? [], new Date()) : false
   const winners = playoffsStarted
     ? resolveTiedRanking((seasonStandings ?? []).map((row) => ({ userId: row.userId, total: row.correctCount })))[0]
@@ -245,32 +373,52 @@ export function PickemStandingsPage() {
             </div>
           )}
 
-          <div className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <h2 className={`text-display-sm ${styles.sectionTitle}`}>
-                {activeWeek ? weekLabel(activeWeek) : 'Esta semana'}
-              </h2>
-              {isAdmin && (weeklyStandings ?? []).length > 0 && (
-                <button
-                  type="button"
-                  className="button-secondary"
-                  onClick={handleDownloadWeeklyStandingsPdf}
-                  disabled={downloadingPdf}
-                >
-                  <Icon name="download" size={14} />
-                  {downloadingPdf ? 'Generando PDF...' : 'Descargar PDF'}
-                </button>
-              )}
+          {profile && (weeklyStandings ?? []).length > 0 && (
+            <div className={styles.myResultWrap}>
+              <MyResult
+                rows={weeklyStandings ?? []}
+                prevRows={prevStandings}
+                prevWeekNumber={prevWeek?.number ?? null}
+                totalGames={weekGames ? weekGames.length : null}
+                userId={profile.userId}
+              />
             </div>
-            {weeklyStatus === 'pending' && <LoadingSpinner variant="inline" />}
-            <StandingsList rows={weeklyStandings ?? []} />
-          </div>
+          )}
 
-          <div className={styles.section}>
-            <h2 className={`text-display-sm ${styles.sectionTitle}`}>
-              {playoffsStarted ? 'Tabla final de temporada' : 'Tabla acumulada de temporada'}
-            </h2>
-            <StandingsList rows={seasonStandings ?? []} />
+          <div className={styles.columns}>
+            <div className={styles.mainCol}>
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={`text-display-sm ${styles.sectionTitle}`}>
+                    {activeWeek ? weekLabel(activeWeek) : 'Esta semana'}
+                  </h2>
+                  {isAdmin && (weeklyStandings ?? []).length > 0 && (
+                    <button
+                      type="button"
+                      className="button-secondary"
+                      onClick={handleDownloadWeeklyStandingsPdf}
+                      disabled={downloadingPdf}
+                    >
+                      <Icon name="download" size={14} />
+                      {downloadingPdf ? 'Generando PDF...' : 'Descargar PDF'}
+                    </button>
+                  )}
+                </div>
+                {weeklyStatus === 'pending' && <LoadingSpinner variant="inline" />}
+                <WeeklyStandings rows={weeklyStandings ?? []} currentUserId={profile?.userId} />
+              </div>
+
+              <a href="#temporada" className={styles.jumpLink}>
+                Ver acumulada de temporada
+              </a>
+            </div>
+
+            <aside id="temporada" className={`${styles.section} ${styles.side}`}>
+              <h2 className={`text-display-sm ${styles.sectionTitle}`}>
+                {playoffsStarted ? 'Tabla final de temporada' : 'Acumulada de temporada'}
+              </h2>
+              <SeasonStandings rows={seasonStandings ?? []} currentUserId={profile?.userId} />
+            </aside>
           </div>
         </>
       )}

@@ -10,17 +10,19 @@
 
 **Inspiración NFL:** azul y plateado en vez del verde lima/dorado original — misma energía de "carta de juego" nocturna, con identidad más ligada a la liga (azul de marcador, plateado de casco/trofeo).
 
-| Token | Hex | Uso |
-|---|---|---|
-| `--bg-base` | `#0B0F14` | Fondo general de la app (negro azulado, no negro puro) |
-| `--bg-surface` | `#141B23` | Superficie de tarjetas/paneles antes de aplicar glass |
-| `--glass-border` | `rgba(255,255,255,0.08)` | Borde de tarjetas glassmorphism |
-| `--accent-blue` | `#3D8BFF` | Acción primaria, aciertos, "vivo" en survivor |
-| `--accent-blue-bright` | `#6FA8FF` | Tinte de hover/focus sobre elementos en `--accent-blue` (links) |
-| `--accent-silver` | `#A5ACAF` | Podio, leyendas del grupo, rachas, badges de logro |
-| `--danger` | `#FF5468` | Eliminado, pick perdido, alertas de cierre |
-| `--text-primary` | `#F4F6F8` | Texto principal |
-| `--text-muted` | `#8A97A6` | Texto secundario, metadatos, timestamps |
+Paleta **Marino y rojo**: azul marino como acción primaria y rojo como resalte puntual. El tema claro es el principal; el oscuro usa un marino profundo con los mismos roles.
+
+| Token | Claro | Oscuro | Uso |
+|---|---|---|---|
+| `--bg-base` | `#F5F7FA` | `#0A1220` | Fondo general de la app |
+| `--bg-surface` | `#FFFFFF` | `#111D33` | Superficie de tarjetas/paneles |
+| `--accent-blue` | `#0B2A5B` | `#5A8DEE` | Acción primaria, aciertos, "vivo" en survivor |
+| `--accent-blue-bright` | `#1B4A9A` | `#8FB1FF` | Links y texto de énfasis sobre `--accent-blue` |
+| `--accent-red` | `#D32F2F` | `#FF5A5F` | Resalte: primer lugar, confeti, rachas |
+| `--accent-silver` | `#5F686E` | `#A5ACAF` | Podio (3er lugar), insignias de logro |
+| `--danger` | `#D32F2F` | `#FF5A5F` | Eliminado, pick perdido, alertas de cierre |
+| `--text-primary` | `#0C1A33` | `#F4F6F8` | Texto principal |
+| `--text-muted` | `#56637A` | `#93A1B8` | Texto secundario, metadatos |
 
 Reglas de uso:
 - **Azul** es la única acción "positiva" del sistema — reservarlo para: botón de confirmar pick, check de acierto, estado "vivo". No usarlo decorativamente o pierde peso.
