@@ -42,8 +42,8 @@
 .compareView {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  margin-top: 16px;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .gameStrip {
@@ -57,13 +57,11 @@
 .gameChip {
   flex: 0 0 auto;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  width: 56px;
-  min-height: 64px;
-  padding: 0;
+  min-height: 44px;
+  padding: 0 10px;
   border: 1px solid var(--glass-border);
   border-radius: 12px;
   background: var(--bg-surface);
@@ -78,8 +76,8 @@
 .gameCard {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 16px;
+  gap: 12px;
+  padding: 14px;
 }
 
 .gameCardHead {
@@ -102,7 +100,7 @@
   font-family: var(--font-display);
   font-weight: var(--display-weight);
   text-transform: uppercase;
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1.1;
 }
 
@@ -141,7 +139,12 @@
 
 .splitLegend {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
+}
+
+.splitLegend strong {
+  font-family: var(--font-mono);
+  font-weight: 700;
 }
 
 .splitPercent {
@@ -219,8 +222,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 36px;
-  padding: 0 12px 0 5px;
+  min-height: 34px;
+  padding: 0 12px;
   border: 1px solid var(--glass-border);
   border-radius: 999px;
   background: rgb(var(--overlay-rgb) / 0.04);
@@ -346,7 +349,7 @@
   margin: 0;
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 34px;
+  font-size: 28px;
   line-height: 1.05;
 }
 

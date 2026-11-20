@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import { TeamBadge } from '@/presentation/components/TeamBadge/TeamBadge'
 import { getTeamColors } from '@/presentation/components/TeamBadge/teamColors'
-import { getInitials } from '@/core/rules/getInitials'
 import { groupPicksForGame, type GamePickEntry } from '@/core/rules/groupPicksForGame'
 import type { Game } from '@/core/entities/catalog'
 import type { BoardUser } from './boardTypes'
@@ -57,7 +56,6 @@ function PickGroup({ title, entries, verdict, expanded, onToggle, currentUserId,
           const isMe = entry.userId === currentUserId
           const content = (
             <>
-              <span className={styles.chipAvatar}>{getInitials(entry.displayName)}</span>
               {entry.displayName}
               {isMe ? ', tú' : ''}
             </>
@@ -178,11 +176,15 @@ export function GamePicksView({ users, games, teamName, currentUserId, onCompare
           <div className={styles.split}>
             <div className={styles.splitLegend}>
               <span>
-                {awayName}, {groups.away.length}
+                {awayName} <strong>{groups.away.length}</strong>
               </span>
-              {groups.tie.length > 0 && <span>Empate, {groups.tie.length}</span>}
+              {groups.tie.length > 0 && (
+                <span>
+                  Empate <strong>{groups.tie.length}</strong>
+                </span>
+              )}
               <span>
-                {homeName}, {groups.home.length}
+                {homeName} <strong>{groups.home.length}</strong>
               </span>
             </div>
             <div className={styles.splitBar} aria-hidden="true">
@@ -192,15 +194,9 @@ export function GamePicksView({ users, games, teamName, currentUserId, onCompare
               )}
               <span style={{ width: `${share(groups.home.length)}%`, background: getTeamColors(game.homeTeamId).primary }} />
             </div>
-            <div className={styles.splitPercent}>
-              <span>{Math.round(share(groups.away.length))}%</span>
-              <span>{Math.round(share(groups.home.length))}%</span>
-            </div>
           </div>
         )}
       </div>
-
-      <p className={styles.hint}>Toca un nombre para compararte con esa persona.</p>
 
       <PickGroup
         title={`Eligieron ${awayName}`}
@@ -226,15 +222,6 @@ export function GamePicksView({ users, games, teamName, currentUserId, onCompare
         verdict={verdictFor('tie')}
         expanded={expandedGroups.has('tie')}
         onToggle={() => toggle('tie')}
-        currentUserId={currentUserId}
-        onCompare={onCompare}
-      />
-      <PickGroup
-        title="Sin pick"
-        entries={groups.none}
-        verdict={null}
-        expanded={expandedGroups.has('none')}
-        onToggle={() => toggle('none')}
         currentUserId={currentUserId}
         onCompare={onCompare}
       />

@@ -91,15 +91,20 @@ export function WeeklyPicksBoardPage() {
       user.cells.set(row.gameId, { pick: row.pick, outcome: row.outcome })
       byUser.set(row.userId, user)
     })
-    return [...byUser.values()].sort((a, b) => a.displayName.localeCompare(b.displayName))
+    // Quien no hizo ningún pick esa semana no aparece: no aporta nada para comparar.
+    return [...byUser.values()]
+      .filter((user) => [...user.cells.values()].some((cell) => cell.pick !== null))
+      .sort((a, b) => a.displayName.localeCompare(b.displayName))
   }, [boardRows])
 
   if (!weekId) return null
 
   const teamName = (id: string) => teams?.find((team) => team.id === id)?.name ?? id
 
+  const pickedUserIds = new Set(users.map((user) => user.userId))
   const rowsByUser = new Map<string, WeeklyPicksMatrixUser>()
   boardRows?.forEach((row) => {
+    if (!pickedUserIds.has(row.userId)) return
     const entry = rowsByUser.get(row.userId) ?? { displayName: row.displayName, rowsByGame: new Map() }
     entry.rowsByGame.set(row.gameId, row)
     rowsByUser.set(row.userId, entry)
