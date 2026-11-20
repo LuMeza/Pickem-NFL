@@ -128,9 +128,8 @@ export function WeeklyPicksBoardPage() {
     }
   }
 
-  const me = users.find((user) => user.userId === profile?.userId) ?? null
-  const others = users.filter((user) => user.userId !== profile?.userId)
-  const activeView: BoardView = view === 'compare' && !me ? 'game' : view
+  const canCompare = users.length >= 2
+  const activeView: BoardView = view === 'compare' && !canCompare ? 'game' : view
   const myPickCount = myPicks ? Object.keys(myPicks).length : null
 
   function startCompare(userId: string) {
@@ -140,7 +139,7 @@ export function WeeklyPicksBoardPage() {
 
   const tabs: { key: BoardView; label: string; desktopOnly?: boolean; hidden?: boolean }[] = [
     { key: 'game', label: 'Por partido' },
-    { key: 'compare', label: 'Comparar', hidden: !me },
+    { key: 'compare', label: 'Comparar', hidden: !canCompare },
     { key: 'table', label: 'Tabla completa', desktopOnly: true },
   ]
 
@@ -226,10 +225,10 @@ export function WeeklyPicksBoardPage() {
                 />
               )}
 
-              {activeView === 'compare' && me && (
+              {activeView === 'compare' && (
                 <ComparePicksView
-                  me={me}
-                  others={others}
+                  users={users}
+                  currentUserId={profile?.userId}
                   games={gamesForWeek}
                   teamName={teamName}
                   comparedUserId={comparedUserId}

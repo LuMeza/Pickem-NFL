@@ -11,8 +11,10 @@ import styles from './PicksBoard.module.css'
 type Filter = 'all' | 'differ' | 'agree'
 
 interface ComparePicksViewProps {
-  me: BoardUser
-  others: BoardUser[]
+  /** Todos los jugadores con picks esa semana. */
+  users: BoardUser[]
+  /** Usuario actual: si juega esa semana, es el lado izquierdo ("Tú"). Los admins no juegan y eligen ambos lados. */
+  currentUserId: string | null | undefined
   games: Game[]
   teamName: (id: string) => string
   comparedUserId: string | null
@@ -59,28 +61,39 @@ function resultText(row: PickComparisonRow, game: Game, teamName: (id: string) =
   return `Ganó ${teamName(row.outcome === 'home' ? game.homeTeamId : game.awayTeamId)}`
 }
 
-/** Compara tus picks contra los de otra persona, partido por partido, con filtro para ver solo donde difieren. */
-export function ComparePicksView({ me, others, games, teamName, comparedUserId, onChangeUser }: ComparePicksViewProps) {
-  const [pickerOpen, setPickerOpen] = useState(false)
+/** Compara los picks de dos personas (tú contra otra, o dos cualesquiera si no juegas), partido por partido, con filtro para ver solo donde difieren. */
+export function ComparePicksView({ users, currentUserId, games, teamName, comparedUserId, onChangeUser }: ComparePicksViewProps) {
+  const [picker, setPicker] = useState<'left' | 'right' | null>(null)
   const [filterChoice, setFilterChoice] = useState<Filter | null>(null)
+  const [leftChoice, setLeftChoice] = useState<string | null>(null)
 
   const gameIds = useMemo(() => games.map((game) => game.id), [games])
-  const them = others.find((user) => user.userId === comparedUserId) ?? null
-
-  // La semana siempre tiene a alguien más; si no eligieron a nadie todavía, se arranca con quien va arriba.
-  const fallback = useMemo(
-    () => [...others].sort((a, b) => countCorrectPicks(b.cells) - countCorrectPicks(a.cells))[0] ?? null,
-    [others],
+  const ranking = useMemo(
+    () => [...users].sort((a, b) => countCorrectPicks(b.cells) - countCorrectPicks(a.cells)),
+    [users],
   )
-  const target = them ?? fallback
+  const me = users.find((user) => user.userId === currentUserId) ?? null
+
+  const rightWanted = users.find((user) => user.userId === comparedUserId) ?? null
+  const leftWanted = me ?? users.find((user) => user.userId === leftChoice) ?? null
+  // Cada lado toma su elección; lo que falte se completa con quienes van arriba, sin repetir a la misma persona.
+  const left = leftWanted && leftWanted.userId !== rightWanted?.userId ? leftWanted : null
+  const leftUser = left ?? ranking.find((user) => user.userId !== rightWanted?.userId) ?? null
+  const rightUser = rightWanted && rightWanted.userId !== leftUser?.userId ? rightWanted : ranking.find((user) => user.userId !== leftUser?.userId) ?? null
+
   const comparison = useMemo(
-    () => (target ? comparePicks(gameIds, me.cells, target.cells) : null),
-    [gameIds, me, target],
+    () => (leftUser && rightUser ? comparePicks(gameIds, leftUser.cells, rightUser.cells) : null),
+    [gameIds, leftUser, rightUser],
   )
 
-  if (!target || !comparison) {
-    return <p className="text-body-sm text-muted">Todavía no hay otros jugadores con picks para comparar.</p>
+  if (!leftUser || !rightUser || !comparison) {
+    return <p className="text-body-sm text-muted">Hacen falta al menos dos jugadores con picks para comparar.</p>
   }
+
+  const leftIsMe = leftUser.userId === currentUserId
+  const leftWho = leftIsMe ? 'Tú' : firstName(leftUser.displayName)
+  const rightWho = firstName(rightUser.displayName)
+  const target = rightUser
 
   const filter: Filter = filterChoice ?? (comparison.differCount > 0 ? 'differ' : 'all')
   const gameById = new Map(games.map((game) => [game.id, game]))
@@ -95,15 +108,28 @@ export function ComparePicksView({ me, others, games, teamName, comparedUserId, 
   return (
     <div className={styles.compareView}>
       <div className={styles.versus}>
-        <div className={`${styles.whoCard} glass-surface`}>
-          <span className={styles.chipAvatar}>{getInitials(me.displayName)}</span>
-          <span className={styles.whoName}>Tú</span>
-        </div>
+        {leftIsMe ? (
+          <div className={`${styles.whoCard} glass-surface`}>
+            <span className={styles.chipAvatar}>{getInitials(leftUser.displayName)}</span>
+            <span className={styles.whoName}>Tú</span>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className={`${styles.whoCard} ${styles.whoButton} glass-surface glass-interactive`}
+            onClick={() => setPicker('left')}
+            aria-label={`Primer jugador: ${leftUser.displayName}. Cambiar jugador`}
+          >
+            <span className={styles.chipAvatar}>{getInitials(leftUser.displayName)}</span>
+            <span className={styles.whoName}>{leftUser.displayName}</span>
+            <span aria-hidden="true">▾</span>
+          </button>
+        )}
         <span className={styles.versusLabel}>vs</span>
         <button
           type="button"
           className={`${styles.whoCard} ${styles.whoButton} glass-surface glass-interactive`}
-          onClick={() => setPickerOpen(true)}
+          onClick={() => setPicker('right')}
           aria-label={`Comparando con ${target.displayName}. Cambiar jugador`}
         >
           <span className={styles.chipAvatar}>{getInitials(target.displayName)}</span>
@@ -114,7 +140,7 @@ export function ComparePicksView({ me, others, games, teamName, comparedUserId, 
 
       <dl className={`${styles.stats} glass-surface`}>
         <div className={styles.stat}>
-          <dt>Tus aciertos</dt>
+          <dt>{leftIsMe ? 'Tus aciertos' : `Aciertos de ${leftWho}`}</dt>
           <dd>{comparison.mineCorrect}</dd>
           <span>de {comparison.rows.length}</span>
         </div>
@@ -124,7 +150,7 @@ export function ComparePicksView({ me, others, games, teamName, comparedUserId, 
           <span>de {comparison.rows.length} picks</span>
         </div>
         <div className={styles.stat}>
-          <dt>Aciertos de {firstName(target.displayName)}</dt>
+          <dt>Aciertos de {rightWho}</dt>
           <dd>{comparison.theirsCorrect}</dd>
           <span>de {comparison.rows.length}</span>
         </div>
@@ -163,9 +189,9 @@ export function ComparePicksView({ me, others, games, teamName, comparedUserId, 
                 <span className={styles.cmpResult}>{resultText(row, game, teamName)}</span>
               </div>
               <div className={styles.pills}>
-                <PickPill who="Tú" pick={row.mine} game={game} teamName={teamName} correct={row.mineCorrect} />
+                <PickPill who={leftWho} pick={row.mine} game={game} teamName={teamName} correct={row.mineCorrect} />
                 <PickPill
-                  who={firstName(target.displayName)}
+                  who={rightWho}
                   pick={row.theirs}
                   game={game}
                   teamName={teamName}
@@ -178,14 +204,16 @@ export function ComparePicksView({ me, others, games, teamName, comparedUserId, 
       </ul>
 
       <PlayerPicker
-        open={pickerOpen}
-        onClose={() => setPickerOpen(false)}
-        me={me}
-        others={others}
+        open={picker !== null}
+        onClose={() => setPicker(null)}
+        title={picker === 'left' ? 'Elegir jugador' : 'Comparar con'}
+        base={picker === 'left' ? rightUser : leftUser}
+        candidates={users.filter((user) => user.userId !== (picker === 'left' ? rightUser.userId : leftUser.userId))}
         gameIds={gameIds}
-        selectedUserId={target.userId}
+        selectedUserId={picker === 'left' ? leftUser.userId : rightUser.userId}
         onSelect={(userId) => {
-          onChangeUser(userId)
+          if (picker === 'left') setLeftChoice(userId)
+          else onChangeUser(userId)
           setFilterChoice(null)
         }}
       />

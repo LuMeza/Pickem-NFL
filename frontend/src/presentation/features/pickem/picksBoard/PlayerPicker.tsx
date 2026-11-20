@@ -10,15 +10,17 @@ type SortMode = 'correct' | 'similar' | 'different'
 
 const SORT_LABEL: Record<SortMode, string> = {
   correct: 'Por aciertos',
-  similar: 'Más parecidos a ti',
+  similar: 'Más parecidos',
   different: 'Más distintos',
 }
 
 interface PlayerPickerProps {
   open: boolean
   onClose: () => void
-  me: BoardUser
-  others: BoardUser[]
+  title: string
+  /** Jugador contra quien se mide el parecido de cada candidato. */
+  base: BoardUser
+  candidates: BoardUser[]
   gameIds: string[]
   selectedUserId: string | null
   onSelect: (userId: string) => void
@@ -29,15 +31,15 @@ function normalize(text: string): string {
 }
 
 /** Hoja para elegir con quién compararte, con buscador y orden por aciertos, parecido o diferencia. */
-export function PlayerPicker({ open, onClose, me, others, gameIds, selectedUserId, onSelect }: PlayerPickerProps) {
+export function PlayerPicker({ open, onClose, title, base, candidates, gameIds, selectedUserId, onSelect }: PlayerPickerProps) {
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortMode>('correct')
 
   const items = useMemo(() => {
-    const rows = others.map((user) => ({
+    const rows = candidates.map((user) => ({
       user,
       correct: countCorrectPicks(user.cells),
-      agree: comparePicks(gameIds, me.cells, user.cells).agreeCount,
+      agree: comparePicks(gameIds, base.cells, user.cells).agreeCount,
     }))
     const byName = (a: (typeof rows)[number], b: (typeof rows)[number]) => a.user.displayName.localeCompare(b.user.displayName)
     return rows.sort((a, b) => {
@@ -45,7 +47,7 @@ export function PlayerPicker({ open, onClose, me, others, gameIds, selectedUserI
       if (sort === 'different') return a.agree - b.agree || byName(a, b)
       return b.correct - a.correct || byName(a, b)
     })
-  }, [others, gameIds, me, sort])
+  }, [candidates, gameIds, base, sort])
 
   const normalizedQuery = normalize(query.trim())
   const visible = normalizedQuery ? items.filter((item) => normalize(item.user.displayName).includes(normalizedQuery)) : items
@@ -54,7 +56,7 @@ export function PlayerPicker({ open, onClose, me, others, gameIds, selectedUserI
     <Modal open={open} onClose={onClose} variant="sheet">
       <div className={`${styles.picker} glass-surface`}>
         <div className={styles.pickerHead}>
-          <h2 className={styles.pickerTitle}>Comparar con</h2>
+          <h2 className={styles.pickerTitle}>{title}</h2>
           <button type="button" className={styles.linkButton} onClick={onClose}>
             Cerrar
           </button>
