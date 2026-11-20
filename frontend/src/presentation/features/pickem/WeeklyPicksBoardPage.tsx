@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import { useSession } from '@/presentation/hooks/SessionContext'
 import { useCanViewPickemTables } from '@/presentation/hooks/useCanViewPickemTables'
 import { useListWeeklyPicksBoard } from '@/presentation/hooks/useListWeeklyPicksBoard'
 import { useGetWeeklyPicksReadyCount } from '@/presentation/hooks/useGetWeeklyPicksReadyCount'
-import { weeklyPickGroupDeadline } from '@/core/rules/weeklyPickGroupDeadline'
+import { useListWeeklyPicksForWeek } from '@/presentation/hooks/useListWeeklyPicksForWeek'
+import { weeklyPicksBoardOpensAt } from '@/core/rules/weeklyPicksBoardOpensAt'
 import { formatDeadline } from '@/presentation/features/catalog/pickSheet/PickProgress'
 import { useNow } from '@/presentation/hooks/useNow'
 import { WeekSelector } from '@/presentation/components/WeekSelector/WeekSelector'
@@ -17,7 +18,14 @@ import { weekLabel as formatWeekLabel } from './weekLabel'
 import { WeeklyPicksMatrix, type WeeklyPicksMatrixUser } from './weeklyPicksMatrix/WeeklyPicksMatrix'
 import { downloadWeeklyPicksMatrixPdf } from './weeklyPicksMatrix/weeklyPicksMatrixExport'
 import type { WeekType } from '@/core/entities/catalog'
+import type { PickCell } from '@/core/rules/comparePicks'
+import { GamePicksView } from './picksBoard/GamePicksView'
+import { ComparePicksView } from './picksBoard/ComparePicksView'
+import type { BoardUser } from './picksBoard/boardTypes'
+import boardStyles from './picksBoard/PicksBoard.module.css'
 import styles from './WeeklyPicksBoardPage.module.css'
+
+type BoardView = 'game' | 'compare' | 'table'
 
 /** Playoffs queda fuera (modulo todavia no disponible, ver PickemHubPage). Nadie hizo picks en HOF ni
  * pretemporada — mismo filtro que AdminUserPicksPage. */
@@ -36,14 +44,18 @@ function slugify(text: string): string {
 export function WeeklyPicksBoardPage() {
   const { weekId } = useParams<{ weekId: string }>()
   const { data: group } = useSession().group
+  const { data: profile } = useSession().profile
   const { data: weeks } = useSession().weeks
   const { data: teams } = useSession().teams
   const { data: games } = useSession().games
   const { data: canView, run: loadCanView } = useCanViewPickemTables()
   const { status: boardStatus, data: boardRows, run: loadBoard } = useListWeeklyPicksBoard()
   const { data: readyCount, run: loadReadyCount } = useGetWeeklyPicksReadyCount()
+  const { data: myPicks, run: loadMyPicks } = useListWeeklyPicksForWeek()
   const nowMs = useNow()
   const [downloading, setDownloading] = useState(false)
+  const [view, setView] = useState<BoardView>('game')
+  const [comparedUserId, setComparedUserId] = useState<string | null>(null)
 
   useEffect(() => {
     if (group) loadCanView({ groupId: group.id })
@@ -65,11 +77,22 @@ export function WeeklyPicksBoardPage() {
     if (group && weekId && canView && !locked) loadReadyCount({ groupId: group.id, weekId }).catch(() => {})
   }, [group, weekId, canView, locked, loadReadyCount])
 
+  useEffect(() => {
+    if (profile && weekId && canView && !locked) loadMyPicks({ userId: profile.userId, weekId }).catch(() => {})
+  }, [profile, weekId, canView, locked, loadMyPicks])
+
   // El tablero se abre cuando cerró el último grupo de días (ver weeklyPickGroupDeadline).
-  const opensAt = gamesForWeek.reduce<Date | null>((latest, game) => {
-    const deadline = weeklyPickGroupDeadline(gamesForWeek, game.kickoffAt)
-    return deadline && (!latest || deadline > latest) ? deadline : latest
-  }, null)
+  const opensAt = weeklyPicksBoardOpensAt(gamesForWeek)
+
+  const users = useMemo<BoardUser[]>(() => {
+    const byUser = new Map<string, BoardUser>()
+    boardRows?.forEach((row) => {
+      const user = byUser.get(row.userId) ?? { userId: row.userId, displayName: row.displayName, cells: new Map<string, PickCell>() }
+      user.cells.set(row.gameId, { pick: row.pick, outcome: row.outcome })
+      byUser.set(row.userId, user)
+    })
+    return [...byUser.values()].sort((a, b) => a.displayName.localeCompare(b.displayName))
+  }, [boardRows])
 
   if (!weekId) return null
 
@@ -100,6 +123,22 @@ export function WeeklyPicksBoardPage() {
     }
   }
 
+  const me = users.find((user) => user.userId === profile?.userId) ?? null
+  const others = users.filter((user) => user.userId !== profile?.userId)
+  const activeView: BoardView = view === 'compare' && !me ? 'game' : view
+  const myPickCount = myPicks ? Object.keys(myPicks).length : null
+
+  function startCompare(userId: string) {
+    setComparedUserId(userId)
+    setView('compare')
+  }
+
+  const tabs: { key: BoardView; label: string; desktopOnly?: boolean; hidden?: boolean }[] = [
+    { key: 'game', label: 'Por partido' },
+    { key: 'compare', label: 'Comparar', hidden: !me },
+    { key: 'table', label: 'Tabla completa', desktopOnly: true },
+  ]
+
   return (
     <section>
       <h1 className="text-display-lg">Picks de todos</h1>
@@ -108,36 +147,93 @@ export function WeeklyPicksBoardPage() {
       {canView === false && <EmptyState message={EMPTY_STATE_COPY.noModuleAccess} />}
 
       {canView && !locked && (
-        <div className={`${styles.waiting} glass-surface`}>
-          <span className={styles.waitingKicker}>Picks ocultos hasta el cierre</span>
-          {readyCount && readyCount.total > 0 ? (
-            <>
-              <p className={styles.waitingTitle}>
-                <strong>{readyCount.ready}</strong> de {readyCount.total} jugadores ya hicieron picks
-              </p>
-              <span className={styles.waitingBar} aria-hidden="true">
-                <span style={{ width: `${(readyCount.ready / readyCount.total) * 100}%` }} />
-              </span>
-            </>
-          ) : (
-            <p className={styles.waitingTitle}>Los picks de los demás todavía no se ven</p>
+        <>
+          <div className={`${styles.waiting} glass-surface`}>
+            <span className={styles.waitingKicker}>
+              <Icon name="lock" size={14} />
+              Picks ocultos hasta el cierre
+            </span>
+            {readyCount && readyCount.total > 0 ? (
+              <>
+                <p className={styles.waitingTitle}>
+                  <strong>{readyCount.ready}</strong> de {readyCount.total} jugadores ya hicieron sus picks
+                </p>
+                <span className={styles.waitingBar} aria-hidden="true">
+                  <span style={{ width: `${(readyCount.ready / readyCount.total) * 100}%` }} />
+                </span>
+              </>
+            ) : (
+              <p className={styles.waitingTitle}>Los picks de los demás todavía no se ven</p>
+            )}
+            <p className={styles.waitingDetail}>
+              {opensAt ? `Se abren el ${formatDeadline(opensAt)}, ` : 'Se abren '}
+              cuando se bloquean todos los partidos de la semana.
+            </p>
+          </div>
+
+          {myPickCount !== null && gamesForWeek.length > 0 && (
+            <div className={`${styles.myPicks} glass-surface`}>
+              <div className={styles.myPicksText}>
+                <span className={styles.waitingKicker}>Tus picks</span>
+                <strong className={styles.myPicksCount}>
+                  {myPickCount} de {gamesForWeek.length}
+                </strong>
+              </div>
+              <Link to={`/weeks/${weekId}/games`} className={styles.myPicksLink}>
+                {myPickCount < gamesForWeek.length ? 'Terminar mis picks' : 'Ver mis picks'}
+              </Link>
+            </div>
           )}
-          <p className={styles.waitingDetail}>
-            {opensAt ? `Se abren el ${formatDeadline(opensAt)}, ` : 'Se abren '}
-            cuando se bloquean todos los partidos de la semana.
-          </p>
-        </div>
+        </>
       )}
 
       {canView && locked && (
         <>
           {boardStatus === 'pending' && <LoadingSpinner variant="inline" />}
           {boardStatus === 'error' && <p role="alert">No se pudieron cargar los picks.</p>}
-          {rowsByUser.size === 0 && boardStatus === 'success' && (
-            <EmptyState message="Nadie tiene picks para esta semana." />
-          )}
-          {rowsByUser.size > 0 && (
+          {users.length === 0 && boardStatus === 'success' && <EmptyState message="Nadie tiene picks para esta semana." />}
+          {users.length > 0 && (
             <>
+              <div className={boardStyles.tabs} role="tablist" aria-label="Vista de los picks">
+                {tabs
+                  .filter((tab) => !tab.hidden)
+                  .map((tab) => (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeView === tab.key}
+                      className={`${boardStyles.tab} ${activeView === tab.key ? boardStyles.tabActive : ''} ${tab.desktopOnly ? boardStyles.desktopOnly : ''}`}
+                      onClick={() => setView(tab.key)}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+              </div>
+
+              {activeView === 'game' && (
+                <GamePicksView
+                  users={users}
+                  games={gamesForWeek}
+                  teamName={teamName}
+                  currentUserId={profile?.userId}
+                  onCompare={startCompare}
+                />
+              )}
+
+              {activeView === 'compare' && me && (
+                <ComparePicksView
+                  me={me}
+                  others={others}
+                  games={gamesForWeek}
+                  teamName={teamName}
+                  comparedUserId={comparedUserId}
+                  onChangeUser={setComparedUserId}
+                />
+              )}
+
+              {activeView === 'table' && <WeeklyPicksMatrix rows={rowsByUser} games={gamesForWeek} teamName={teamName} />}
+
               <button
                 type="button"
                 className={`button-secondary ${styles.downloadButton}`}
@@ -147,7 +243,6 @@ export function WeeklyPicksBoardPage() {
                 <Icon name="download" size={14} />
                 {downloading ? 'Generando PDF...' : 'Descargar PDF'}
               </button>
-              <WeeklyPicksMatrix rows={rowsByUser} games={gamesForWeek} teamName={teamName} />
             </>
           )}
         </>

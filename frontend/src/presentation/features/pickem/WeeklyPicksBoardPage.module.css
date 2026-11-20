@@ -15,6 +15,9 @@
 }
 
 .waitingKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 12px;
@@ -52,4 +55,42 @@
   margin: 0;
   font-size: 13px;
   color: var(--text-muted);
+}
+
+.myPicks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 14px 20px;
+}
+
+.myPicksText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.myPicksCount {
+  font-family: var(--font-mono);
+  font-size: 18px;
+}
+
+.myPicksLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target-min);
+  padding: 0 18px;
+  border-radius: 8px;
+  background: var(--accent-blue);
+  color: var(--bg-base);
+  font-weight: 600;
+}
+
+.myPicksLink:hover,
+.myPicksLink:focus-visible {
+  color: var(--bg-base);
+  filter: brightness(1.1);
 }
