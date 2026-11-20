@@ -33,8 +33,7 @@ export function PickemHubPage() {
           to="/playoffs"
           icon="trophy"
           title="Playoffs"
-          description="Próximamente"
-          disabled
+          description="Predice el margen de cada partido y sigue la tabla"
         />
       </div>
     </section>

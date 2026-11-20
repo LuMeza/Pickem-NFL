@@ -13,6 +13,12 @@ export type {
 } from './WeeklyPickRepository'
 export type { PickemStandingsRepository } from './PickemStandingsRepository'
 export type { PredictionsRepository } from './PredictionsRepository'
+export type {
+  PlayoffsRepository,
+  PlayoffPickValue,
+  PlayoffStandingRow,
+  SavePlayoffPickParams,
+} from './PlayoffsRepository'
 export type { GamePrediction, PredictionsMode, PredictionSource } from '@/core/entities/gamePrediction'
 export type { StandingRow } from '@/core/entities/standings'
 export type { SurvivorRepository, SaveSurvivorPickParams } from './SurvivorRepository'

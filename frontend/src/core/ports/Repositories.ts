@@ -7,6 +7,7 @@ import type { ModuleAccessRepository } from './ModuleAccessRepository'
 import type { WeeklyPickRepository } from './WeeklyPickRepository'
 import type { PickemStandingsRepository } from './PickemStandingsRepository'
 import type { PredictionsRepository } from './PredictionsRepository'
+import type { PlayoffsRepository } from './PlayoffsRepository'
 import type { SurvivorRepository } from './SurvivorRepository'
 import type { CatalogRepository } from './CatalogRepository'
 import type { ResultsRepository } from './ResultsRepository'
@@ -29,4 +30,5 @@ export interface Repositories {
   achievementsRepository: AchievementsRepository
   weeklyPicksBoardRepository: WeeklyPicksBoardRepository
   predictionsRepository: PredictionsRepository
+  playoffsRepository: PlayoffsRepository
 }

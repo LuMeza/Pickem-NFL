@@ -1,0 +1,92 @@
+.section {
+  margin-top: 24px;
+}
+
+.sectionTitle {
+  margin-bottom: 12px;
+}
+
+.tiers {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 4px 14px;
+  border-radius: 14px;
+}
+
+.tier {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--glass-border);
+}
+.tier:last-child {
+  border-bottom: none;
+}
+
+.tierHead {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.tierPosition {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 20px;
+  min-width: 32px;
+}
+
+.tieTag {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.members {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.podium {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.podiumSlot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 14px 10px 16px;
+  border-radius: 14px;
+  text-align: center;
+}
+
+.podiumSlot[data-position='1'] {
+  border-top: 3px solid var(--accent-blue);
+}
+
+.podiumLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.podiumScore {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-variant-numeric: tabular-nums;
+  font-size: 40px;
+  line-height: 1.1;
+}
+
+.podiumSlot .members {
+  justify-content: center;
+}

@@ -19,6 +19,10 @@ import { PickemStandingsRedirect } from '@/presentation/features/pickem/PickemSt
 import { PickemStandingsPage } from '@/presentation/features/pickem/PickemStandingsPage'
 import { WeeklyPicksBoardRedirect } from '@/presentation/features/pickem/WeeklyPicksBoardRedirect'
 import { WeeklyPicksBoardPage } from '@/presentation/features/pickem/WeeklyPicksBoardPage'
+import { PlayoffsHubPage } from '@/presentation/features/playoffs/PlayoffsHubPage'
+import { PlayoffsRedirect } from '@/presentation/features/playoffs/PlayoffsRedirect'
+import { PlayoffsPicksPage } from '@/presentation/features/playoffs/PlayoffsPicksPage'
+import { PlayoffsStandingsPage } from '@/presentation/features/playoffs/PlayoffsStandingsPage'
 import { SurvivorRedirect } from '@/presentation/features/survivor/SurvivorRedirect'
 import { SurvivorPickPage } from '@/presentation/features/survivor/SurvivorPickPage'
 import { SurvivorStandingsPage } from '@/presentation/features/survivor/SurvivorStandingsPage'
@@ -64,6 +68,11 @@ function App() {
             <Route path="/pickem/tabla/:weekId" element={<PickemStandingsPage />} />
             <Route path="/pickem/picks" element={<WeeklyPicksBoardRedirect />} />
             <Route path="/pickem/picks/:weekId" element={<WeeklyPicksBoardPage />} />
+            <Route path="/playoffs" element={<PlayoffsHubPage />} />
+            <Route path="/playoffs/picks" element={<PlayoffsRedirect basePath="/playoffs" />} />
+            <Route path="/playoffs/tabla" element={<PlayoffsRedirect basePath="/playoffs/tabla" />} />
+            <Route path="/playoffs/tabla/:weekId" element={<PlayoffsStandingsPage />} />
+            <Route path="/playoffs/:weekId" element={<PlayoffsPicksPage />} />
             <Route path="/survivor" element={<SurvivorRedirect />} />
             <Route path="/survivor/semana/:weekId" element={<SurvivorPickPage />} />
             <Route path="/survivor/tabla" element={<SurvivorStandingsPage />} />
